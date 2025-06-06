@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Desktop\\PRN232\\PRN232_FinalProject\\PRN232_Project\\HomeHelperFinderAPI\\BussinessObjects\\BussinessObjects.csproj": {}
+    "D:\\FPT_Uni\\Semester8\\PRN232\\GroupProject\\PRN232_Project\\HomeHelperFinderAPI\\BussinessObjects\\BussinessObjects.csproj": {}
   },
   "projects": {
-    "D:\\Desktop\\PRN232\\PRN232_FinalProject\\PRN232_Project\\HomeHelperFinderAPI\\BussinessObjects\\BussinessObjects.csproj": {
+    "D:\\FPT_Uni\\Semester8\\PRN232\\GroupProject\\PRN232_Project\\HomeHelperFinderAPI\\BussinessObjects\\BussinessObjects.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Desktop\\PRN232\\PRN232_FinalProject\\PRN232_Project\\HomeHelperFinderAPI\\BussinessObjects\\BussinessObjects.csproj",
+        "projectUniqueName": "D:\\FPT_Uni\\Semester8\\PRN232\\GroupProject\\PRN232_Project\\HomeHelperFinderAPI\\BussinessObjects\\BussinessObjects.csproj",
         "projectName": "BussinessObjects",
-        "projectPath": "D:\\Desktop\\PRN232\\PRN232_FinalProject\\PRN232_Project\\HomeHelperFinderAPI\\BussinessObjects\\BussinessObjects.csproj",
-        "packagesPath": "C:\\Users\\haian\\.nuget\\packages\\",
-        "outputPath": "D:\\Desktop\\PRN232\\PRN232_FinalProject\\PRN232_Project\\HomeHelperFinderAPI\\BussinessObjects\\obj\\",
+        "projectPath": "D:\\FPT_Uni\\Semester8\\PRN232\\GroupProject\\PRN232_Project\\HomeHelperFinderAPI\\BussinessObjects\\BussinessObjects.csproj",
+        "packagesPath": "C:\\Users\\PC\\.nuget\\packages\\",
+        "outputPath": "D:\\FPT_Uni\\Semester8\\PRN232\\GroupProject\\PRN232_Project\\HomeHelperFinderAPI\\BussinessObjects\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\haian\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\PC\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "D:\\.nuget": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -45,11 +45,37 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.Configuration.Json": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -66,7 +92,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.204/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
