@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace BussinessObjects.Models;
 
-namespace BussinessObjects.Models;
-
-public partial class HelperDocument
+public class HelperDocument
 {
     public int DocumentId { get; set; }
 

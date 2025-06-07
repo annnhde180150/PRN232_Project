@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace BussinessObjects.Models;
 
-namespace BussinessObjects.Models;
-
-public partial class SupportTicket
+public class SupportTicket
 {
     public int TicketId { get; set; }
 

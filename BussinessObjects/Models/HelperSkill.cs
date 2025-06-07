@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace BussinessObjects.Models;
 
-namespace BussinessObjects.Models;
-
-public partial class HelperSkill
+public class HelperSkill
 {
     public int HelperSkillId { get; set; }
 

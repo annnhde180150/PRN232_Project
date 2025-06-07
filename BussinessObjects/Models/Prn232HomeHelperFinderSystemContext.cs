@@ -1,16 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace BussinessObjects.Models;
 
 public partial class Prn232HomeHelperFinderSystemContext : DbContext
 {
-    public Prn232HomeHelperFinderSystemContext() { }
+    public Prn232HomeHelperFinderSystemContext()
+    {
+    }
 
     public Prn232HomeHelperFinderSystemContext(
         DbContextOptions<Prn232HomeHelperFinderSystemContext> options
     )
-        : base(options) { }
+        : base(options)
+    {
+    }
 
     public virtual DbSet<AdminUser> AdminUsers { get; set; }
 
@@ -51,15 +54,6 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
     public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
 
     public virtual DbSet<WithdrawalRequest> WithdrawalRequests { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        var builder = new ConfigurationBuilder()
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-        IConfigurationRoot configuration = builder.Build();
-        optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -129,6 +123,9 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Bookings__UserID__72C60C4A");
+
+            entity.Navigation(b => b.Service).AutoInclude();
+            entity.Navigation(b => b.User).AutoInclude();
         });
 
         modelBuilder.Entity<Chat>(entity =>
@@ -441,6 +438,9 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Reviews__UserID__02084FDA");
+
+            entity.Navigation(r => r.User).AutoInclude();
+            entity.Navigation(r => r.Helper).AutoInclude();
         });
 
         modelBuilder.Entity<Service>(entity =>
@@ -565,6 +565,8 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
                 .WithMany(p => p.Users)
                 .HasForeignKey(d => d.DefaultAddressId)
                 .HasConstraintName("FK_Users_DefaultAddress");
+
+            entity.Navigation(u => u.DefaultAddress).AutoInclude();
         });
 
         modelBuilder.Entity<UserAddress>(entity =>

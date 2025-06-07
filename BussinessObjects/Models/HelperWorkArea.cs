@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace BussinessObjects.Models;
 
-namespace BussinessObjects.Models;
-
-public partial class HelperWorkArea
+public class HelperWorkArea
 {
     public int WorkAreaId { get; set; }
 

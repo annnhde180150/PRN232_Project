@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace BussinessObjects.Models;
 
-namespace BussinessObjects.Models;
-
-public partial class HelperWallet
+public class HelperWallet
 {
     public int WalletId { get; set; }
 

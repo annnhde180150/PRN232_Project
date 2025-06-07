@@ -1,6 +1,6 @@
 ﻿namespace BussinessObjects.Models;
 
-public partial class Chat
+public class Chat
 {
     public long ChatId { get; set; }
 
