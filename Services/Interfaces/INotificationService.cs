@@ -14,7 +14,7 @@ public interface
     Task<int> GetUnreadCountByHelperIdAsync(int helperId);
 
     // Methods specific cho notification operations
-    Task<bool> MarkAsReadAsync(long id);
+    Task<bool> MarkAsReadAsync(int id);
     Task MarkAllAsReadByUserIdAsync(int userId);
     Task MarkAllAsReadByHelperIdAsync(int helperId);
 }

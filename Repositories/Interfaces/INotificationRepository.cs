@@ -11,7 +11,7 @@ public interface INotificationRepository : IBaseRepository<Notification>
     Task<IEnumerable<Notification>> GetUnreadByHelperIdAsync(int helperId);
     Task<int> GetUnreadCountByUserIdAsync(int userId);
     Task<int> GetUnreadCountByHelperIdAsync(int helperId);
-    Task MarkAsReadAsync(long notificationId);
+    Task MarkAsReadAsync(int notificationId);
     Task MarkAllAsReadByUserIdAsync(int userId);
     Task MarkAllAsReadByHelperIdAsync(int helperId);
 }

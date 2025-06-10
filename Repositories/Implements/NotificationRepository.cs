@@ -56,7 +56,7 @@ public class NotificationRepository(Prn232HomeHelperFinderSystemContext context)
             .CountAsync(n => n.RecipientHelperId == helperId && n.IsRead != true);
     }
 
-    public async Task MarkAsReadAsync(long notificationId)
+    public async Task MarkAsReadAsync(int notificationId)
     {
         var notification = await _context.Notifications.FindAsync(notificationId);
         if (notification != null)

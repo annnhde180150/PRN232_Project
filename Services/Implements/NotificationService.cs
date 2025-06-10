@@ -138,7 +138,7 @@ public class NotificationService : INotificationService
         return await _unitOfWork.Notifications.GetUnreadCountByHelperIdAsync(helperId);
     }
 
-    public async Task<bool> MarkAsReadAsync(long id)
+    public async Task<bool> MarkAsReadAsync(int id)
     {
         _logger.LogInformation($"Marking notification as read with ID: {id}");
 
