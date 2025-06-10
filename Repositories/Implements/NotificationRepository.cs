@@ -79,10 +79,7 @@ public class NotificationRepository(Prn232HomeHelperFinderSystemContext context)
             notification.ReadTime = DateTime.UtcNow;
         }
 
-        if (notifications.Any())
-        {
-            _context.UpdateRange(notifications);
-        }
+        if (notifications.Any()) _context.UpdateRange(notifications);
     }
 
     public async Task MarkAllAsReadByHelperIdAsync(int helperId)
@@ -97,9 +94,6 @@ public class NotificationRepository(Prn232HomeHelperFinderSystemContext context)
             notification.ReadTime = DateTime.UtcNow;
         }
 
-        if (notifications.Any())
-        {
-            _context.UpdateRange(notifications);
-        }
+        if (notifications.Any()) _context.UpdateRange(notifications);
     }
 }

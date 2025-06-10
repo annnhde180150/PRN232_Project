@@ -1,5 +1,5 @@
 using BussinessObjects.Models;
-using HomeHelperFinderAPI.Middleware;
+using HomeHelperFinderAPI.Filters;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Repositories;

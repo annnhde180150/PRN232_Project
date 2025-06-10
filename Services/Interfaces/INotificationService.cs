@@ -2,7 +2,8 @@ using Services.DTOs.Notification;
 
 namespace Services.Interfaces;
 
-public interface INotificationService : IBaseService<NotificationDetailsDto, NotificationCreateDto, NotificationUpdateDto>
+public interface
+    INotificationService : IBaseService<NotificationDetailsDto, NotificationCreateDto, NotificationUpdateDto>
 {
     // Methods bổ sung specific cho Notification
     Task<IEnumerable<NotificationDetailsDto>> GetByUserIdAsync(int userId);
@@ -11,7 +12,7 @@ public interface INotificationService : IBaseService<NotificationDetailsDto, Not
     Task<IEnumerable<NotificationDetailsDto>> GetUnreadByHelperIdAsync(int helperId);
     Task<int> GetUnreadCountByUserIdAsync(int userId);
     Task<int> GetUnreadCountByHelperIdAsync(int helperId);
-    
+
     // Methods specific cho notification operations
     Task<bool> MarkAsReadAsync(long id);
     Task MarkAllAsReadByUserIdAsync(int userId);

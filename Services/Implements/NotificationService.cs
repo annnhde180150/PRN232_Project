@@ -32,10 +32,7 @@ public class NotificationService : INotificationService
     public async Task<NotificationDetailsDto> GetByIdAsync(int id)
     {
         var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
-        if (notification == null)
-        {
-            throw new ArgumentException($"Notification with ID {id} not found");
-        }
+        if (notification == null) throw new ArgumentException($"Notification with ID {id} not found");
 
         return _mapper.Map<NotificationDetailsDto>(notification);
     }
@@ -46,14 +43,10 @@ public class NotificationService : INotificationService
 
         // Validation
         if (createDto.RecipientUserId == null && createDto.RecipientHelperId == null)
-        {
             throw new ArgumentException("Notification must have either RecipientUserId or RecipientHelperId");
-        }
 
         if (createDto.RecipientUserId != null && createDto.RecipientHelperId != null)
-        {
             throw new ArgumentException("Notification cannot have both RecipientUserId and RecipientHelperId");
-        }
 
         var notification = _mapper.Map<Notification>(createDto);
 
@@ -73,10 +66,7 @@ public class NotificationService : INotificationService
         _logger.LogInformation($"Updating notification with ID: {id}");
 
         var existingNotification = await _unitOfWork.Notifications.GetByIdAsync(id);
-        if (existingNotification == null)
-        {
-            throw new ArgumentException($"Notification with ID {id} not found");
-        }
+        if (existingNotification == null) throw new ArgumentException($"Notification with ID {id} not found");
 
         // Map DTO to existing entity
         _mapper.Map(updateDto, existingNotification);
@@ -98,10 +88,7 @@ public class NotificationService : INotificationService
         _logger.LogInformation($"Deleting notification with ID: {id}");
 
         var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
-        if (notification == null)
-        {
-            throw new ArgumentException($"Notification with ID {id} not found");
-        }
+        if (notification == null) throw new ArgumentException($"Notification with ID {id} not found");
 
         _unitOfWork.Notifications.Delete(notification);
         await _unitOfWork.CompleteAsync();
@@ -156,10 +143,7 @@ public class NotificationService : INotificationService
         _logger.LogInformation($"Marking notification as read with ID: {id}");
 
         var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
-        if (notification == null)
-        {
-            return false;
-        }
+        if (notification == null) return false;
 
         if (notification.IsRead == true)
         {

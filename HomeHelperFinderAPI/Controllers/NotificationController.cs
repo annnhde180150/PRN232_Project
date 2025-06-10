@@ -1,3 +1,4 @@
+using HomeHelperFinderAPI.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Services.DTOs.Notification;
@@ -18,60 +19,54 @@ public class NotificationController : ControllerBase
 
     [HttpGet]
     [EnableQuery]
+    [ApiResponseMessage("Lấy danh sách thông báo thành công")]
     public async Task<ActionResult<IEnumerable<NotificationDetailsDto>>> GetAll()
     {
         var notifications = await _notificationService.GetAllAsync();
         return Ok(notifications);
     }
 
-    [HttpGet("{id:long}")]
+    [HttpGet("{id:int}")]
+    [ApiResponseMessage("Lấy thông tin thông báo thành công",
+        SuccessMessage = "Tìm thấy thông báo thành công",
+        ErrorMessage = "Không tìm thấy thông báo với ID được cung cấp")]
     public async Task<ActionResult<NotificationDetailsDto>> GetById(int id)
     {
-        if (!await _notificationService.ExistsAsync(id))
-        {
-            return NotFound($"Notification with ID {id} not found.");
-        }
+        if (!await _notificationService.ExistsAsync(id)) return NotFound($"Notification with ID {id} not found.");
 
         var notification = await _notificationService.GetByIdAsync(id);
         return Ok(notification);
     }
 
     [HttpPost]
+    [ApiResponseMessage("Thao tác với thông báo hoàn tất",
+        SuccessMessage = "Tạo thông báo mới thành công",
+        ErrorMessage = "Không thể tạo thông báo do dữ liệu không hợp lệ")]
     public async Task<ActionResult<NotificationDetailsDto>> Create([FromBody] NotificationCreateDto createDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var notification = await _notificationService.CreateAsync(createDto);
         return CreatedAtAction(nameof(GetById), new { id = notification.NotificationId }, notification);
     }
 
-    [HttpPut("{id:long}")]
+    [HttpPut("{id:int}")]
+    [ApiResponseMessage("Cập nhật thông báo thành công")]
     public async Task<ActionResult<NotificationDetailsDto>> Update(int id, [FromBody] NotificationUpdateDto updateDto)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        if (!await _notificationService.ExistsAsync(id))
-        {
-            return NotFound($"Notification with ID {id} not found.");
-        }
+        if (!await _notificationService.ExistsAsync(id)) return NotFound($"Notification with ID {id} not found.");
 
         var notification = await _notificationService.UpdateAsync(id, updateDto);
         return Ok(notification);
     }
 
-    [HttpDelete("{id:long}")]
+    [HttpDelete("{id:int}")]
+    [ApiResponseMessage("Xóa thông báo thành công")]
     public async Task<ActionResult> Delete(int id)
     {
-        if (!await _notificationService.ExistsAsync(id))
-        {
-            return NotFound($"Notification with ID {id} not found.");
-        }
+        if (!await _notificationService.ExistsAsync(id)) return NotFound($"Notification with ID {id} not found.");
 
         await _notificationService.DeleteAsync(id);
         return Ok($"Notification with ID {id} has been deleted successfully.");
@@ -119,19 +114,14 @@ public class NotificationController : ControllerBase
         return Ok(count);
     }
 
-    [HttpPatch("{id:long}/mark-read")]
+    [HttpPatch("{id:int}/mark-read")]
+    [ApiResponseMessage("Đánh dấu thông báo đã đọc thành công")]
     public async Task<ActionResult> MarkAsRead(int id)
     {
-        if (!await _notificationService.ExistsAsync(id))
-        {
-            return NotFound($"Notification with ID {id} not found.");
-        }
+        if (!await _notificationService.ExistsAsync(id)) return NotFound($"Notification with ID {id} not found.");
 
         var result = await _notificationService.MarkAsReadAsync(id);
-        if (result)
-        {
-            return Ok($"Notification with ID {id} has been marked as read.");
-        }
+        if (result) return Ok($"Notification with ID {id} has been marked as read.");
 
         return BadRequest("Failed to mark notification as read.");
     }

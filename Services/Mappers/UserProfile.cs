@@ -20,7 +20,7 @@ public class UserProfile : Profile
             .ForMember(dest => dest.ExternalAuthId, opt => opt.MapFrom(src => src.ExternalAuthId))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
             .ForMember(dest => dest.DefaultAddressId, opt => opt.MapFrom(src => src.DefaultAddressId));
-        
+
         CreateMap<UserDetailsDto, User>()
             .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
@@ -45,7 +45,7 @@ public class UserProfile : Profile
             .ForMember(dest => dest.ServiceRequests, opt => opt.Ignore())
             .ForMember(dest => dest.SupportTickets, opt => opt.Ignore())
             .ForMember(dest => dest.UserAddresses, opt => opt.Ignore());
-        
+
         CreateMap<UserCreateDto, User>()
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
@@ -70,7 +70,7 @@ public class UserProfile : Profile
             .ForMember(dest => dest.ServiceRequests, opt => opt.Ignore())
             .ForMember(dest => dest.SupportTickets, opt => opt.Ignore())
             .ForMember(dest => dest.UserAddresses, opt => opt.Ignore());
-        
+
         CreateMap<UserUpdateDto, User>()
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))

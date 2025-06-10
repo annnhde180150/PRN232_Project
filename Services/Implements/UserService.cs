@@ -35,33 +35,30 @@ public class UserService : IUserService
     public async Task<UserDetailsDto> CreateAsync(UserCreateDto dto)
     {
         _logger.LogInformation($"Creating new user with email: {dto.Email}");
-        
+
         var user = _mapper.Map<User>(dto);
         user.RegistrationDate = DateTime.UtcNow;
         user.IsActive = true;
-        
+
         await _unitOfWork.Users.AddAsync(user);
         await _unitOfWork.CompleteAsync();
-        
+
         return _mapper.Map<UserDetailsDto>(user);
     }
 
     public async Task<UserDetailsDto> UpdateAsync(int id, UserUpdateDto dto)
     {
         _logger.LogInformation($"Updating user with ID: {id}");
-        
+
         var existingUser = await _unitOfWork.Users.GetByIdAsync(id);
-        if (existingUser == null)
-        {
-            throw new ArgumentException($"User with ID {id} not found");
-        }
+        if (existingUser == null) throw new ArgumentException($"User with ID {id} not found");
 
         // Map DTO to existing entity, excluding navigation properties
         _mapper.Map(dto, existingUser);
-        
+
         _unitOfWork.Users.Update(existingUser);
         await _unitOfWork.CompleteAsync();
-        
+
         return _mapper.Map<UserDetailsDto>(existingUser);
     }
 
