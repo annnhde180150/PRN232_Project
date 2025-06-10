@@ -12,9 +12,11 @@ public class UnitOfWork : IUnitOfWork
     {
         _context = context;
         Users = new UserRepository(_context);
+        Notifications = new NotificationRepository(_context);
     }
 
     public IUserRepository Users { get; }
+    public INotificationRepository Notifications { get; }
 
     public async Task<int> CompleteAsync()
     {
