@@ -2,6 +2,6 @@
 
 namespace Services.Interfaces;
 
-public interface IUserService : IBaseService<UserDetailsDto>
+public interface IUserService : IBaseService<UserDetailsDto, UserCreateDto, UserUpdateDto>
 {
 }

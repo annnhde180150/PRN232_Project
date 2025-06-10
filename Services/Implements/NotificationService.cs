@@ -28,25 +28,16 @@ public class NotificationService : INotificationService
         return _mapper.Map<IEnumerable<NotificationDetailsDto>>(notifications);
     }
 
-    public async Task<NotificationDetailsDto> GetByIdAsync(int id)
-    {
-        return await GetByIdAsync((long)id);
-    }
 
-    public async Task<NotificationDetailsDto> GetByIdAsync(long id)
+    public async Task<NotificationDetailsDto> GetByIdAsync(int id)
     {
         var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
         if (notification == null)
         {
             throw new ArgumentException($"Notification with ID {id} not found");
         }
-        return _mapper.Map<NotificationDetailsDto>(notification);
-    }
 
-    public async Task<NotificationDetailsDto> CreateAsync(NotificationDetailsDto dto)
-    {
-        var createDto = _mapper.Map<NotificationCreateDto>(dto);
-        return await CreateAsync(createDto);
+        return _mapper.Map<NotificationDetailsDto>(notification);
     }
 
     public async Task<NotificationDetailsDto> CreateAsync(NotificationCreateDto createDto)
@@ -65,7 +56,7 @@ public class NotificationService : INotificationService
         }
 
         var notification = _mapper.Map<Notification>(createDto);
-        
+
         // Auto-set timestamps
         notification.CreationTime = DateTime.UtcNow;
         notification.SentTime = DateTime.UtcNow;
@@ -77,13 +68,7 @@ public class NotificationService : INotificationService
         return _mapper.Map<NotificationDetailsDto>(notification);
     }
 
-    public async Task<NotificationDetailsDto> UpdateAsync(int id, NotificationDetailsDto dto)
-    {
-        var updateDto = _mapper.Map<NotificationUpdateDto>(dto);
-        return await UpdateAsync((long)id, updateDto);
-    }
-
-    public async Task<NotificationDetailsDto> UpdateAsync(long id, NotificationUpdateDto updateDto)
+    public async Task<NotificationDetailsDto> UpdateAsync(int id, NotificationUpdateDto updateDto)
     {
         _logger.LogInformation($"Updating notification with ID: {id}");
 
@@ -104,24 +89,14 @@ public class NotificationService : INotificationService
 
     public async Task<bool> ExistsAsync(int id)
     {
-        return await ExistsAsync((long)id);
-    }
-
-    public async Task<bool> ExistsAsync(long id)
-    {
         var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
         return notification != null;
     }
 
     public async Task DeleteAsync(int id)
     {
-        await DeleteAsync((long)id);
-    }
-
-    public async Task DeleteAsync(long id)
-    {
         _logger.LogInformation($"Deleting notification with ID: {id}");
-        
+
         var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
         if (notification == null)
         {
@@ -179,7 +154,7 @@ public class NotificationService : INotificationService
     public async Task<bool> MarkAsReadAsync(long id)
     {
         _logger.LogInformation($"Marking notification as read with ID: {id}");
-        
+
         var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
         if (notification == null)
         {
@@ -194,7 +169,7 @@ public class NotificationService : INotificationService
 
         await _unitOfWork.Notifications.MarkAsReadAsync(id);
         await _unitOfWork.CompleteAsync();
-        
+
         return true;
     }
 

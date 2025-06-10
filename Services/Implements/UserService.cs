@@ -32,7 +32,7 @@ public class UserService : IUserService
         return _mapper.Map<UserDetailsDto>(user);
     }
 
-    public async Task<UserDetailsDto> CreateAsync(UserDetailsDto dto)
+    public async Task<UserDetailsDto> CreateAsync(UserCreateDto dto)
     {
         _logger.LogInformation($"Creating new user with email: {dto.Email}");
         
@@ -46,7 +46,7 @@ public class UserService : IUserService
         return _mapper.Map<UserDetailsDto>(user);
     }
 
-    public async Task<UserDetailsDto> UpdateAsync(int id, UserDetailsDto dto)
+    public async Task<UserDetailsDto> UpdateAsync(int id, UserUpdateDto dto)
     {
         _logger.LogInformation($"Updating user with ID: {id}");
         
