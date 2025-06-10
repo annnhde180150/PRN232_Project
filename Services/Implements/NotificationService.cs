@@ -145,7 +145,7 @@ public class NotificationService : INotificationService
         var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
         if (notification == null) return false;
 
-        if (notification.IsRead == true)
+        if (notification.IsRead)
         {
             _logger.LogInformation($"Notification with ID {id} is already marked as read");
             return true;
