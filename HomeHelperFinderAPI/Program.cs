@@ -18,8 +18,10 @@ builder.Services.AddDbContext<Prn232HomeHelperFinderSystemContext>(options =>
 
 builder.Services.AddScoped<Prn232HomeHelperFinderSystemContext>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddControllers(options => { options.Filters.Add<ApiResponseWrapperFilter>(); })
     .AddOData();
