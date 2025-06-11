@@ -103,7 +103,7 @@ public class ApiResponse<T>
 
 public class ApiResponse : ApiResponse<object>
 {
-    public new static ApiResponse SuccessResponse(string message = "Thành công")
+    public static ApiResponse SuccessResponse(string message = "Thành công")
     {
         return new ApiResponse
         {

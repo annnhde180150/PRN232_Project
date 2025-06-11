@@ -11,13 +11,19 @@ public class NotificationService : INotificationService
 {
     private readonly ILogger<NotificationService> _logger;
     private readonly IMapper _mapper;
+    private readonly IRealtimeNotificationService? _realtimeNotificationService;
     private readonly IUnitOfWork _unitOfWork;
 
-    public NotificationService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<NotificationService> logger)
+    public NotificationService(
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        ILogger<NotificationService> logger,
+        IRealtimeNotificationService? realtimeNotificationService = null)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
+        _realtimeNotificationService = realtimeNotificationService;
     }
 
     #region IBaseService Implementation
@@ -58,7 +64,35 @@ public class NotificationService : INotificationService
         await _unitOfWork.Notifications.AddAsync(notification);
         await _unitOfWork.CompleteAsync();
 
-        return _mapper.Map<NotificationDetailsDto>(notification);
+        var notificationDto = _mapper.Map<NotificationDetailsDto>(notification);
+
+        // Gửi real-time notification nếu service được inject
+        if (_realtimeNotificationService != null)
+            try
+            {
+                string userId, userType;
+
+                if (notification.RecipientUserId.HasValue)
+                {
+                    userId = notification.RecipientUserId.Value.ToString();
+                    userType = "User";
+                }
+                else
+                {
+                    userId = notification.RecipientHelperId!.Value.ToString();
+                    userType = "Helper";
+                }
+
+                await _realtimeNotificationService.SendToUserAsync(userId, userType, notificationDto);
+                _logger.LogInformation($"Real-time notification sent to {userType} {userId}");
+            }
+            catch (Exception ex)
+            {
+                // Log error nhưng không throw để không ảnh hưởng đến flow chính
+                _logger.LogError(ex, "Failed to send real-time notification, but notification was saved successfully");
+            }
+
+        return notificationDto;
     }
 
     public async Task<NotificationDetailsDto> UpdateAsync(int id, NotificationUpdateDto updateDto)
@@ -145,7 +179,7 @@ public class NotificationService : INotificationService
         var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
         if (notification == null) return false;
 
-        if (notification.IsRead)
+        if (notification.IsRead == true)
         {
             _logger.LogInformation($"Notification with ID {id} is already marked as read");
             return true;

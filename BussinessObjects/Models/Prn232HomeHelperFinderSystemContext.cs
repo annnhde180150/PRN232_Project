@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace BussinessObjects.Models;
 
@@ -20,6 +21,8 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
     public virtual DbSet<Booking> Bookings { get; set; }
 
     public virtual DbSet<Chat> Chats { get; set; }
+
+    public virtual DbSet<Connection> Connections { get; set; }
 
     public virtual DbSet<FavoriteHelper> FavoriteHelpers { get; set; }
 
@@ -54,6 +57,15 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
     public virtual DbSet<WalletTransaction> WalletTransactions { get; set; }
 
     public virtual DbSet<WithdrawalRequest> WithdrawalRequests { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        var builder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", true, true);
+        var configuration = builder.Build();
+        optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -178,6 +190,21 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
                 .WithMany(p => p.ChatSenderUsers)
                 .HasForeignKey(d => d.SenderUserId)
                 .HasConstraintName("FK__Chats__SenderUse__151B244E");
+        });
+
+        modelBuilder.Entity<Connection>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Connections__3214EC07");
+
+            entity.HasIndex(e => e.ConnectionId, "IX_Connections_ConnectionId");
+
+            entity.Property(e => e.UserId).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.UserType).HasMaxLength(10).IsRequired();
+            entity.Property(e => e.ConnectionId).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.ConnectedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.DeviceInfo).HasMaxLength(500);
+            entity.Property(e => e.IpAddress).HasMaxLength(45);
         });
 
         modelBuilder.Entity<FavoriteHelper>(entity =>
