@@ -13,7 +13,7 @@ using Services.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile), typeof(ChatProfile));
+builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile), typeof(ChatProfile), typeof(UserProfile), typeof(HelperProfile));
 
 builder.Services.AddDbContext<Prn232HomeHelperFinderSystemContext>(options =>
 {
@@ -21,13 +21,19 @@ builder.Services.AddDbContext<Prn232HomeHelperFinderSystemContext>(options =>
 });
 
 builder.Services.AddScoped<Prn232HomeHelperFinderSystemContext>();
+// Repository registrations
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IHelperRepository, HelperRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Service registrations
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IHelperService, HelperService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IProfileManagementService, ProfileManagementService>();
 builder.Services.AddScoped<IConnectionManager, ConnectionManager>();
 builder.Services.AddScoped<IRealtimeNotificationService, SignalRNotificationService>();
 
