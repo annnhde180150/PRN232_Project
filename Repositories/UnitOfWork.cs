@@ -12,12 +12,14 @@ public class UnitOfWork : IUnitOfWork
     {
         _context = context;
         Users = new UserRepository(_context);
+        Helpers = new HelperRepository(_context);
         Notifications = new NotificationRepository(_context);
         Connections = new ConnectionRepository(_context);
         Chats = new ChatRepository(_context);
     }
 
     public IUserRepository Users { get; }
+    public IHelperRepository Helpers { get; }
     public INotificationRepository Notifications { get; }
     public IConnectionRepository Connections { get; }
     public IChatRepository Chats { get; }

@@ -74,4 +74,16 @@ public class UserService : IUserService
         await _unitOfWork.Users.DeleteByIdAsync(id);
         await _unitOfWork.CompleteAsync();
     }
+
+    public async Task<IEnumerable<UserDetailsDto>> GetActiveHelpersAsync()
+    {
+        var users = await _unitOfWork.Users.GetActiveHelpersAsync();
+        return _mapper.Map<IEnumerable<UserDetailsDto>>(users);
+    }
+
+    public async Task<IEnumerable<UserDetailsDto>> GetInactiveHelpersAsync()
+    {
+        var users = await _unitOfWork.Users.GetInactiveHelpersAsync();
+        return _mapper.Map<IEnumerable<UserDetailsDto>>(users);
+    }
 }
