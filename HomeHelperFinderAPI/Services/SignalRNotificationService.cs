@@ -122,4 +122,64 @@ public class SignalRNotificationService : IRealtimeNotificationService
             throw;
         }
     }
+
+    public async Task SendChatMessageAsync(string userId, string userType, object message)
+    {
+        try
+        {
+            var connections = await _connectionManager.GetConnectionsAsync(userId);
+            if (connections.Any())
+            {
+                await _hubContext.Clients.Clients(connections)
+                    .SendAsync("ReceiveChatMessage", message);
+
+                _logger.LogInformation($"Chat message sent to {userType} {userId} via SignalR");
+            }
+            else
+            {
+                _logger.LogInformation($"{userType} {userId} is not online - chat message not sent via SignalR");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error sending chat message to {userType} {userId} via SignalR");
+            throw;
+        }
+    }
+
+    public async Task SendReadStatusAsync(string userId, string userType, object readInfo)
+    {
+        try
+        {
+            var connections = await _connectionManager.GetConnectionsAsync(userId);
+            if (connections.Any())
+            {
+                await _hubContext.Clients.Clients(connections)
+                    .SendAsync("MessagesMarkedAsRead", readInfo);
+
+                _logger.LogInformation($"Read status sent to {userType} {userId} via SignalR");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error sending read status to {userType} {userId} via SignalR");
+            throw;
+        }
+    }
+
+    public async Task SendToConversationAsync(string conversationId, object message)
+    {
+        try
+        {
+            await _hubContext.Clients.Group($"Conversation_{conversationId}")
+                .SendAsync("ReceiveChatMessage", message);
+
+            _logger.LogInformation($"Message sent to conversation {conversationId} via SignalR");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error sending message to conversation {conversationId} via SignalR");
+            throw;
+        }
+    }
 }

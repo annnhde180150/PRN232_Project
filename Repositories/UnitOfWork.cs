@@ -14,11 +14,13 @@ public class UnitOfWork : IUnitOfWork
         Users = new UserRepository(_context);
         Notifications = new NotificationRepository(_context);
         Connections = new ConnectionRepository(_context);
+        Chats = new ChatRepository(_context);
     }
 
     public IUserRepository Users { get; }
     public INotificationRepository Notifications { get; }
     public IConnectionRepository Connections { get; }
+    public IChatRepository Chats { get; }
 
     public async Task<int> CompleteAsync()
     {

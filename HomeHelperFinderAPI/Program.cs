@@ -13,7 +13,7 @@ using Services.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile));
+builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile), typeof(ChatProfile));
 
 builder.Services.AddDbContext<Prn232HomeHelperFinderSystemContext>(options =>
 {
@@ -23,9 +23,11 @@ builder.Services.AddDbContext<Prn232HomeHelperFinderSystemContext>(options =>
 builder.Services.AddScoped<Prn232HomeHelperFinderSystemContext>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IConnectionManager, ConnectionManager>();
 builder.Services.AddScoped<IRealtimeNotificationService, SignalRNotificationService>();
 
