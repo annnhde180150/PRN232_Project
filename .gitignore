@@ -3,6 +3,31 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+## Rider / VS Code / VS for Mac / VS IDE
 .vs
 .cursor/
 .idea/
+.vscode/
+*.sln.ide
+
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Others
+*.pdb
+*.cache
+*.dbmdl
+*.bak
+*.ncb
+*.aps
+*.pidb
+*.scc
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.tss
+*.vspscc
+*.vssscc
