@@ -191,7 +191,7 @@ public class ProfileManagementService : IProfileManagementService
         var profiles = new List<ProfileStatusDto>();
 
         // Get banned users
-        var bannedUsers = await _unitOfWork.Users.GetInactiveHelpersAsync();
+        var bannedUsers = await _unitOfWork.Users.GetInactiveUsersAsync();
         var inactiveUsers = bannedUsers.Select(u => new ProfileStatusDto
         {
             ProfileId = u.UserId,
@@ -230,7 +230,7 @@ public class ProfileManagementService : IProfileManagementService
         var profiles = new List<ProfileStatusDto>();
 
         // Get active users
-        var activeUsers = await _unitOfWork.Users.GetActiveHelpersAsync();
+        var activeUsers = await _unitOfWork.Users.GetActiveUsersAsync();
         var activeUserProfiles = activeUsers.Select(u => new ProfileStatusDto
         {
             ProfileId = u.UserId,

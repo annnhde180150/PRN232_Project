@@ -87,16 +87,4 @@ public class HelperService : IHelperService
         var helper = await _unitOfWork.Helpers.GetHelperByPhoneAsync(phoneNumber);
         return _mapper.Map<HelperDetailsDto>(helper);
     }
-
-    public async Task<IEnumerable<HelperDetailsDto>> GetActiveHelpersAsync()
-    {
-        var helpers = await _unitOfWork.Helpers.GetActiveHelpersAsync();
-        return _mapper.Map<IEnumerable<HelperDetailsDto>>(helpers);
-    }
-
-    public async Task<IEnumerable<HelperDetailsDto>> GetInactiveHelpersAsync()
-    {
-        var helpers = await _unitOfWork.Helpers.GetInactiveHelpersAsync();
-        return _mapper.Map<IEnumerable<HelperDetailsDto>>(helpers);
-    }
 }
