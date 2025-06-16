@@ -10,6 +10,8 @@ public interface IBaseRepository<T> where T : class
 
     Task<IEnumerable<T>> GetAllAsync();
 
+    Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate);
+
     Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate);
 
     Task AddAsync(T entity);
@@ -23,4 +25,8 @@ public interface IBaseRepository<T> where T : class
     Task DeleteByIdAsync(int id);
 
     void DeleteRange(IEnumerable<T> entities);
+
+    Task<int> CountAsync();
+
+    Task<int> CountAsync(Expression<Func<T, bool>> predicate);
 }

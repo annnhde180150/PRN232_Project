@@ -30,6 +30,11 @@ public class BaseRepository<T>(Prn232HomeHelperFinderSystemContext context) : IB
         return await _dbSet.AsNoTracking().ToListAsync();
     }
 
+    public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
+    }
+
     public virtual async Task AddAsync(T entity)
     {
         await _dbSet.AddAsync(entity);
@@ -62,5 +67,15 @@ public class BaseRepository<T>(Prn232HomeHelperFinderSystemContext context) : IB
     public virtual void DeleteRange(IEnumerable<T> entities)
     {
         _dbSet.RemoveRange(entities);
+    }
+
+    public virtual async Task<int> CountAsync()
+    {
+        return await _dbSet.CountAsync();
+    }
+
+    public virtual async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
+    {
+        return await _dbSet.CountAsync(predicate);
     }
 }

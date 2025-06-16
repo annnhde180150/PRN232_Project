@@ -16,6 +16,10 @@ public class UnitOfWork : IUnitOfWork
         Notifications = new NotificationRepository(_context);
         Connections = new ConnectionRepository(_context);
         Chats = new ChatRepository(_context);
+        Bookings = new BookingRepository(_context);
+        Payments = new PaymentRepository(_context);
+        Reviews = new ReviewRepository(_context);
+        Services = new ServiceRepository(_context);
     }
 
     public IUserRepository Users { get; }
@@ -23,6 +27,10 @@ public class UnitOfWork : IUnitOfWork
     public INotificationRepository Notifications { get; }
     public IConnectionRepository Connections { get; }
     public IChatRepository Chats { get; }
+    public IBookingRepository Bookings { get; }
+    public IPaymentRepository Payments { get; }
+    public IReviewRepository Reviews { get; }
+    public IServiceRepository Services { get; }
 
     public async Task<int> CompleteAsync()
     {
