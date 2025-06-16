@@ -134,4 +134,76 @@ public class NotificationHub : Hub
             _logger.LogError(ex, $"Error sending notification to {userType} {targetUserId}");
         }
     }
+
+    // Method to send chat message to specific user
+    public async Task SendChatMessage(string targetUserId, string userType, object message)
+    {
+        try
+        {
+            var connections = await _connectionManager.GetConnectionsAsync(targetUserId);
+            if (connections.Any())
+            {
+                await Clients.Clients(connections).SendAsync("ReceiveChatMessage", message);
+                _logger.LogInformation($"Chat message sent to {userType} {targetUserId}");
+            }
+            else
+            {
+                _logger.LogInformation($"{userType} {targetUserId} is not online - chat message not delivered");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error sending chat message to {userType} {targetUserId}");
+        }
+    }
+
+    // Method to notify about read status
+    public async Task NotifyMessageRead(string targetUserId, string userType, object readInfo)
+    {
+        try
+        {
+            var connections = await _connectionManager.GetConnectionsAsync(targetUserId);
+            if (connections.Any())
+            {
+                await Clients.Clients(connections).SendAsync("MessagesMarkedAsRead", readInfo);
+                _logger.LogInformation($"Read status notification sent to {userType} {targetUserId}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error sending read status notification to {userType} {targetUserId}");
+        }
+    }
+
+    // Method to join conversation room
+    public async Task JoinConversation(string conversationId)
+    {
+        try
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"Conversation_{conversationId}");
+            await Clients.Caller.SendAsync("JoinedConversation", conversationId);
+            _logger.LogInformation($"Connection {Context.ConnectionId} joined conversation {conversationId}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error joining conversation {conversationId}");
+            await Clients.Caller.SendAsync("Error", $"Failed to join conversation {conversationId}");
+        }
+    }
+
+    // Method to leave conversation room
+    public async Task LeaveConversation(string conversationId)
+    {
+        try
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"Conversation_{conversationId}");
+            await Clients.Caller.SendAsync("LeftConversation", conversationId);
+            _logger.LogInformation($"Connection {Context.ConnectionId} left conversation {conversationId}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error leaving conversation {conversationId}");
+            await Clients.Caller.SendAsync("Error", $"Failed to leave conversation {conversationId}");
+        }
+    }
 }
