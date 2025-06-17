@@ -74,4 +74,16 @@ public class UserService : IUserService
         await _unitOfWork.Users.DeleteByIdAsync(id);
         await _unitOfWork.CompleteAsync();
     }
+
+    public async Task<bool> IsEmailExistsAsync(string email)
+    {
+        var user = await _unitOfWork.Users.GetUserByEmailAsync(email);
+        return user != null;
+    }
+
+    public async Task<bool> IsPhoneNumberExistsAsync(string phoneNumber)
+    {
+        var user = await _unitOfWork.Users.GetUserByPhoneAsync(phoneNumber);
+        return user != null;
+    }
 }

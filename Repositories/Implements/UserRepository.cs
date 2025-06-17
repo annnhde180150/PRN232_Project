@@ -12,6 +12,12 @@ public class UserRepository(Prn232HomeHelperFinderSystemContext context)
         return await _context.Users
             .FirstOrDefaultAsync(u => u.Email == email);
     }
+
+    public async Task<User?> GetUserByPhoneAsync(string phoneNumber)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
+    }
     
     public async Task<IEnumerable<User>> GetActiveUsersAsync()
     {
