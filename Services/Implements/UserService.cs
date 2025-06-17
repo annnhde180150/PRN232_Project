@@ -12,12 +12,14 @@ public class UserService : IUserService
     private readonly ILogger<UserService> _logger;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public UserService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UserService> logger)
+    public UserService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<UserService> logger, IPasswordHasher passwordHasher)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<IEnumerable<UserDetailsDto>> GetAllAsync()
@@ -62,6 +64,31 @@ public class UserService : IUserService
         return _mapper.Map<UserDetailsDto>(existingUser);
     }
 
+    public async Task<UserDetailsDto?> ValidateUserCredentialsAsync(string email, string password)
+    {
+        var user = await _unitOfWork.Users.GetUserByEmailAsync(email);
+        if (user == null) return null;
+
+        if (!user.IsActive == true) return null;
+
+        if (!_passwordHasher.VerifyPassword(password, user.PasswordHash!))
+        {
+            return null;
+        }
+
+        return _mapper.Map<UserDetailsDto>(user);
+    }
+
+    public async Task UpdateLastLoginDateAsync(int userId)
+    {
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user == null) throw new ArgumentException($"User with ID {userId} not found");
+
+        user.LastLoginDate = DateTime.UtcNow;
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.CompleteAsync();
+    }
+
     public async Task<bool> ExistsAsync(int id)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id);
@@ -86,4 +113,6 @@ public class UserService : IUserService
         var user = await _unitOfWork.Users.GetUserByPhoneAsync(phoneNumber);
         return user != null;
     }
+
+ 
 }

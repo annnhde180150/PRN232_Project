@@ -3,6 +3,7 @@ using BussinessObjects.Models;
 using Microsoft.Extensions.Logging;
 using Repositories;
 using Services.DTOs.Helper;
+using Services.DTOs.User;
 using Services.Interfaces;
 
 namespace Services.Implements;
@@ -12,12 +13,14 @@ public class HelperService : IHelperService
     private readonly ILogger<HelperService> _logger;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public HelperService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<HelperService> logger)
+    public HelperService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<HelperService> logger, IPasswordHasher passwordHasher)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<IEnumerable<HelperDetailsDto>> GetAllAsync()
@@ -62,7 +65,30 @@ public class HelperService : IHelperService
 
         return _mapper.Map<HelperDetailsDto>(existingHelper);
     }
+    public async Task<HelperDetailsDto?> ValidateHelperCredentialsAsync(string email, string password)
+    {
+        var helper = await _unitOfWork.Helpers.GetHelperByEmailAsync(email);
+        if (helper == null) return null;
 
+        if (!helper.IsActive == true) return null;
+
+        if (!_passwordHasher.VerifyPassword(password, helper.PasswordHash!))
+        {
+            return null;
+        }
+
+        return _mapper.Map<HelperDetailsDto>(helper);
+    }
+
+    public async Task UpdateLastLoginDateAsync(int helperId)
+    {
+        var helper = await _unitOfWork.Helpers.GetByIdAsync(helperId);
+        if (helper == null) throw new ArgumentException($"User with ID {helperId} not found");
+
+        helper.LastLoginDate = DateTime.UtcNow;
+        _unitOfWork.Helpers.Update(helper);
+        await _unitOfWork.CompleteAsync();
+    }
     public async Task<bool> ExistsAsync(int id)
     {
         var helper = await _unitOfWork.Helpers.GetByIdAsync(id);
