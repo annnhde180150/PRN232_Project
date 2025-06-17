@@ -87,4 +87,16 @@ public class HelperService : IHelperService
         var helper = await _unitOfWork.Helpers.GetHelperByPhoneAsync(phoneNumber);
         return _mapper.Map<HelperDetailsDto>(helper);
     }
+
+    public async Task<bool> IsEmailExistsAsync(string email)
+    {
+        var helper = await _unitOfWork.Helpers.GetHelperByEmailAsync(email);
+        return helper != null;
+    }
+
+    public async Task<bool> IsPhoneNumberExistsAsync(string phoneNumber)
+    {
+        var helper = await _unitOfWork.Helpers.GetHelperByPhoneAsync(phoneNumber);
+        return helper != null;
+    }
 }
