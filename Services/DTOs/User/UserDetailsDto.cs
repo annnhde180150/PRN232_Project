@@ -1,6 +1,8 @@
-﻿namespace Services.DTOs.User;
+﻿using Services.DTOs.Authentication;
 
-public class UserDetailsDto
+namespace Services.DTOs.User;
+
+public class UserDetailsDto : IAppUser
 {
     public int UserId { get; set; }
     public string? PhoneNumber { get; set; }
@@ -13,4 +15,5 @@ public class UserDetailsDto
     public string? ExternalAuthId { get; set; }
     public bool? IsActive { get; set; }
     public int? DefaultAddressId { get; set; }
+    public string Role => "User";
 }

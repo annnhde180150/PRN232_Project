@@ -41,6 +41,7 @@ builder.Services.AddScoped<IProfileManagementService, ProfileManagementService>(
 builder.Services.AddScoped<IConnectionManager, ConnectionManager>();
 builder.Services.AddScoped<IRealtimeNotificationService, SignalRNotificationService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 
 // Add SignalR
 builder.Services.AddSignalR();

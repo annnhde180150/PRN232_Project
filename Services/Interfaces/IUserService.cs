@@ -4,4 +4,6 @@ namespace Services.Interfaces;
 
 public interface IUserService : IBaseService<UserDetailsDto, UserCreateDto, UserUpdateDto>
 {
+    Task<bool> IsEmailExistsAsync(string email);
+    Task<bool> IsPhoneNumberExistsAsync(string phoneNumber);
 }

@@ -1,8 +1,9 @@
+using Services.DTOs.Authentication;
 using System.ComponentModel.DataAnnotations;
 
 namespace Services.DTOs.Helper;
 
-public class HelperDetailsDto
+public class HelperDetailsDto : IAppUser
 {
     public int HelperId { get; set; }
     public string PhoneNumber { get; set; } = null!;
@@ -20,4 +21,6 @@ public class HelperDetailsDto
     public decimal? TotalHoursWorked { get; set; }
     public decimal? AverageRating { get; set; }
     public DateTime? LastLoginDate { get; set; }
+    public string Role => "Helper";
+
 }
