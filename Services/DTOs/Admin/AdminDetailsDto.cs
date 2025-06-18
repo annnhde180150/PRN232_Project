@@ -13,17 +13,16 @@ namespace Services.DTOs.Admin
 
         public string Username { get; set; } = null!;
 
-        public string PasswordHash { get; set; } = null!;
-
         public string? FullName { get; set; }
 
         public string? Email { get; set; }
 
-        public bool? IsActive { get; set; }
+        public DateTime? CreationDate { get; set; }
 
         public DateTime? LastLoginDate { get; set; }
 
-        public DateTime? CreationDate { get; set; }
+        public bool? IsActive { get; set; }
+
         public string Role => "Admin";
     }
 }

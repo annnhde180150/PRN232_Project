@@ -1,13 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Services.DTOs.Helper;
+namespace Services.DTOs.Admin;
 
-public class HelperRegisterDto
+public class AdminRegisterDto
 {
-    [Required(ErrorMessage = "Phone number is required")]
-    [Phone(ErrorMessage = "Invalid phone number format")]
-    [StringLength(10)]
-    public string PhoneNumber { get; set; } = null!;
+    [Required(ErrorMessage = "Username is required")]
+    [StringLength(100, ErrorMessage = "Username cannot exceed 100 characters")]
+    public string Username { get; set; } = null!;
 
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid email format")]
@@ -22,11 +21,7 @@ public class HelperRegisterDto
     [StringLength(100, ErrorMessage = "Full name cannot exceed 100 characters")]
     public string FullName { get; set; } = null!;
 
-    [StringLength(1000)]
-    public string? Bio { get; set; }
-
-    public DateOnly? DateOfBirth { get; set; }
-
-    [StringLength(10)]
-    public string? Gender { get; set; }
+    //[Required(ErrorMessage = "Role is required")]
+    //[StringLength(50)]
+    public string Role => "Admin";
 } 

@@ -13,7 +13,7 @@ using Services.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile), typeof(ChatProfile), typeof(UserProfile), typeof(HelperProfile), typeof(ReportProfile));
+builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile), typeof(ChatProfile), typeof(UserProfile), typeof(HelperProfile), typeof(ReportProfile), typeof(AdminProfile));
 
 builder.Services.AddDbContext<Prn232HomeHelperFinderSystemContext>(options =>
 {
@@ -22,6 +22,7 @@ builder.Services.AddDbContext<Prn232HomeHelperFinderSystemContext>(options =>
 
 builder.Services.AddScoped<Prn232HomeHelperFinderSystemContext>();
 // Repository registrations
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IHelperRepository, HelperRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
@@ -33,6 +34,7 @@ builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Service registrations
+builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IHelperService, HelperService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
