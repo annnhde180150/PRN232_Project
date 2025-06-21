@@ -20,6 +20,7 @@ public class ServiceRequest
 
     public DateTime? RequestCreationTime { get; set; }
 
+    /// Location coordinates for real-time tracking and mapping purposes
     public decimal? Latitude { get; set; }
 
     public decimal? Longitude { get; set; }

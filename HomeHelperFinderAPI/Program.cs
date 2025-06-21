@@ -13,7 +13,7 @@ using Services.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile), typeof(ChatProfile), typeof(UserProfile), typeof(HelperProfile), typeof(ReportProfile));
+builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile), typeof(ChatProfile), typeof(UserProfile), typeof(HelperProfile), typeof(ReportProfile), typeof(ServiceRequestProfile));
 
 builder.Services.AddDbContext<Prn232HomeHelperFinderSystemContext>(options =>
 {
@@ -30,6 +30,7 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Service registrations
@@ -40,6 +41,7 @@ builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IProfileManagementService, ProfileManagementService>();
 builder.Services.AddScoped<IConnectionManager, ConnectionManager>();
 builder.Services.AddScoped<IRealtimeNotificationService, SignalRNotificationService>();
+builder.Services.AddScoped<IServiceRequestService, ServiceRequestService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 // Add SignalR
@@ -58,7 +60,11 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddControllers(options => { options.Filters.Add<ApiResponseWrapperFilter>(); })
-    .AddOData();
+    .AddOData()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

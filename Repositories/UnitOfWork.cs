@@ -20,6 +20,7 @@ public class UnitOfWork : IUnitOfWork
         Payments = new PaymentRepository(_context);
         Reviews = new ReviewRepository(_context);
         Services = new ServiceRepository(_context);
+        ServiceRequest = new ServiceRequestRepository(_context);
     }
 
     public IUserRepository Users { get; }
@@ -31,6 +32,8 @@ public class UnitOfWork : IUnitOfWork
     public IPaymentRepository Payments { get; }
     public IReviewRepository Reviews { get; }
     public IServiceRepository Services { get; }
+
+    public IServiceRequestRepository ServiceRequest { get; }
 
     public async Task<int> CompleteAsync()
     {
