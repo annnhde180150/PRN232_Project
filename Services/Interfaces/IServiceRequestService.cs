@@ -11,5 +11,6 @@ namespace Services.Interfaces
     public interface IServiceRequestService : IBaseService<ServiceRequestDetailDto, ServiceRequestCreateDto, ServiceRequestUpdateDto>
     {
         public Task<ServiceRequest> GetLatestRequestByUserId(int userId);
+        public Task SoftDeleteRequest(int requestId);
     }
 }

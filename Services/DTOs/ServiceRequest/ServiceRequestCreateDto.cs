@@ -11,6 +11,7 @@ namespace Services.DTOs.ServiceRequest
         public int UserId { get; set; }
         public int ServiceId { get; set; }
         public int AddressId { get; set; }
+        public int? HelperId { get; set; }
 
         public DateTime RequestedStartTime { get; set; }
 

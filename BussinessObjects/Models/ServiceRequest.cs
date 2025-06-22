@@ -1,10 +1,13 @@
-﻿namespace BussinessObjects.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BussinessObjects.Models;
 
 public class ServiceRequest
 {
     public int RequestId { get; set; }
 
     public int UserId { get; set; }
+    public int? HelperId { get; set; }
 
     public int ServiceId { get; set; }
 
@@ -32,4 +35,6 @@ public class ServiceRequest
     public virtual Service Service { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
+    [ForeignKey("HelperId")]
+    public virtual Helper Helper { get; set; } = null!;
 }

@@ -9,20 +9,24 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-    public class BaseService<TDetailDto, TCreateDto, TUpdateDto, TEntity>(IBaseRepository<TEntity> baseRepository, IMapper mapper)
+    public class BaseService<TDetailDto, TCreateDto, TUpdateDto, TEntity>(IBaseRepository<TEntity> baseRepository, IMapper mapper, IUnitOfWork _unitOfWork)
         : IBaseService<TDetailDto, TCreateDto, TUpdateDto> where TEntity : class
     {
         public async Task<TDetailDto> CreateAsync(TCreateDto dto)
         {
             try{
                 await baseRepository.AddAsync(mapper.Map<TEntity>(dto));
-                return mapper.Map<TDetailDto>(dto);
             }
             catch
             {
                 // Log the exception
                 throw new Exception("An error occurred while creating the entity.");
             }
+            finally
+            {
+                await _unitOfWork.CompleteAsync();
+            }
+            return default;
         }
 
         public async Task DeleteAsync(int id)
@@ -37,6 +41,10 @@ namespace Services
             {
                 // Log the exception
                 throw new Exception("An error occurred while deleting the entity.", ex);
+            }
+            finally
+            {
+                await _unitOfWork.CompleteAsync();
             }
         }
 
@@ -63,12 +71,16 @@ namespace Services
             try
             {
                 baseRepository.Update(mapper.Map<TEntity>(dto));
-                return mapper.Map<TDetailDto>(dto);
             } catch (Exception ex)
             {
                 // Log the exception
                 throw new Exception("An error occurred while updating the entity.", ex);
             }
+            finally
+            {
+                await _unitOfWork.CompleteAsync();
+            }
+            return default;
         }
     }
 }

@@ -9,10 +9,12 @@ namespace Services.DTOs.ServiceRequest
     public class ServiceRequestUpdateDto
     {
         public int RequestId { get; set; }
+        public int UserId { get; set; }
 
         public int ServiceId { get; set; }
 
         public int AddressId { get; set; }
+        public int? HelperId { get; set; }
 
         public DateTime RequestedStartTime { get; set; }
 

@@ -22,7 +22,7 @@ namespace Services.Mappers
 
             //Dto to Entity
             CreateMap<ServiceRequestCreateDto, ServiceRequest>()
-                .ForMember(dest => dest.RequestCreationTime, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.RequestCreationTime, opt => opt.MapFrom(src => DateTime.Now))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => "Pending")) // Default status
                 .ForMember(dest => dest.Service, opt => opt.Ignore())
                 .ForMember(dest => dest.User, opt => opt.Ignore())

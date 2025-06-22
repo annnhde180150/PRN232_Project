@@ -61,4 +61,5 @@ public class Helper
     public virtual ICollection<SupportTicket> SupportTickets { get; set; } = new List<SupportTicket>();
 
     public virtual ICollection<WithdrawalRequest> WithdrawalRequests { get; set; } = new List<WithdrawalRequest>();
+    public virtual ICollection<ServiceRequest> ServiceRequests { get; set; } = new List<ServiceRequest>();
 }
