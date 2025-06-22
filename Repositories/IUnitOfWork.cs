@@ -13,6 +13,7 @@ public interface IUnitOfWork
     IPaymentRepository Payments { get; }
     IReviewRepository Reviews { get; }
     IServiceRepository Services { get; }
+    IServiceRequestRepository ServiceRequest { get; }
 
     Task<int> CompleteAsync();
 }
