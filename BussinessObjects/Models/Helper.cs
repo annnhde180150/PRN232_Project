@@ -1,4 +1,4 @@
-﻿namespace BussinessObjects.Models;
+namespace BussinessObjects.Models;
 
 public class Helper
 {
@@ -69,4 +69,5 @@ public class Helper
     }
     public AvailableStatusEnum AvailableStatus { get; set; } = AvailableStatusEnum.Offline;
     
+    public virtual ICollection<ServiceRequest> ServiceRequests { get; set; } = new List<ServiceRequest>();
 }

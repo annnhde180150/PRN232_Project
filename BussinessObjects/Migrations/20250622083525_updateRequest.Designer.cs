@@ -4,6 +4,7 @@ using BussinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BussinessObjects.Migrations
 {
     [DbContext(typeof(Prn232HomeHelperFinderSystemContext))]
-    partial class Prn232HomeHelperFinderSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20250622083525_updateRequest")]
+    partial class updateRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -348,9 +351,6 @@ namespace BussinessObjects.Migrations
                     b.Property<int?>("ApprovedByAdminId")
                         .HasColumnType("int")
                         .HasColumnName("ApprovedByAdminID");
-
-                    b.Property<int>("AvailableStatus")
-                        .HasColumnType("int");
 
                     b.Property<decimal?>("AverageRating")
                         .ValueGeneratedOnAdd()
