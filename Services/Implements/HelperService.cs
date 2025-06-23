@@ -125,4 +125,16 @@ public class HelperService : IHelperService
         var helper = await _unitOfWork.Helpers.GetHelperByPhoneAsync(phoneNumber);
         return helper != null;
     }
+    public async Task<bool> SetHelperStatusOnlineAsync(int helperId)
+    {
+        return await _unitOfWork.Helpers.SetHelperStatusOnlineAsync(helperId);
+    }
+    public async Task<bool> SetHelperStatusOfflineAsync(int helperId)
+    {
+        return await _unitOfWork.Helpers.SetHelperStatusOfflineAsync(helperId);
+    }
+    public async Task<bool> SetHelperStatusBusyAsync(int helperId)
+    {
+        return await _unitOfWork.Helpers.SetHelperStatusBusyAsync(helperId);
+    }
 }

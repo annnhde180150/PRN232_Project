@@ -61,4 +61,12 @@ public class Helper
     public virtual ICollection<SupportTicket> SupportTickets { get; set; } = new List<SupportTicket>();
 
     public virtual ICollection<WithdrawalRequest> WithdrawalRequests { get; set; } = new List<WithdrawalRequest>();
+    public enum AvailableStatusEnum
+    {
+        Available = 0,
+        Busy = 1,
+        Offline = 2
+    }
+    public AvailableStatusEnum AvailableStatus { get; set; } = AvailableStatusEnum.Offline;
+    
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using static BussinessObjects.Models.Helper;
 
 namespace BussinessObjects.Models;
 
@@ -265,6 +266,8 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
                 .WithMany(p => p.Helpers)
                 .HasForeignKey(d => d.ApprovedByAdminId)
                 .HasConstraintName("FK__Helpers__Approve__534D60F1");
+            entity.Property(e => e.AvailableStatus)
+                .HasConversion<int>();
         });
 
         modelBuilder.Entity<HelperDocument>(entity =>

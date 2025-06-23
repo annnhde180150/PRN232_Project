@@ -11,4 +11,7 @@ public interface IHelperService : IBaseService<HelperDetailsDto, HelperCreateDto
     Task<bool> IsPhoneNumberExistsAsync(string phoneNumber);
     Task<HelperDetailsDto?> ValidateHelperCredentialsAsync(string email, string password);
     Task UpdateLastLoginDateAsync(int userId);
+    Task<bool> SetHelperStatusOnlineAsync(int helperId);
+    Task<bool> SetHelperStatusOfflineAsync(int helperId);
+    Task<bool> SetHelperStatusBusyAsync(int helperId);
 }
