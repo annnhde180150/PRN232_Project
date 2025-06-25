@@ -27,7 +27,7 @@ namespace Services.Implements
                 BaseAddress = new Uri(url)
             };
             var response = await client.GetAsync("");
-
+            return true;
         }
     }
 }

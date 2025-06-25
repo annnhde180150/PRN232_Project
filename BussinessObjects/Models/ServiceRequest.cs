@@ -37,4 +37,11 @@ public class ServiceRequest
     public virtual User User { get; set; } = null!;
     [ForeignKey("HelperId")]
     public virtual Helper Helper { get; set; } = null!;
+    public enum AvailableStatus
+    {
+        Pending = 0,
+        InProgress = 1,
+        Completed = 2,
+        Cancelled = 3
+    }
 }

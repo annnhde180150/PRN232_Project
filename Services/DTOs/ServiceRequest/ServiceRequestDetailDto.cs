@@ -32,7 +32,7 @@ namespace Services.DTOs.ServiceRequest
 
         public decimal? Longitude { get; set; }
 
-        public virtual UserAddress Address { get; set; } = null!;
+        public virtual BussinessObjects.Models.UserAddress Address { get; set; } = null!;
 
         public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
