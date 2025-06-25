@@ -12,5 +12,6 @@ namespace Services.Interfaces
     {
         public Task<ServiceRequest> GetLatestRequestByUserId(int userId);
         public Task SoftDeleteRequest(int requestId);
+        public Task<bool> isValidatedCreateRequest(ServiceRequest request);
     }
 }

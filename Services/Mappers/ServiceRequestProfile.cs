@@ -38,6 +38,9 @@ namespace Services.Mappers
                 .ForMember(dest => dest.User, opt => opt.Ignore())
                 .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
                 .ForMember(dest => dest.Bookings, opt => opt.MapFrom(src => src.Bookings));
+
+            // Dto to Dto additional if nessesary
+            CreateMap<ServiceRequestDetailDto, ServiceRequestUpdateDto>();
         }
     }
 }

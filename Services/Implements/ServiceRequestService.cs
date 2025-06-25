@@ -15,7 +15,7 @@ using Services.DTOs.ServiceRequest;
 
 namespace Services.Implements
 {
-    public class ServiceRequestService(IUnitOfWork _unitOfWork, IMapper _mapper, ILogger<ServiceRequestService> _logger)
+    public class ServiceRequestService(IUnitOfWork _unitOfWork, IMapper _mapper, ILogger<ServiceRequestService> _logger, IUserService userService)
         : BaseService<ServiceRequestDetailDto, ServiceRequestCreateDto, ServiceRequestUpdateDto, ServiceRequest>(_unitOfWork.ServiceRequest, _mapper, _unitOfWork),
         IServiceRequestService
     {
@@ -38,6 +38,28 @@ namespace Services.Implements
             {
                 RequestId = 0
             };
+        }
+
+        public async Task<bool> isValidatedCreateRequest(ServiceRequest request)
+        {
+            //check if user is authenticated customer
+            if (request.UserId == null || request.UserId <= 0)
+                return false;
+            if (!(await userService.ExistsAsync(request.UserId)))
+                return false;
+            //check for valid ServiceId
+            if (request.ServiceId == null || request.ServiceId <= 0)
+                return false;
+            //cannot check AddressId yet
+
+            //Check for valid duration (no more than 8 hourses, no less than 1 hour)
+            if (request.RequestedDurationHours == null ||
+                request.RequestedDurationHours <= 0 ||
+                request.RequestedDurationHours > 8m ||
+                request.RequestedDurationHours < 1m)
+                return false;
+
+            return true;
         }
 
         public async Task SoftDeleteRequest(int requestId)

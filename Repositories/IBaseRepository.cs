@@ -4,7 +4,7 @@ namespace Repositories;
 
 public interface IBaseRepository<T> where T : class
 {
-    IQueryable<T> GetQueryable();
+    IQueryable<T> GetQueryable(params Expression<Func<T, object>>[] includes);
 
     Task<T?> GetByIdAsync(int id);
 

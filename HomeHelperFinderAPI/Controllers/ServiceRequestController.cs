@@ -19,16 +19,29 @@ namespace HomeHelperFinderAPI.Controllers
         //[Authorize]
         public async Task<ActionResult> CreateHelpRequest([FromBody] ServiceRequestCreateDto newRequest)
         {
-            if(!await isValidatedId(_mapper.Map<ServiceRequest>(newRequest)))
+            if (!await _requestService.isValidatedCreateRequest(_mapper.Map<ServiceRequest>(newRequest)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //auto map to helper if no helper is assigned
+            if (newRequest.HelperId == null)
+            {
+                var helperId = await _helperService.GetAvailableHelper(_mapper.Map<ServiceRequest>(newRequest));
+                if (helperId != null)
+                {
+                    newRequest.HelperId = helperId;
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "No Helper Available");
+                }
+            }
 
-            //notify 
+            //notify
+
 
             //insert new Request
             Task createTask = _requestService.CreateAsync(newRequest);
-            Task.WaitAll(createTask);
+            await createTask;
             if (!createTask.IsCompleted)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to create service request");
@@ -43,26 +56,43 @@ namespace HomeHelperFinderAPI.Controllers
         //[Authorize]
         public async Task<ActionResult> EditHelpRequest([FromBody] ServiceRequestUpdateDto updatedRequest)
         {
-            if(!await isValidatedId(_mapper.Map<ServiceRequest>(updatedRequest)))
+            if (!await _requestService.isValidatedCreateRequest(_mapper.Map<ServiceRequest>(updatedRequest)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //check if valid status
+            if (updatedRequest.Status != "Pending" && updatedRequest.Status != "InProgress" && updatedRequest.Status != "Completed" && updatedRequest.Status != "Cancelled")
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //mapp helper if not assigned
+            if (updatedRequest.HelperId == null)
+            {
+                var helperId = await _helperService.GetAvailableHelper(_mapper.Map<ServiceRequest>(updatedRequest));
+                if (helperId != null)
+                {
+                    updatedRequest.HelperId = helperId;
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status400BadRequest, "No Helper Available");
+                }
+            }
 
             //notify helper
 
             //notify real time tracking (latitude and longtitude) if provided
-            var location = new RealTimeLocationDto
+            if (updatedRequest.Latitude != null || updatedRequest.Longitude != null)
             {
-                RequestId = updatedRequest.RequestId,
-                Latitude = updatedRequest.Latitude,
-                Longitude = updatedRequest.Longitude
-            };
+                var location = new RealTimeLocationDto
+                {
+                    RequestId = updatedRequest.RequestId,
+                    Latitude = updatedRequest.Latitude,
+                    Longitude = updatedRequest.Longitude
+                };
+            }
 
             //update Request
             Task updateTask = _requestService.UpdateAsync(updatedRequest.RequestId, updatedRequest);
-            Task.WaitAll(updateTask);
+            await updateTask;
             if (!updateTask.IsCompleted)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update service request");
@@ -75,7 +105,7 @@ namespace HomeHelperFinderAPI.Controllers
 
         [HttpDelete("DeleteRequest")]
         //[Authorize]
-        public async Task<ActionResult> DeleteHelpRequest([FromQuery]int requestId)
+        public async Task<ActionResult> DeleteHelpRequest([FromQuery] int requestId)
         {
             //check any constraint?
 
@@ -86,7 +116,7 @@ namespace HomeHelperFinderAPI.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             //delete Request
             Task deleteTask = _requestService.SoftDeleteRequest(requestId);
-            Task.WaitAll(deleteTask);
+            await deleteTask;
             if (!deleteTask.IsCompleted)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to delete service request");
@@ -96,9 +126,9 @@ namespace HomeHelperFinderAPI.Controllers
 
         [HttpPost("BookHelper")]
         //[Authorize]
-        public async Task<ActionResult> BookHelperRequest([FromBody]ServiceRequestCreateDto newRequest)
+        public async Task<ActionResult> BookHelperRequest([FromBody] ServiceRequestCreateDto newRequest)
         {
-            if (!await isValidatedId(_mapper.Map<ServiceRequest>(newRequest)))
+            if (!await _requestService.isValidatedCreateRequest(_mapper.Map<ServiceRequest>(newRequest)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //validate helper id and check if helper is available at time
@@ -109,7 +139,7 @@ namespace HomeHelperFinderAPI.Controllers
 
             //insert new Request
             Task createTask = _requestService.CreateAsync(newRequest);
-            Task.WaitAll(createTask);
+            await createTask;
             if (!createTask.IsCompleted)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to create service request");
@@ -124,44 +154,54 @@ namespace HomeHelperFinderAPI.Controllers
         //[Authorized]
         public async Task<ActionResult> UpdateBookedRequest([FromBody] ServiceRequestUpdateDto updatedRequest)
         {
-            if (!await isValidatedId(_mapper.Map<ServiceRequest>(updatedRequest)))
+            if (!await _requestService.isValidatedCreateRequest(_mapper.Map<ServiceRequest>(updatedRequest)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //helperId must not change
             var currentRequestHelperId = (await _requestService.GetByIdAsync(updatedRequest.RequestId)).HelperId;
-            if(currentRequestHelperId == null || currentRequestHelperId != updatedRequest.HelperId)
+            if (currentRequestHelperId == null || currentRequestHelperId != updatedRequest.HelperId)
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //notify Helper
 
             //Check if valid state
+            if (updatedRequest.Status != "Pending" && updatedRequest.Status != "InProgress" && updatedRequest.Status != "Completed" && updatedRequest.Status != "Cancelled")
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //Update Request
-            await _requestService.UpdateAsync(updatedRequest.RequestId ,updatedRequest);
+            await _requestService.UpdateAsync(updatedRequest.RequestId, updatedRequest);
             var CurrentRequest = await _requestService.GetByIdAsync(updatedRequest.RequestId);
             return Ok(CurrentRequest);
         }
 
-        public async Task<bool> isValidatedId(ServiceRequest request)
+        [HttpPost("TrackingUpdate")]
+        public async Task<ActionResult> UpdateLocation([FromBody] RealTimeLocationDto location)
         {
-            //check if user is authenticated customer
-            if (request.UserId == null || request.UserId <= 0)
-                return false;
-            if (!(await _userService.ExistsAsync(request.UserId)))
-                return false;
-            //check for valid ServiceId
-            if (request.ServiceId == null || request.ServiceId <= 0)
-                return false;
-            //cannot check AddressId yet
+            //Task starting
+            var request = _requestService.GetByIdAsync(location.RequestId);
 
-            //Check for valid duration (no more than 8 hourses, no less than 1 hour)
-            if (request.RequestedDurationHours == null ||
-                request.RequestedDurationHours <= 0 ||
-                request.RequestedDurationHours > 8m ||
-                request.RequestedDurationHours < 1m)
-                return false;
+            //Verify valid location?
 
-            return true;
+            // fetch and update location of Request
+            await request;
+            if (!request.IsCompleted)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update location");
+            }
+            var serviceRequest = request.Result;
+            if (serviceRequest == null)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, "Service request not found");
+            }
+            serviceRequest.Latitude = location.Latitude;
+            serviceRequest.Longitude = location.Longitude;
+
+            await _requestService.UpdateAsync(serviceRequest.RequestId, _mapper.Map<ServiceRequestUpdateDto>(serviceRequest));
+
+            //notify User 
+
+
+            return Ok("Location updated successfully");
         }
     }
 }

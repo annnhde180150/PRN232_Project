@@ -21,6 +21,8 @@ public class UnitOfWork : IUnitOfWork
         Reviews = new ReviewRepository(_context);
         Services = new ServiceRepository(_context);
         ServiceRequest = new ServiceRequestRepository(_context);
+        addressRepository = new UserAddressRepository(_context);
+
     }
 
     public IUserRepository Users { get; }
@@ -34,6 +36,8 @@ public class UnitOfWork : IUnitOfWork
     public IServiceRepository Services { get; }
 
     public IServiceRequestRepository ServiceRequest { get; }
+
+    public IUserAddressRepository addressRepository { get; }
 
     public async Task<int> CompleteAsync()
     {

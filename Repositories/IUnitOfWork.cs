@@ -14,6 +14,7 @@ public interface IUnitOfWork
     IReviewRepository Reviews { get; }
     IServiceRepository Services { get; }
     IServiceRequestRepository ServiceRequest { get; }
+    IUserAddressRepository addressRepository { get; }
 
     Task<int> CompleteAsync();
 }
