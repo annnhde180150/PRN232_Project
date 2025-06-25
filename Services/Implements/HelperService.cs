@@ -150,6 +150,18 @@ public class HelperService : IHelperService
 
         //compare same helper (based on what constraint)
         return _mapper.Map<HelperDetailsDto>(availableHelpers.FirstOrDefault()).HelperId;
+    }
 
+    public async Task<bool> SetHelperStatusOnlineAsync(int helperId)
+    {
+        return await _unitOfWork.Helpers.SetHelperStatusOnlineAsync(helperId);
+    }
+    public async Task<bool> SetHelperStatusOfflineAsync(int helperId)
+    {
+        return await _unitOfWork.Helpers.SetHelperStatusOfflineAsync(helperId);
+    }
+    public async Task<bool> SetHelperStatusBusyAsync(int helperId)
+    {
+        return await _unitOfWork.Helpers.SetHelperStatusBusyAsync(helperId);
     }
 }
