@@ -203,5 +203,20 @@ namespace HomeHelperFinderAPI.Controllers
 
             return Ok("Location updated successfully");
         }
+
+        [HttpPut("UpdateRequestStatus")]
+        //[Authorize] implement authorize when finish
+        public async Task<ActionResult> UpdateRequestStatus([FromBody] ServiceRequestActionDto updatedRequest)
+        {
+            //check if valid status
+            if (updatedRequest.Action != "Accept" && updatedRequest.Action != "Cancel")
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+            //check if existed request
+            if (updatedRequest.RequestId == null || updatedRequest.RequestId <= 0 || !(await _requestService.ExistsAsync(updatedRequest.RequestId)))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+            //update Request
+            var reusult = await _requestService.RespondToRequestAsync(updatedRequest.RequestId,updatedRequest.HelperId,updatedRequest.Action,updatedRequest.SpecialNotes);
+            return Ok(reusult);
+        }
     }
 }
