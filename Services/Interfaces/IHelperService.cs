@@ -16,4 +16,5 @@ public interface IHelperService : IBaseService<HelperDetailsDto, HelperCreateDto
     Task<bool> SetHelperStatusOnlineAsync(int helperId);
     Task<bool> SetHelperStatusOfflineAsync(int helperId);
     Task<bool> SetHelperStatusBusyAsync(int helperId);
+    Task<HelperViewIncomeDto> HelperViewIncomeAsync(int helperId);
 }

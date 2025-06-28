@@ -64,6 +64,21 @@ namespace HomeHelperFinderAPI.Controllers
                 return BadRequest(new { message = "Failed to set helper status to busy." });
             }
         }
+        [HttpGet("ViewIncome/{id}")]
+        public async Task<IActionResult> ViewIncome(int id)
+        {
+            var incomeDetails = await _helperService.HelperViewIncomeAsync(id);
+            if (incomeDetails != null)
+            {
+                _logger.LogInformation($"Income details retrieved for helper with ID {id}.");
+                return Ok(incomeDetails);
+            }
+            else
+            {
+                _logger.LogWarning($"No income details found for helper with ID {id}.");
+                return NotFound(new { message = "No income details found for this helper." });
+            }
+        }
 
     }
 } 

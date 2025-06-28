@@ -121,5 +121,12 @@ public class HelperProfile : Profile
             .ForMember(dest => dest.Reviews, opt => opt.Ignore())
             .ForMember(dest => dest.SupportTickets, opt => opt.Ignore())
             .ForMember(dest => dest.WithdrawalRequests, opt => opt.Ignore());
+
+        CreateMap<HelperWallet, HelperViewIncomeDto>()
+            .ForMember(dest => dest.HelperId, opt => opt.MapFrom(src => src.HelperId))
+            .ForMember(dest => dest.WalletId, opt => opt.MapFrom(src => src.WalletId))
+            .ForMember(dest => dest.Balance, opt => opt.MapFrom(src => src.Balance))
+            .ForMember(dest => dest.CurrencyCode, opt => opt.MapFrom(src => src.CurrencyCode))
+            .ReverseMap();
     }
 }

@@ -1,5 +1,6 @@
 using AutoMapper;
 using BussinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Repositories;
 using Services.DTOs.Helper;
@@ -163,5 +164,13 @@ public class HelperService : IHelperService
     public async Task<bool> SetHelperStatusBusyAsync(int helperId)
     {
         return await _unitOfWork.Helpers.SetHelperStatusBusyAsync(helperId);
+    }
+    public async Task<HelperViewIncomeDto> HelperViewIncomeAsync(int helperId)
+    {
+        var helper = await _unitOfWork.Helpers.GetQueryable(h => h.HelperWallet).FirstOrDefaultAsync(h => h.HelperId == helperId);
+
+        if (helper == null) throw new ArgumentException($"Helper with ID {helperId} not found");
+        var income = helper.HelperWallet;
+        return _mapper.Map<HelperViewIncomeDto>(income);
     }
 }
