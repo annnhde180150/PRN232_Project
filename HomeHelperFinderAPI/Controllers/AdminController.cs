@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.DTOs.Admin;
+using Services.DTOs.Notification;
 using Services.Interfaces;
 
 namespace HomeHelperFinderAPI.Controllers
@@ -10,11 +11,13 @@ namespace HomeHelperFinderAPI.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IAdminService _adminService;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(IAdminService adminService, ILogger<AdminController> logger)
+        public AdminController(IAdminService adminService, INotificationService notificationService, ILogger<AdminController> logger)
         {
             _adminService = adminService;
+            _notificationService = notificationService;
             _logger = logger;
         }
 
@@ -39,6 +42,23 @@ namespace HomeHelperFinderAPI.Controllers
 
                 // Update admin profile
                 var updatedAdmin = await _adminService.UpdateAsync(adminId, updateDto);
+
+                try
+                {
+                    var notificationDto = new NotificationCreateDto
+                    {
+                        RecipientUserId = adminId, 
+                        Title = "Admin Profile Updated",
+                        Message = "Your admin profile has been successfully updated.",
+                        NotificationType = "AdminProfileUpdate",
+                        ReferenceId = adminId.ToString()
+                    };
+                    await _notificationService.CreateAsync(notificationDto);
+                }
+                catch (Exception notificationEx)
+                {
+                    _logger.LogWarning($"Failed to send admin profile update notification to admin {adminId}: {notificationEx.Message}");
+                }
 
                 return Ok(new
                 {
@@ -137,6 +157,25 @@ namespace HomeHelperFinderAPI.Controllers
 
                 if (passwordChanged)
                 {
+                    // Send notification
+                    try
+                    {
+                        var notificationDto = new NotificationCreateDto
+                        {
+                            RecipientUserId = adminId, 
+                            Title = "Admin Password Changed",
+                            Message = "Your admin password has been successfully changed. If you didn't make this change, please contact system administrator immediately.",
+                            NotificationType = "AdminPasswordChange",
+                            ReferenceId = adminId.ToString()
+                        };
+
+                        await _notificationService.CreateAsync(notificationDto);
+                    }
+                    catch (Exception notificationEx)
+                    {
+                        _logger.LogWarning($"Failed to send admin password change notification to admin {adminId}: {notificationEx.Message}");
+                    }
+
                     return Ok(new
                     {
                         Success = true,

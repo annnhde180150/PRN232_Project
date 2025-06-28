@@ -2,6 +2,7 @@ using HomeHelperFinderAPI.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.DTOs.User;
+using Services.DTOs.Notification;
 using Services.Interfaces;
 
 namespace HomeHelperFinderAPI.Controllers
@@ -11,11 +12,13 @@ namespace HomeHelperFinderAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly INotificationService _notificationService;
         private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserService userService, ILogger<UserController> logger)
+        public UserController(IUserService userService, INotificationService notificationService, ILogger<UserController> logger)
         {
             _userService = userService;
+            _notificationService = notificationService;
             _logger = logger;
         }
 
@@ -27,20 +30,36 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 _logger.LogInformation($"Editing profile for user ID: {userId}");
 
-                // Validate input
                 if (updateDto == null)
                 {
                     return BadRequest("Update data cannot be null");
                 }
 
-                // Check if user exists
                 if (!await _userService.ExistsAsync(userId))
                 {
                     return NotFound($"User with ID {userId} not found");
                 }
 
-                // Update user profile
                 var updatedUser = await _userService.UpdateAsync(userId, updateDto);
+
+                // Send notification
+                try
+                {
+                    var notificationDto = new NotificationCreateDto
+                    {
+                        RecipientUserId = userId,
+                        Title = "Profile Updated",
+                        Message = "Your profile has been successfully updated.",
+                        NotificationType = "ProfileUpdate",
+                        ReferenceId = userId.ToString()
+                    };
+
+                    await _notificationService.CreateAsync(notificationDto);
+                }
+                catch (Exception notificationEx)
+                {
+                    _logger.LogWarning($"Failed to send profile update notification to user {userId}: {notificationEx.Message}");
+                }
 
                 return Ok(new
                 {
@@ -52,20 +71,12 @@ namespace HomeHelperFinderAPI.Controllers
             catch (ArgumentException ex)
             {
                 _logger.LogWarning($"Invalid argument when editing profile for user {userId}: {ex.Message}");
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = ex.Message
-                });
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error editing profile for user {userId}: {ex.Message}");
-                return StatusCode(500, new
-                {
-                    Success = false,
-                    Message = "An error occurred while updating the profile"
-                });
+                return StatusCode(500, "An error occurred while changing the password");
             }
         }
 
@@ -77,13 +88,11 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 _logger.LogInformation($"Getting profile for user ID: {userId}");
 
-                // Check if user exists
                 if (!await _userService.ExistsAsync(userId))
                 {
                     return NotFound($"User with ID {userId} not found");
                 }
 
-                // Get user profile
                 var userProfile = await _userService.GetByIdAsync(userId);
 
                 return Ok(new
@@ -95,11 +104,7 @@ namespace HomeHelperFinderAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Error getting profile for user {userId}: {ex.Message}");
-                return StatusCode(500, new
-                {
-                    Success = false,
-                    Message = "An error occurred while retrieving the profile"
-                });
+                return StatusCode(500, "An error occurred while changing the password");
             }
         }
 
@@ -110,13 +115,11 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 _logger.LogInformation($"Changing password for user ID: {userId}");
 
-                // Validate input
                 if (changePasswordDto == null)
                 {
                     return BadRequest("Change password data cannot be null");
                 }
 
-                // Check if user exists
                 if (!await _userService.ExistsAsync(userId))
                 {
                     return NotFound($"User with ID {userId} not found");
@@ -142,29 +145,37 @@ namespace HomeHelperFinderAPI.Controllers
 
                 if (passwordChanged)
                 {
-                    return Ok(new
+                    // Send notification
+                    try
                     {
-                        Success = true,
-                        Message = "Password changed successfully"
-                    });
+                        var notificationDto = new NotificationCreateDto
+                        {
+                            RecipientUserId = userId,
+                            Title = "Password Changed",
+                            Message = "Your password has been successfully changed. If you didn't make this change, please contact support immediately.",
+                            NotificationType = "PasswordChange",
+                            ReferenceId = userId.ToString()
+                        };
+
+                        await _notificationService.CreateAsync(notificationDto);
+                        _logger.LogInformation($"Password change notification sent to user ID: {userId}");
+                    }
+                    catch (Exception notificationEx)
+                    {
+                        _logger.LogWarning($"Failed to send password change notification to user {userId}: {notificationEx.Message}");
+                    }
+
+                    return Ok("Password changed successfully");
                 }
                 else
                 {
-                    return BadRequest(new
-                    {
-                        Success = false,
-                        Message = "Current password is incorrect"
-                    });
+                    return BadRequest("Current password is incorrect");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error changing password for user {userId}: {ex.Message}");
-                return StatusCode(500, new
-                {
-                    Success = false,
-                    Message = "An error occurred while changing the password"
-                });
+                return StatusCode(500, "An error occurred while changing the password");
             }
         }
     }
