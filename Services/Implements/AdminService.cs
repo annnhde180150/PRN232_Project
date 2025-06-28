@@ -125,4 +125,32 @@ public class AdminService : IAdminService
         var admin = await _unitOfWork.Admins.GetAdminByEmailAsync(email);
         return admin != null;
     }
+
+    public async Task<bool> ChangePasswordAsync(int adminId, string currentPassword, string newPassword)
+    {
+        var admin = await _unitOfWork.Admins.GetByIdAsync(adminId);
+        if (admin == null)
+        {
+            _logger.LogWarning($"Admin with ID {adminId} not found");
+            return false;
+        }
+
+        // Verify current password
+        if (!_passwordHasher.VerifyPassword(currentPassword, admin.PasswordHash))
+        {
+            _logger.LogWarning($"Invalid current password for admin ID: {adminId}");
+            return false;
+        }
+
+        // Hash new password
+        var newPasswordHash = _passwordHasher.HashPassword(newPassword);
+        admin.PasswordHash = newPasswordHash;
+
+        // Update admin
+        _unitOfWork.Admins.Update(admin);
+        await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation($"Password changed successfully for admin ID: {adminId}");
+        return true;
+    }
 } 

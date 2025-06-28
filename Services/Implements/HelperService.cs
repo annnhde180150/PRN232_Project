@@ -164,4 +164,34 @@ public class HelperService : IHelperService
     {
         return await _unitOfWork.Helpers.SetHelperStatusBusyAsync(helperId);
     }
+
+    public async Task<bool> ChangePasswordAsync(int helperId, string currentPassword, string newPassword)
+    {
+        _logger.LogInformation($"Changing password for helper ID: {helperId}");
+
+        var helper = await _unitOfWork.Helpers.GetByIdAsync(helperId);
+        if (helper == null)
+        {
+            _logger.LogWarning($"Helper with ID {helperId} not found");
+            return false;
+        }
+
+        // Verify current password
+        if (!_passwordHasher.VerifyPassword(currentPassword, helper.PasswordHash))
+        {
+            _logger.LogWarning($"Invalid current password for helper ID: {helperId}");
+            return false;
+        }
+
+        // Hash new password
+        var newPasswordHash = _passwordHasher.HashPassword(newPassword);
+        helper.PasswordHash = newPasswordHash;
+
+        // Update helper
+        _unitOfWork.Helpers.Update(helper);
+        await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation($"Password changed successfully for helper ID: {helperId}");
+        return true;
+    }
 }

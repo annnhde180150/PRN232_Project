@@ -114,5 +114,33 @@ public class UserService : IUserService
         return user != null;
     }
 
- 
+    public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+    {
+        _logger.LogInformation($"Changing password for user ID: {userId}");
+
+        var user = await _unitOfWork.Users.GetByIdAsync(userId);
+        if (user == null)
+        {
+            _logger.LogWarning($"User with ID {userId} not found");
+            return false;
+        }
+
+        // Verify current password
+        if (!_passwordHasher.VerifyPassword(currentPassword, user.PasswordHash))
+        {
+            _logger.LogWarning($"Invalid current password for user ID: {userId}");
+            return false;
+        }
+
+        // Hash new password
+        var newPasswordHash = _passwordHasher.HashPassword(newPassword);
+        user.PasswordHash = newPasswordHash;
+
+        // Update user
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation($"Password changed successfully for user ID: {userId}");
+        return true;
+    }
 }

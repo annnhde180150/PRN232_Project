@@ -8,4 +8,5 @@ public interface IUserService : IBaseService<UserDetailsDto, UserCreateDto, User
     Task<bool> IsPhoneNumberExistsAsync(string phoneNumber);
     Task<UserDetailsDto?> ValidateUserCredentialsAsync(string email, string password);
     Task UpdateLastLoginDateAsync(int userId);
+    Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);
 }

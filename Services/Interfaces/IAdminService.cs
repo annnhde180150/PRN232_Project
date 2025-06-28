@@ -15,5 +15,6 @@ namespace Services.Interfaces
         Task<bool> IsEmailExistsAsync(string email);
         Task<AdminDetailsDto?> ValidateAdminCredentialsAsync(string username, string password);
         Task UpdateLastLoginDateAsync(int adminId);
+        Task<bool> ChangePasswordAsync(int adminId, string currentPassword, string newPassword);
     }
 }

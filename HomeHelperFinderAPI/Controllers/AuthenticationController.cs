@@ -231,7 +231,7 @@ namespace HomeHelperFinderAPI.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            return Ok();
+            return Ok(new { message = "Logout successful" });
         }
 
         private bool ValidateRegistrationModel<T>(T model) where T : class

@@ -1,31 +1,29 @@
-using HomeHelperFinderAPI.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Services.DTOs.User;
+using Services.DTOs.Admin;
 using Services.Interfaces;
 
 namespace HomeHelperFinderAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class AdminController : ControllerBase
     {
-        private readonly IUserService _userService;
-        private readonly ILogger<UserController> _logger;
+        private readonly IAdminService _adminService;
+        private readonly ILogger<AdminController> _logger;
 
-        public UserController(IUserService userService, ILogger<UserController> logger)
+        public AdminController(IAdminService adminService, ILogger<AdminController> logger)
         {
-            _userService = userService;
+            _adminService = adminService;
             _logger = logger;
         }
 
-      
-        [HttpPut("profile/{userId}")]
-        public async Task<IActionResult> EditProfile(int userId, [FromBody] UserUpdateDto updateDto)
+        [HttpPut("profile/{adminId}")]
+        public async Task<IActionResult> EditProfile(int adminId, [FromBody] AdminUpdateDto updateDto)
         {
             try
             {
-                _logger.LogInformation($"Editing profile for user ID: {userId}");
+                _logger.LogInformation($"Editing profile for admin ID: {adminId}");
 
                 // Validate input
                 if (updateDto == null)
@@ -33,25 +31,25 @@ namespace HomeHelperFinderAPI.Controllers
                     return BadRequest("Update data cannot be null");
                 }
 
-                // Check if user exists
-                if (!await _userService.ExistsAsync(userId))
+                // Check if admin exists
+                if (!await _adminService.ExistsAsync(adminId))
                 {
-                    return NotFound($"User with ID {userId} not found");
+                    return NotFound($"Admin with ID {adminId} not found");
                 }
 
-                // Update user profile
-                var updatedUser = await _userService.UpdateAsync(userId, updateDto);
+                // Update admin profile
+                var updatedAdmin = await _adminService.UpdateAsync(adminId, updateDto);
 
                 return Ok(new
                 {
                     Success = true,
-                    Message = "Profile updated successfully",
-                    Data = updatedUser
+                    Message = "Admin profile updated successfully",
+                    Data = updatedAdmin
                 });
             }
             catch (ArgumentException ex)
             {
-                _logger.LogWarning($"Invalid argument when editing profile for user {userId}: {ex.Message}");
+                _logger.LogWarning($"Invalid argument when editing profile for admin {adminId}: {ex.Message}");
                 return BadRequest(new
                 {
                     Success = false,
@@ -60,66 +58,63 @@ namespace HomeHelperFinderAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error editing profile for user {userId}: {ex.Message}");
+                _logger.LogError($"Error editing profile for admin {adminId}: {ex.Message}");
                 return StatusCode(500, new
                 {
                     Success = false,
-                    Message = "An error occurred while updating the profile"
+                    Message = "An error occurred while updating the admin profile"
                 });
             }
         }
 
-     
-        [HttpGet("profile/{userId}")]
-        public async Task<IActionResult> GetProfile(int userId)
+        [HttpGet("profile/{adminId}")]
+        public async Task<IActionResult> GetProfile(int adminId)
         {
             try
             {
-                _logger.LogInformation($"Getting profile for user ID: {userId}");
+                _logger.LogInformation($"Getting profile for admin ID: {adminId}");
 
-                // Check if user exists
-                if (!await _userService.ExistsAsync(userId))
+                // Check if admin exists
+                if (!await _adminService.ExistsAsync(adminId))
                 {
-                    return NotFound($"User with ID {userId} not found");
+                    return NotFound($"Admin with ID {adminId} not found");
                 }
 
-                // Get user profile
-                var userProfile = await _userService.GetByIdAsync(userId);
+                // Get admin profile
+                var adminProfile = await _adminService.GetByIdAsync(adminId);
 
                 return Ok(new
                 {
                     Success = true,
-                    Data = userProfile
+                    Data = adminProfile
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error getting profile for user {userId}: {ex.Message}");
+                _logger.LogError($"Error getting profile for admin {adminId}: {ex.Message}");
                 return StatusCode(500, new
                 {
                     Success = false,
-                    Message = "An error occurred while retrieving the profile"
+                    Message = "An error occurred while retrieving the admin profile"
                 });
             }
         }
 
-        [HttpPut("change-password/{userId}")]
-        public async Task<IActionResult> ChangePassword(int userId, [FromBody] UserChangePasswordDto changePasswordDto)
+        [HttpPut("change-password/{adminId}")]
+        public async Task<IActionResult> ChangePassword(int adminId, [FromBody] AdminChangePasswordDto changePasswordDto)
         {
             try
             {
-                _logger.LogInformation($"Changing password for user ID: {userId}");
-
                 // Validate input
                 if (changePasswordDto == null)
                 {
                     return BadRequest("Change password data cannot be null");
                 }
 
-                // Check if user exists
-                if (!await _userService.ExistsAsync(userId))
+                // Check if admin exists
+                if (!await _adminService.ExistsAsync(adminId))
                 {
-                    return NotFound($"User with ID {userId} not found");
+                    return NotFound($"Admin with ID {adminId} not found");
                 }
 
                 // Validate model state
@@ -134,8 +129,8 @@ namespace HomeHelperFinderAPI.Controllers
                 }
 
                 // Change password
-                var passwordChanged = await _userService.ChangePasswordAsync(
-                    userId, 
+                var passwordChanged = await _adminService.ChangePasswordAsync(
+                    adminId, 
                     changePasswordDto.CurrentPassword, 
                     changePasswordDto.NewPassword
                 );
@@ -159,7 +154,7 @@ namespace HomeHelperFinderAPI.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error changing password for user {userId}: {ex.Message}");
+                _logger.LogError($"Error changing password for admin {adminId}: {ex.Message}");
                 return StatusCode(500, new
                 {
                     Success = false,
