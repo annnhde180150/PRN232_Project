@@ -1,4 +1,4 @@
-﻿namespace BussinessObjects.Models;
+namespace BussinessObjects.Models;
 
 public class Helper
 {
@@ -61,4 +61,13 @@ public class Helper
     public virtual ICollection<SupportTicket> SupportTickets { get; set; } = new List<SupportTicket>();
 
     public virtual ICollection<WithdrawalRequest> WithdrawalRequests { get; set; } = new List<WithdrawalRequest>();
+    public enum AvailableStatusEnum
+    {
+        Available = 0,
+        Busy = 1,
+        Offline = 2
+    }
+    public AvailableStatusEnum AvailableStatus { get; set; } = AvailableStatusEnum.Offline;
+    
+    public virtual ICollection<ServiceRequest> ServiceRequests { get; set; } = new List<ServiceRequest>();
 }

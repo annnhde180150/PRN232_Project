@@ -1,10 +1,13 @@
-﻿namespace BussinessObjects.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace BussinessObjects.Models;
 
 public class ServiceRequest
 {
     public int RequestId { get; set; }
 
     public int UserId { get; set; }
+    public int? HelperId { get; set; }
 
     public int ServiceId { get; set; }
 
@@ -20,6 +23,7 @@ public class ServiceRequest
 
     public DateTime? RequestCreationTime { get; set; }
 
+    /// Location coordinates for real-time tracking and mapping purposes
     public decimal? Latitude { get; set; }
 
     public decimal? Longitude { get; set; }
@@ -31,4 +35,13 @@ public class ServiceRequest
     public virtual Service Service { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
+    [ForeignKey("HelperId")]
+    public virtual Helper Helper { get; set; } = null!;
+    public enum AvailableStatus
+    {
+        Pending = 0,
+        InProgress = 1,
+        Completed = 2,
+        Cancelled = 3
+    }
 }

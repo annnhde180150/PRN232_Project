@@ -10,9 +10,14 @@ public class BaseRepository<T>(Prn232HomeHelperFinderSystemContext context) : IB
     protected readonly Prn232HomeHelperFinderSystemContext _context = context;
     private readonly DbSet<T> _dbSet = context.Set<T>();
 
-    public virtual IQueryable<T> GetQueryable()
+    public virtual IQueryable<T> GetQueryable(params Expression<Func<T, object>>[] includes)
     {
-        return _dbSet.AsNoTracking();
+        var result = _dbSet.AsNoTracking();
+        foreach(var include in includes)
+        {
+            result = result.Include(include);
+        }
+        return result;
     }
 
     public virtual async Task<T?> GetByIdAsync(int id)

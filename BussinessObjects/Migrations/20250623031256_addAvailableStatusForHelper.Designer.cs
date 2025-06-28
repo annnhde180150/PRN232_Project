@@ -4,6 +4,7 @@ using BussinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BussinessObjects.Migrations
 {
     [DbContext(typeof(Prn232HomeHelperFinderSystemContext))]
-    partial class Prn232HomeHelperFinderSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20250623031256_addAvailableStatusForHelper")]
+    partial class addAvailableStatusForHelper
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -871,9 +874,6 @@ namespace BussinessObjects.Migrations
                         .HasColumnType("int")
                         .HasColumnName("AddressID");
 
-                    b.Property<int?>("HelperId")
-                        .HasColumnType("int");
-
                     b.Property<decimal?>("Latitude")
                         .HasColumnType("decimal(10, 7)");
 
@@ -912,8 +912,6 @@ namespace BussinessObjects.Migrations
                         .HasName("PK__ServiceR__33A8519A5166DDB8");
 
                     b.HasIndex("AddressId");
-
-                    b.HasIndex("HelperId");
 
                     b.HasIndex("ServiceId");
 
@@ -1517,10 +1515,6 @@ namespace BussinessObjects.Migrations
                         .IsRequired()
                         .HasConstraintName("FK__ServiceRe__Addre__6E01572D");
 
-                    b.HasOne("BussinessObjects.Models.Helper", "Helper")
-                        .WithMany("ServiceRequests")
-                        .HasForeignKey("HelperId");
-
                     b.HasOne("BussinessObjects.Models.Service", "Service")
                         .WithMany("ServiceRequests")
                         .HasForeignKey("ServiceId")
@@ -1535,8 +1529,6 @@ namespace BussinessObjects.Migrations
                         .HasConstraintName("FK__ServiceRe__UserI__6C190EBB");
 
                     b.Navigation("Address");
-
-                    b.Navigation("Helper");
 
                     b.Navigation("Service");
 
@@ -1694,8 +1686,6 @@ namespace BussinessObjects.Migrations
                     b.Navigation("Notifications");
 
                     b.Navigation("Reviews");
-
-                    b.Navigation("ServiceRequests");
 
                     b.Navigation("SupportTickets");
 

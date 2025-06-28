@@ -125,4 +125,43 @@ public class HelperService : IHelperService
         var helper = await _unitOfWork.Helpers.GetHelperByPhoneAsync(phoneNumber);
         return helper != null;
     }
+
+    public async Task<int> GetAvailableHelper(ServiceRequest request)
+    {
+        var startTime = request.RequestedStartTime;
+        //get list of helper(priority by rating and work hourse that day)
+        var availableHelpers = _unitOfWork.Helpers.GetQueryable(h => h.ServiceRequests)
+            .Where(h => h.IsActive.Value);
+
+        //get free helpers based on requested time and duration
+        availableHelpers = (IOrderedQueryable<Helper>)availableHelpers
+            .AsParallel()
+            .Where(h => !h.ServiceRequests.Any(sr =>
+                sr.RequestedStartTime < startTime.AddHours((double)request.RequestedDurationHours.Value) &&
+                sr.RequestedStartTime.AddMinutes((double)sr.RequestedDurationHours) > startTime));
+
+        //filter by location if provided
+
+        //filter by work hours that day
+        availableHelpers = (IQueryable<Helper>)availableHelpers
+            .AsParallel()
+            .OrderBy(h => h.ServiceRequests.Where(r => r.RequestedStartTime.Date == startTime.Date).Sum(r => r.RequestedDurationHours))
+            .ThenBy(h => h.AverageRating);
+
+        //compare same helper (based on what constraint)
+        return _mapper.Map<HelperDetailsDto>(availableHelpers.FirstOrDefault()).HelperId;
+    }
+
+    public async Task<bool> SetHelperStatusOnlineAsync(int helperId)
+    {
+        return await _unitOfWork.Helpers.SetHelperStatusOnlineAsync(helperId);
+    }
+    public async Task<bool> SetHelperStatusOfflineAsync(int helperId)
+    {
+        return await _unitOfWork.Helpers.SetHelperStatusOfflineAsync(helperId);
+    }
+    public async Task<bool> SetHelperStatusBusyAsync(int helperId)
+    {
+        return await _unitOfWork.Helpers.SetHelperStatusBusyAsync(helperId);
+    }
 }
