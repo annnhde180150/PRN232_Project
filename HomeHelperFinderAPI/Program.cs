@@ -22,6 +22,7 @@ builder.Services.AddDbContext<Prn232HomeHelperFinderSystemContext>(options =>
 
 builder.Services.AddScoped<Prn232HomeHelperFinderSystemContext>();
 // Repository registrations
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IHelperRepository, HelperRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
@@ -34,6 +35,7 @@ builder.Services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>(
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Service registrations
+builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IHelperService, HelperService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();

@@ -157,14 +157,17 @@ public class HelperService : IHelperService
     {
         return await _unitOfWork.Helpers.SetHelperStatusOnlineAsync(helperId);
     }
+
     public async Task<bool> SetHelperStatusOfflineAsync(int helperId)
     {
         return await _unitOfWork.Helpers.SetHelperStatusOfflineAsync(helperId);
     }
+
     public async Task<bool> SetHelperStatusBusyAsync(int helperId)
     {
         return await _unitOfWork.Helpers.SetHelperStatusBusyAsync(helperId);
     }
+
     public async Task<HelperViewIncomeDto> HelperViewIncomeAsync(int helperId)
     {
         var helper = await _unitOfWork.Helpers.GetQueryable(h => h.HelperWallet).FirstOrDefaultAsync(h => h.HelperId == helperId);
@@ -172,5 +175,35 @@ public class HelperService : IHelperService
         if (helper == null) throw new ArgumentException($"Helper with ID {helperId} not found");
         var income = helper.HelperWallet;
         return _mapper.Map<HelperViewIncomeDto>(income);
+    }
+    
+    public async Task<bool> ChangePasswordAsync(int helperId, string currentPassword, string newPassword)
+    {
+        _logger.LogInformation($"Changing password for helper ID: {helperId}");
+
+        var helper = await _unitOfWork.Helpers.GetByIdAsync(helperId);
+        if (helper == null)
+        {
+            _logger.LogWarning($"Helper with ID {helperId} not found");
+            return false;
+        }
+
+        // Verify current password
+        if (!_passwordHasher.VerifyPassword(currentPassword, helper.PasswordHash))
+        {
+            _logger.LogWarning($"Invalid current password for helper ID: {helperId}");
+            return false;
+        }
+
+        // Hash new password
+        var newPasswordHash = _passwordHasher.HashPassword(newPassword);
+        helper.PasswordHash = newPasswordHash;
+
+        // Update helper
+        _unitOfWork.Helpers.Update(helper);
+        await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation($"Password changed successfully for helper ID: {helperId}");
+        return true;
     }
 }

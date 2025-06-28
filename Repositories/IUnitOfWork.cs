@@ -4,6 +4,7 @@ namespace Repositories;
 
 public interface IUnitOfWork
 {
+    IAdminRepository Admins { get; }
     IUserRepository Users { get; }
     IHelperRepository Helpers { get; }
     INotificationRepository Notifications { get; }
