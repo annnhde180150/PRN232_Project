@@ -9,7 +9,7 @@ public class UserProfile : Profile
     public UserProfile()
     {
         CreateMap<User, UserDetailsDto>()
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.UserId))
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
@@ -22,7 +22,7 @@ public class UserProfile : Profile
             .ForMember(dest => dest.DefaultAddressId, opt => opt.MapFrom(src => src.DefaultAddressId));
 
         CreateMap<UserDetailsDto, User>()
-            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))

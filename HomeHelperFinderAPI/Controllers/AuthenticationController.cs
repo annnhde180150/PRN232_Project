@@ -166,7 +166,7 @@ namespace HomeHelperFinderAPI.Controllers
                 return Unauthorized(new { message = "Invalid email or password" });
             }
 
-            await _userService.UpdateLastLoginDateAsync(user.UserId);
+            await _userService.UpdateLastLoginDateAsync(user.Id);
             var token = _jwtService.GenerateJwtToken(user);
 
             return Ok(new
@@ -191,7 +191,7 @@ namespace HomeHelperFinderAPI.Controllers
                 return Unauthorized(new { message = "Invalid email or password" });
             }
 
-            await _helperService.UpdateLastLoginDateAsync(helper.HelperId);
+            await _helperService.UpdateLastLoginDateAsync(helper.Id);
             var token = _jwtService.GenerateJwtToken(helper);
 
             return Ok(new
@@ -216,7 +216,7 @@ namespace HomeHelperFinderAPI.Controllers
                 return Unauthorized(new { message = "Invalid username or password" });
             }
 
-            await _adminService.UpdateLastLoginDateAsync(admin.AdminId);
+            await _adminService.UpdateLastLoginDateAsync(admin.Id);
             var token = _jwtService.GenerateJwtToken(admin);
 
             return Ok(new
