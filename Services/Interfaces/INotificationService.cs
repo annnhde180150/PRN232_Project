@@ -17,4 +17,7 @@ public interface
     Task<bool> MarkAsReadAsync(int id);
     Task MarkAllAsReadByUserIdAsync(int userId);
     Task MarkAllAsReadByHelperIdAsync(int helperId);
+
+    // Method to create notification without sending real-time notification
+    Task<NotificationDetailsDto> CreateWithoutRealtimeAsync(NotificationCreateDto createDto);
 }

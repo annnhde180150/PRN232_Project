@@ -8,7 +8,7 @@ namespace HomeHelperFinderAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")] // Only admins can ban/unban profiles
+[Authorize(Roles = "Admin")]
 public class ProfileManagementController : ControllerBase
 {
     private readonly IProfileManagementService _profileManagementService;
