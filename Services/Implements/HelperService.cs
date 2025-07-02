@@ -150,7 +150,7 @@ public class HelperService : IHelperService
             .ThenBy(h => h.AverageRating);
 
         //compare same helper (based on what constraint)
-        return _mapper.Map<HelperDetailsDto>(availableHelpers.FirstOrDefault()).HelperId;
+        return _mapper.Map<HelperDetailsDto>(availableHelpers.FirstOrDefault()).Id;
     }
 
     public async Task<bool> SetHelperStatusOnlineAsync(int helperId)

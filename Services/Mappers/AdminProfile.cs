@@ -14,7 +14,7 @@ namespace Services.Mappers
         public AdminProfile() 
         {
             CreateMap<AdminUser, AdminDetailsDto>()
-                .ForMember(dest => dest.AdminId, opt => opt.MapFrom(src => src.AdminId))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.AdminId))
                 .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username))
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))

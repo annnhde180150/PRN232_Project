@@ -9,7 +9,7 @@ namespace Services.DTOs.Admin
 {
     public class AdminDetailsDto : IAppUser
     {
-        public int AdminId { get; set; }
+        public int Id { get; set; }
 
         public string Username { get; set; } = null!;
 
