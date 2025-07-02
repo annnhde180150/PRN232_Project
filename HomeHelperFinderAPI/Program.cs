@@ -54,14 +54,16 @@ builder.Services.AddSignalR();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddDefaultPolicy(policy =>
     {
-        builder.WithOrigins("http://10.0.2.2:5000", "http://localhost:3000")
+        policy
+            .SetIsOriginAllowed(origin => true)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
     });
 });
+
 
 builder.Services.AddControllers(options => { options.Filters.Add<ApiResponseWrapperFilter>(); })
     .AddOData()
@@ -79,8 +81,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
+else
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors();
 
