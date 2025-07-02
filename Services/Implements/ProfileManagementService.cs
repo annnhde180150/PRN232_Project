@@ -13,17 +13,20 @@ public class ProfileManagementService : IProfileManagementService
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRealtimeNotificationService _realtimeNotificationService;
+    private readonly INotificationService? _notificationService;
 
     public ProfileManagementService(
-        IUnitOfWork unitOfWork, 
-        IMapper mapper, 
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
         ILogger<ProfileManagementService> logger,
-        IRealtimeNotificationService realtimeNotificationService)
+        IRealtimeNotificationService realtimeNotificationService,
+        INotificationService? notificationService = null)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
         _realtimeNotificationService = realtimeNotificationService;
+        _notificationService = notificationService;
     }
 
     public async Task<ProfileStatusDto> BanProfileAsync(BanProfileDto dto)
@@ -286,11 +289,28 @@ public class ProfileManagementService : IProfileManagementService
                 CreationTime = DateTime.UtcNow
             };
 
+            // Send real-time notification
             await _realtimeNotificationService.SendToUserAsync(
-                profileId.ToString(), 
-                profileType, 
+                profileId.ToString(),
+                profileType,
                 notification
             );
+
+            // Save notification to database
+            if (_notificationService != null)
+            {
+                var createNotificationDto = new NotificationCreateDto
+                {
+                    RecipientUserId = notification.RecipientUserId,
+                    RecipientHelperId = notification.RecipientHelperId,
+                    Title = notification.Title,
+                    Message = notification.Message,
+                    NotificationType = notification.NotificationType,
+                    ReferenceId = notification.ReferenceId
+                };
+
+                await _notificationService.CreateWithoutRealtimeAsync(createNotificationDto);
+            }
 
             _logger.LogInformation($"Ban notification sent to {profileType} {profileId} ({fullName})");
         }
@@ -316,11 +336,28 @@ public class ProfileManagementService : IProfileManagementService
                 CreationTime = DateTime.UtcNow
             };
 
+            // Send real-time notification
             await _realtimeNotificationService.SendToUserAsync(
-                profileId.ToString(), 
-                profileType, 
+                profileId.ToString(),
+                profileType,
                 notification
             );
+
+            // Save notification to database
+            if (_notificationService != null)
+            {
+                var createNotificationDto = new NotificationCreateDto
+                {
+                    RecipientUserId = notification.RecipientUserId,
+                    RecipientHelperId = notification.RecipientHelperId,
+                    Title = notification.Title,
+                    Message = notification.Message,
+                    NotificationType = notification.NotificationType,
+                    ReferenceId = notification.ReferenceId
+                };
+
+                await _notificationService.CreateWithoutRealtimeAsync(createNotificationDto);
+            }
 
             _logger.LogInformation($"Unban notification sent to {profileType} {profileId} ({fullName})");
         }

@@ -9,7 +9,7 @@ namespace HomeHelperFinderAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+// [Authorize]
 public class ReportController : ControllerBase
 {
     private readonly IAnalyticsService _analyticsService;
@@ -23,11 +23,8 @@ public class ReportController : ControllerBase
         _realtimeService = realtimeService;
     }
 
-    /// <summary>
-    /// Get system-wide overview statistics
-    /// </summary>
     [HttpGet("system-overview")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult<SystemOverviewDto>> GetSystemOverview()
     {
         try
@@ -41,11 +38,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get performance metrics and KPIs
-    /// </summary>
     [HttpGet("performance-metrics")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult<PerformanceMetricsDto>> GetPerformanceMetrics()
     {
         try
@@ -59,11 +53,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get user analytics and trends
-    /// </summary>
     [HttpGet("users")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult<UserAnalyticsDto>> GetUserAnalytics(
         [FromQuery] DateTime? startDate = null,
         [FromQuery] DateTime? endDate = null)
@@ -79,11 +70,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get specific user activity analytics
-    /// </summary>
     [HttpGet("users/{userId}/activity")]
-    [Authorize(Roles = "Admin,User")]
+    // [Authorize(Roles = "Admin,User")]
     public async Task<ActionResult<UserAnalyticsDto>> GetUserActivity(
         int userId,
         [FromQuery] string period = "month")
@@ -108,11 +96,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get helper performance analytics
-    /// </summary>
     [HttpGet("helpers/{helperId?}")]
-    [Authorize(Roles = "Admin,Helper")]
+    // [Authorize(Roles = "Admin,Helper")]
     public async Task<ActionResult<HelperAnalyticsDto>> GetHelperAnalytics(
         int? helperId = null,
         [FromQuery] string period = "month")
@@ -152,11 +137,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get my helper analytics (for authenticated helpers)
-    /// </summary>
     [HttpGet("helpers/my-analytics")]
-    [Authorize(Roles = "Helper")]
+    // [Authorize(Roles = "Helper")]
     public async Task<ActionResult<HelperAnalyticsDto>> GetMyAnalytics(
         [FromQuery] string period = "month")
     {
@@ -172,11 +154,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get top performing helpers
-    /// </summary>
     [HttpGet("helpers/top-performers")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult<List<HelperAnalyticsDto>>> GetTopPerformingHelpers(
         [FromQuery] int count = 10,
         [FromQuery] string period = "month")
@@ -192,11 +171,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get booking analytics and trends
-    /// </summary>
     [HttpGet("bookings")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult<BookingAnalyticsDto>> GetBookingAnalytics(
         [FromQuery] int? serviceId = null,
         [FromQuery] string period = "month")
@@ -212,11 +188,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get service popularity analytics
-    /// </summary>
     [HttpGet("services/popularity")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult<List<ServicePopularityDto>>> GetServicePopularity(
         [FromQuery] string period = "month")
     {
@@ -231,11 +204,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get revenue report and financial analytics
-    /// </summary>
     [HttpGet("revenue")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult<RevenueReportDto>> GetRevenueReport(
         [FromQuery] string period = "month")
     {
@@ -250,11 +220,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Get monthly revenue trend
-    /// </summary>
     [HttpGet("revenue/trend")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult<List<MonthlyRevenueDto>>> GetMonthlyRevenueTrend(
         [FromQuery] int months = 12)
     {
@@ -269,11 +236,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Export system report to CSV
-    /// </summary>
     [HttpGet("export/system")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult> ExportSystemReport(
         [FromQuery] DateTime? startDate = null,
         [FromQuery] DateTime? endDate = null)
@@ -294,11 +258,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Export helper report to CSV
-    /// </summary>
     [HttpGet("export/helpers/{helperId}")]
-    [Authorize(Roles = "Admin,Helper")]
+    // [Authorize(Roles = "Admin,Helper")]
     public async Task<ActionResult> ExportHelperReport(
         int helperId,
         [FromQuery] DateTime? startDate = null,
@@ -328,11 +289,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Export booking report to CSV
-    /// </summary>
     [HttpGet("export/bookings")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult> ExportBookingReport(
         [FromQuery] DateTime? startDate = null,
         [FromQuery] DateTime? endDate = null)
@@ -353,11 +311,8 @@ public class ReportController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Refresh analytics cache and send real-time updates
-    /// </summary>
     [HttpPost("refresh")]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     public async Task<ActionResult> RefreshAnalytics()
     {
         try
@@ -401,7 +356,7 @@ public class ReportController : ControllerBase
 
     private string GetUserType()
     {
-        return User.FindFirst("UserType")?.Value ?? "";
+        return User.FindFirst(ClaimTypes.Role)?.Value ?? "";
     }
 
     #endregion

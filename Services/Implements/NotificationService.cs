@@ -95,6 +95,33 @@ public class NotificationService : INotificationService
         return notificationDto;
     }
 
+    public async Task<NotificationDetailsDto> CreateWithoutRealtimeAsync(NotificationCreateDto createDto)
+    {
+        _logger.LogInformation($"Creating new notification without real-time with title: {createDto.Title}");
+
+        // Validation
+        if (createDto.RecipientUserId == null && createDto.RecipientHelperId == null)
+            throw new ArgumentException("Notification must have either RecipientUserId or RecipientHelperId");
+
+        if (createDto.RecipientUserId != null && createDto.RecipientHelperId != null)
+            throw new ArgumentException("Notification cannot have both RecipientUserId and RecipientHelperId");
+
+        var notification = _mapper.Map<Notification>(createDto);
+
+        // Auto-set timestamps
+        notification.CreationTime = DateTime.UtcNow;
+        notification.SentTime = DateTime.UtcNow;
+        notification.IsRead = false;
+
+        await _unitOfWork.Notifications.AddAsync(notification);
+        await _unitOfWork.CompleteAsync();
+
+        var notificationDto = _mapper.Map<NotificationDetailsDto>(notification);
+
+        _logger.LogInformation($"Notification saved to database without real-time notification");
+        return notificationDto;
+    }
+
     public async Task<NotificationDetailsDto> UpdateAsync(int id, NotificationUpdateDto updateDto)
     {
         _logger.LogInformation($"Updating notification with ID: {id}");
