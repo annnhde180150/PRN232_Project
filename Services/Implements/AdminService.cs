@@ -64,9 +64,9 @@ public class AdminService : IAdminService
         return _mapper.Map<AdminDetailsDto>(existingAdmin);
     }
 
-    public async Task<AdminDetailsDto?> ValidateAdminCredentialsAsync(string username, string password)
+    public async Task<AdminDetailsDto?> ValidateAdminCredentialsAsync(string email, string password)
     {
-        var admin = await _unitOfWork.Admins.GetAdminByUsernameAsync(username);
+        var admin = await _unitOfWork.Admins.GetAdminByEmailAsync(email);
         if (admin == null) return null;
 
         if (!admin.IsActive == true) return null;

@@ -210,7 +210,7 @@ namespace HomeHelperFinderAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var admin = await _adminService.ValidateAdminCredentialsAsync(loginDto.Username, loginDto.Password);
+            var admin = await _adminService.ValidateAdminCredentialsAsync(loginDto.Email, loginDto.Password);
             if (admin == null)
             {
                 return Unauthorized(new { message = "Invalid username or password" });
