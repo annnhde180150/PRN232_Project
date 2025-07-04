@@ -16,6 +16,9 @@ public interface IUnitOfWork
     IServiceRepository Services { get; }
     IServiceRequestRepository ServiceRequest { get; }
     IUserAddressRepository addressRepository { get; }
+    IHelperSkillRepository HelperSkills { get; }
+    IHelperWorkAreaRepository HelperWorkAreas { get; }
+    IHelperDocumentRepository HelperDocuments { get; }
 
     Task<int> CompleteAsync();
 }

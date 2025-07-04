@@ -47,6 +47,30 @@ public class HelperService : IHelperService
         await _unitOfWork.Helpers.AddAsync(helper);
         await _unitOfWork.CompleteAsync();
 
+        // Save related entities
+        if (dto.Skills != null && dto.Skills.Count > 0)
+        {
+            var skills = _mapper.Map<List<HelperSkill>>(dto.Skills);
+            foreach (var skill in skills)
+                skill.HelperId = helper.HelperId;
+            await _unitOfWork.HelperSkills.AddRangeAsync(skills);
+        }
+        if (dto.WorkAreas != null && dto.WorkAreas.Count > 0)
+        {
+            var workAreas = _mapper.Map<List<HelperWorkArea>>(dto.WorkAreas);
+            foreach (var wa in workAreas)
+                wa.HelperId = helper.HelperId;
+            await _unitOfWork.HelperWorkAreas.AddRangeAsync(workAreas);
+        }
+        if (dto.Documents != null && dto.Documents.Count > 0)
+        {
+            var documents = _mapper.Map<List<HelperDocument>>(dto.Documents);
+            foreach (var doc in documents)
+                doc.HelperId = helper.HelperId;
+            await _unitOfWork.HelperDocuments.AddRangeAsync(documents);
+        }
+        await _unitOfWork.CompleteAsync();
+
         return _mapper.Map<HelperDetailsDto>(helper);
     }
 

@@ -23,7 +23,9 @@ public class UnitOfWork : IUnitOfWork
         Services = new ServiceRepository(_context);
         ServiceRequest = new ServiceRequestRepository(_context);
         addressRepository = new UserAddressRepository(_context);
-
+        HelperSkills = new HelperSkillRepository(_context);
+        HelperWorkAreas = new HelperWorkAreaRepository(_context);
+        HelperDocuments = new HelperDocumentRepository(_context);
     }
 
     public IAdminRepository Admins { get; }
@@ -40,6 +42,10 @@ public class UnitOfWork : IUnitOfWork
     public IServiceRequestRepository ServiceRequest { get; }
 
     public IUserAddressRepository addressRepository { get; }
+
+    public IHelperSkillRepository HelperSkills { get; }
+    public IHelperWorkAreaRepository HelperWorkAreas { get; }
+    public IHelperDocumentRepository HelperDocuments { get; }
 
     public async Task<int> CompleteAsync()
     {

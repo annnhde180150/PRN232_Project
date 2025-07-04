@@ -4,6 +4,7 @@ using Services.DTOs.Admin;
 using Services.DTOs.Helper;
 using Services.DTOs.User;
 using Services.Interfaces;
+using AutoMapper;
 
 namespace HomeHelperFinderAPI.Controllers
 {
@@ -16,14 +17,16 @@ namespace HomeHelperFinderAPI.Controllers
         private readonly IAdminService _adminService;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtService _jwtService;
+        private readonly IMapper _mapper;
 
-        public AuthenticationController(IUserService userService, IHelperService helperService, IAdminService adminService, IPasswordHasher passwordHasher, IJwtService jwtService)
+        public AuthenticationController(IUserService userService, IHelperService helperService, IAdminService adminService, IPasswordHasher passwordHasher, IJwtService jwtService, IMapper mapper)
         {
             _userService = userService;
             _helperService = helperService;
             _adminService = adminService;
             _passwordHasher = passwordHasher;
             _jwtService = jwtService;
+            _mapper = mapper;
         }
 
         #region Registration 
@@ -88,17 +91,8 @@ namespace HomeHelperFinderAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var helperCreateDto = new HelperCreateDto
-                {
-                    PhoneNumber = model.PhoneNumber,
-                    Email = model.Email,
-                    PasswordHash = _passwordHasher.HashPassword(model.Password),
-                    FullName = model.FullName,
-                    Bio = model.Bio,
-                    DateOfBirth = model.DateOfBirth,
-                    Gender = model.Gender,
-                    IsActive = false // Waiting for approval
-                };
+                var helperCreateDto = _mapper.Map<HelperCreateDto>(model);
+                helperCreateDto.PasswordHash = _passwordHasher.HashPassword(model.Password);
 
                 var result = await _helperService.CreateAsync(helperCreateDto);
                 return Ok(result);

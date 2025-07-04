@@ -29,4 +29,8 @@ public class HelperRegisterDto
 
     [StringLength(10)]
     public string? Gender { get; set; }
+
+    public List<HelperSkillCreateDto>? Skills { get; set; }
+    public List<HelperWorkAreaCreateDto>? WorkAreas { get; set; }
+    public List<HelperDocumentCreateDto>? Documents { get; set; }
 } 
