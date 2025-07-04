@@ -9,7 +9,7 @@ public class HelperProfile : Profile
     public HelperProfile()
     {
         CreateMap<Helper, HelperDetailsDto>()
-            .ForMember(dest => dest.HelperId, opt => opt.MapFrom(src => src.HelperId))
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.HelperId))
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
@@ -27,7 +27,7 @@ public class HelperProfile : Profile
             .ForMember(dest => dest.LastLoginDate, opt => opt.MapFrom(src => src.LastLoginDate));
 
         CreateMap<HelperDetailsDto, Helper>()
-            .ForMember(dest => dest.HelperId, opt => opt.MapFrom(src => src.HelperId))
+            .ForMember(dest => dest.HelperId, opt => opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))

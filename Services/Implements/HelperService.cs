@@ -1,5 +1,6 @@
 using AutoMapper;
 using BussinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Repositories;
 using Services.DTOs.Helper;
@@ -173,22 +174,33 @@ public class HelperService : IHelperService
             .ThenBy(h => h.AverageRating);
 
         //compare same helper (based on what constraint)
-        return _mapper.Map<HelperDetailsDto>(availableHelpers.FirstOrDefault()).HelperId;
+        return _mapper.Map<HelperDetailsDto>(availableHelpers.FirstOrDefault()).Id;
     }
 
     public async Task<bool> SetHelperStatusOnlineAsync(int helperId)
     {
         return await _unitOfWork.Helpers.SetHelperStatusOnlineAsync(helperId);
     }
+
     public async Task<bool> SetHelperStatusOfflineAsync(int helperId)
     {
         return await _unitOfWork.Helpers.SetHelperStatusOfflineAsync(helperId);
     }
+
     public async Task<bool> SetHelperStatusBusyAsync(int helperId)
     {
         return await _unitOfWork.Helpers.SetHelperStatusBusyAsync(helperId);
     }
 
+    public async Task<HelperViewIncomeDto> HelperViewIncomeAsync(int helperId)
+    {
+        var helper = await _unitOfWork.Helpers.GetQueryable(h => h.HelperWallet).FirstOrDefaultAsync(h => h.HelperId == helperId);
+
+        if (helper == null) throw new ArgumentException($"Helper with ID {helperId} not found");
+        var income = helper.HelperWallet;
+        return _mapper.Map<HelperViewIncomeDto>(income);
+    }
+    
     public async Task<bool> ChangePasswordAsync(int helperId, string currentPassword, string newPassword)
     {
         _logger.LogInformation($"Changing password for helper ID: {helperId}");
