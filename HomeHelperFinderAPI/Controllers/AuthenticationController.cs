@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Services.DTOs.Admin;
 using Services.DTOs.Helper;
 using Services.DTOs.User;
 using Services.Interfaces;
+using AutoMapper;
 
 namespace HomeHelperFinderAPI.Controllers
 {
@@ -12,17 +14,22 @@ namespace HomeHelperFinderAPI.Controllers
     {
         private readonly IUserService _userService;
         private readonly IHelperService _helperService;
+        private readonly IAdminService _adminService;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtService _jwtService;
+        private readonly IMapper _mapper;
 
-        public AuthenticationController(IUserService userService, IHelperService helperService, IPasswordHasher passwordHasher, IJwtService jwtService)
+        public AuthenticationController(IUserService userService, IHelperService helperService, IAdminService adminService, IPasswordHasher passwordHasher, IJwtService jwtService, IMapper mapper)
         {
             _userService = userService;
             _helperService = helperService;
+            _adminService = adminService;
             _passwordHasher = passwordHasher;
             _jwtService = jwtService;
+            _mapper = mapper;
         }
 
+        #region Registration 
         [HttpPost("register/user")]
         public async Task<IActionResult> RegisterUser([FromBody] UserRegisterDto model)
         {
@@ -84,17 +91,8 @@ namespace HomeHelperFinderAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var helperCreateDto = new HelperCreateDto
-                {
-                    PhoneNumber = model.PhoneNumber,
-                    Email = model.Email,
-                    PasswordHash = _passwordHasher.HashPassword(model.Password),
-                    FullName = model.FullName,
-                    Bio = model.Bio,
-                    DateOfBirth = model.DateOfBirth,
-                    Gender = model.Gender,
-                    IsActive = false // Waiting for approval
-                };
+                var helperCreateDto = _mapper.Map<HelperCreateDto>(model);
+                helperCreateDto.PasswordHash = _passwordHasher.HashPassword(model.Password);
 
                 var result = await _helperService.CreateAsync(helperCreateDto);
                 return Ok(result);
@@ -105,6 +103,49 @@ namespace HomeHelperFinderAPI.Controllers
             }
         }
 
+        [HttpPost("register/admin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] AdminRegisterDto model)
+        {
+            if (!ValidateRegistrationModel(model))
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                if (await _adminService.IsUsernameExistsAsync(model.Username))
+                {
+                    ModelState.AddModelError("Username", "Username is already registered.");
+                    return BadRequest(ModelState);
+                }
+
+                if (await _adminService.IsEmailExistsAsync(model.Email))
+                {
+                    ModelState.AddModelError("Email", "Email is already registered.");
+                    return BadRequest(ModelState);
+                }
+
+                var adminCreateDto = new AdminCreateDto
+                {
+                    Username = model.Username,
+                    Email = model.Email,
+                    PasswordHash = _passwordHasher.HashPassword(model.Password),
+                    FullName = model.FullName,
+                    Role = model.Role
+                };
+
+                var result = await _adminService.CreateAsync(adminCreateDto);
+                return Ok(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "An error occurred while registering the admin.");
+            }
+        }
+        #endregion
+
+
+        #region Login 
         [HttpPost("login/user")]
         public async Task<IActionResult> LoginUser([FromBody] UserLoginDto loginDto)
         {
@@ -119,7 +160,7 @@ namespace HomeHelperFinderAPI.Controllers
                 return Unauthorized(new { message = "Invalid email or password" });
             }
 
-            await _userService.UpdateLastLoginDateAsync(user.UserId);
+            await _userService.UpdateLastLoginDateAsync(user.Id);
             var token = _jwtService.GenerateJwtToken(user);
 
             return Ok(new
@@ -144,7 +185,7 @@ namespace HomeHelperFinderAPI.Controllers
                 return Unauthorized(new { message = "Invalid email or password" });
             }
 
-            await _helperService.UpdateLastLoginDateAsync(helper.HelperId);
+            await _helperService.UpdateLastLoginDateAsync(helper.Id);
             var token = _jwtService.GenerateJwtToken(helper);
 
             return Ok(new
@@ -155,10 +196,36 @@ namespace HomeHelperFinderAPI.Controllers
             });
         }
 
+        [HttpPost("login/admin")]
+        public async Task<IActionResult> LoginAdmin([FromBody] AdminLoginDto loginDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var admin = await _adminService.ValidateAdminCredentialsAsync(loginDto.Email, loginDto.Password);
+            if (admin == null)
+            {
+                return Unauthorized(new { message = "Invalid username or password" });
+            }
+
+            await _adminService.UpdateLastLoginDateAsync(admin.Id);
+            var token = _jwtService.GenerateJwtToken(admin);
+
+            return Ok(new
+            {
+                message = "Login successful",
+                token,
+                admin = admin
+            });
+        }
+        #endregion
+
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            return Ok();
+            return Ok(new { message = "Logout successful" });
         }
 
         private bool ValidateRegistrationModel<T>(T model) where T : class

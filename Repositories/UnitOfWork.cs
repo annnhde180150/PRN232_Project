@@ -11,6 +11,7 @@ public class UnitOfWork : IUnitOfWork
     public UnitOfWork(Prn232HomeHelperFinderSystemContext context)
     {
         _context = context;
+        Admins = new AdminRepository(_context);
         Users = new UserRepository(_context);
         Helpers = new HelperRepository(_context);
         Notifications = new NotificationRepository(_context);
@@ -22,9 +23,12 @@ public class UnitOfWork : IUnitOfWork
         Services = new ServiceRepository(_context);
         ServiceRequest = new ServiceRequestRepository(_context);
         addressRepository = new UserAddressRepository(_context);
-
+        HelperSkills = new HelperSkillRepository(_context);
+        HelperWorkAreas = new HelperWorkAreaRepository(_context);
+        HelperDocuments = new HelperDocumentRepository(_context);
     }
 
+    public IAdminRepository Admins { get; }
     public IUserRepository Users { get; }
     public IHelperRepository Helpers { get; }
     public INotificationRepository Notifications { get; }
@@ -38,6 +42,10 @@ public class UnitOfWork : IUnitOfWork
     public IServiceRequestRepository ServiceRequest { get; }
 
     public IUserAddressRepository addressRepository { get; }
+
+    public IHelperSkillRepository HelperSkills { get; }
+    public IHelperWorkAreaRepository HelperWorkAreas { get; }
+    public IHelperDocumentRepository HelperDocuments { get; }
 
     public async Task<int> CompleteAsync()
     {

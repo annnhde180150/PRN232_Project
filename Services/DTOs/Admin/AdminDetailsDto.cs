@@ -9,21 +9,20 @@ namespace Services.DTOs.Admin
 {
     public class AdminDetailsDto : IAppUser
     {
-        public int AdminId { get; set; }
+        public int Id { get; set; }
 
         public string Username { get; set; } = null!;
-
-        public string PasswordHash { get; set; } = null!;
 
         public string? FullName { get; set; }
 
         public string? Email { get; set; }
 
-        public bool? IsActive { get; set; }
+        public DateTime? CreationDate { get; set; }
 
         public DateTime? LastLoginDate { get; set; }
 
-        public DateTime? CreationDate { get; set; }
+        public bool? IsActive { get; set; }
+
         public string Role => "Admin";
     }
 }

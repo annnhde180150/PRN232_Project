@@ -1,5 +1,6 @@
 using AutoMapper;
 using BussinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Repositories;
 using Services.DTOs.Helper;
@@ -45,6 +46,30 @@ public class HelperService : IHelperService
         helper.IsActive = false; // Helpers start as inactive until approved
 
         await _unitOfWork.Helpers.AddAsync(helper);
+        await _unitOfWork.CompleteAsync();
+
+        // Save related entities
+        if (dto.Skills != null && dto.Skills.Count > 0)
+        {
+            var skills = _mapper.Map<List<HelperSkill>>(dto.Skills);
+            foreach (var skill in skills)
+                skill.HelperId = helper.HelperId;
+            await _unitOfWork.HelperSkills.AddRangeAsync(skills);
+        }
+        if (dto.WorkAreas != null && dto.WorkAreas.Count > 0)
+        {
+            var workAreas = _mapper.Map<List<HelperWorkArea>>(dto.WorkAreas);
+            foreach (var wa in workAreas)
+                wa.HelperId = helper.HelperId;
+            await _unitOfWork.HelperWorkAreas.AddRangeAsync(workAreas);
+        }
+        if (dto.Documents != null && dto.Documents.Count > 0)
+        {
+            var documents = _mapper.Map<List<HelperDocument>>(dto.Documents);
+            foreach (var doc in documents)
+                doc.HelperId = helper.HelperId;
+            await _unitOfWork.HelperDocuments.AddRangeAsync(documents);
+        }
         await _unitOfWork.CompleteAsync();
 
         return _mapper.Map<HelperDetailsDto>(helper);
@@ -150,19 +175,60 @@ public class HelperService : IHelperService
             .ThenBy(h => h.AverageRating);
 
         //compare same helper (based on what constraint)
-        return _mapper.Map<HelperDetailsDto>(availableHelpers.FirstOrDefault()).HelperId;
+        return _mapper.Map<HelperDetailsDto>(availableHelpers.FirstOrDefault()).Id;
     }
 
     public async Task<bool> SetHelperStatusOnlineAsync(int helperId)
     {
         return await _unitOfWork.Helpers.SetHelperStatusOnlineAsync(helperId);
     }
+
     public async Task<bool> SetHelperStatusOfflineAsync(int helperId)
     {
         return await _unitOfWork.Helpers.SetHelperStatusOfflineAsync(helperId);
     }
+
     public async Task<bool> SetHelperStatusBusyAsync(int helperId)
     {
         return await _unitOfWork.Helpers.SetHelperStatusBusyAsync(helperId);
+    }
+
+    public async Task<HelperViewIncomeDto> HelperViewIncomeAsync(int helperId)
+    {
+        var helper = await _unitOfWork.Helpers.GetQueryable(h => h.HelperWallet).FirstOrDefaultAsync(h => h.HelperId == helperId);
+
+        if (helper == null) throw new ArgumentException($"Helper with ID {helperId} not found");
+        var income = helper.HelperWallet;
+        return _mapper.Map<HelperViewIncomeDto>(income);
+    }
+    
+    public async Task<bool> ChangePasswordAsync(int helperId, string currentPassword, string newPassword)
+    {
+        _logger.LogInformation($"Changing password for helper ID: {helperId}");
+
+        var helper = await _unitOfWork.Helpers.GetByIdAsync(helperId);
+        if (helper == null)
+        {
+            _logger.LogWarning($"Helper with ID {helperId} not found");
+            return false;
+        }
+
+        // Verify current password
+        if (!_passwordHasher.VerifyPassword(currentPassword, helper.PasswordHash))
+        {
+            _logger.LogWarning($"Invalid current password for helper ID: {helperId}");
+            return false;
+        }
+
+        // Hash new password
+        var newPasswordHash = _passwordHasher.HashPassword(newPassword);
+        helper.PasswordHash = newPasswordHash;
+
+        // Update helper
+        _unitOfWork.Helpers.Update(helper);
+        await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation($"Password changed successfully for helper ID: {helperId}");
+        return true;
     }
 }

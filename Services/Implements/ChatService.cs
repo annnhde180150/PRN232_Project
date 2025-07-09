@@ -14,17 +14,20 @@ public class ChatService : IChatService
     private readonly IMapper _mapper;
     private readonly ILogger<ChatService> _logger;
     private readonly IRealtimeNotificationService? _realtimeNotificationService;
+    private readonly INotificationService? _notificationService;
 
     public ChatService(
         IUnitOfWork unitOfWork,
         IMapper mapper,
         ILogger<ChatService> logger,
-        IRealtimeNotificationService? realtimeNotificationService = null)
+        IRealtimeNotificationService? realtimeNotificationService = null,
+        INotificationService? notificationService = null)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
         _realtimeNotificationService = realtimeNotificationService;
+        _notificationService = notificationService;
     }
 
     public async Task<ChatMessageDto> SendMessageAsync(SendMessageDto sendMessageDto, int? currentUserId, int? currentHelperId)
@@ -62,41 +65,61 @@ public class ChatService : IChatService
         var savedMessage = await _unitOfWork.Chats.GetByLongIdAsync(chat.ChatId);
         var messageDto = _mapper.Map<ChatMessageDto>(savedMessage);
 
-        // Send real-time notification
-        if (_realtimeNotificationService != null)
+        // Send real-time notification and save to database
+        if (_realtimeNotificationService != null || _notificationService != null)
         {
             try
             {
                 string receiverId, receiverType;
+                int? recipientUserId = null, recipientHelperId = null;
+
                 if (sendMessageDto.ReceiverUserId.HasValue)
                 {
                     receiverId = sendMessageDto.ReceiverUserId.Value.ToString();
                     receiverType = "User";
+                    recipientUserId = sendMessageDto.ReceiverUserId.Value;
                 }
                 else
                 {
                     receiverId = sendMessageDto.ReceiverHelperId!.Value.ToString();
                     receiverType = "Helper";
+                    recipientHelperId = sendMessageDto.ReceiverHelperId.Value;
                 }
 
-                // Send chat message notification
-                await _realtimeNotificationService.SendToUserAsync(receiverId, receiverType, 
-                    new NotificationDetailsDto
-                    {
-                        Title = "New Message",
-                        Message = $"You have a new message from {messageDto.SenderName}",
-                        NotificationType = "ChatMessage",
-                        ReferenceId = chat.ChatId.ToString()
-                    });
-
-                // Send the actual chat message via SignalR
-                var signalRService = _realtimeNotificationService as dynamic;
-                if (signalRService?.SendChatMessageAsync != null)
+                var notificationDto = new NotificationDetailsDto
                 {
-                    await signalRService.SendChatMessageAsync(receiverId, receiverType, messageDto);
+                    Title = "New Message",
+                    Message = $"You have a new message from {messageDto.SenderName}",
+                    NotificationType = "ChatMessage",
+                    ReferenceId = chat.ChatId.ToString()
+                };
+
+                // Send real-time notification via SignalR
+                if (_realtimeNotificationService != null)
+                {
+                    await _realtimeNotificationService.SendToUserAsync(receiverId, receiverType, notificationDto);
+
+                    // Send the actual chat message via SignalR
+                    await _realtimeNotificationService.SendChatMessageAsync(receiverId, receiverType, messageDto);
                 }
 
-                _logger.LogInformation($"Real-time chat message sent to {receiverType} {receiverId}");
+                // Save notification to database for offline users (without sending real-time again)
+                if (_notificationService != null)
+                {
+                    var createNotificationDto = new NotificationCreateDto
+                    {
+                        RecipientUserId = recipientUserId,
+                        RecipientHelperId = recipientHelperId,
+                        Title = notificationDto.Title,
+                        Message = notificationDto.Message,
+                        NotificationType = notificationDto.NotificationType,
+                        ReferenceId = notificationDto.ReferenceId
+                    };
+
+                    await _notificationService.CreateWithoutRealtimeAsync(createNotificationDto);
+                }
+
+                _logger.LogInformation($"Chat message and notification sent to {receiverType} {receiverId}");
             }
             catch (Exception ex)
             {
@@ -173,11 +196,8 @@ public class ChatService : IChatService
                     userType = "Helper";
                 }
 
-                var signalRService = _realtimeNotificationService as dynamic;
-                if (signalRService?.SendReadStatusAsync != null)
-                {
-                    await signalRService.SendReadStatusAsync(userId, userType, markAsReadDto.ChatIds);
-                }
+                await _realtimeNotificationService.SendReadStatusAsync(userId, userType, markAsReadDto.ChatIds);
+                _logger.LogInformation($"Read status sent to {userType} {userId}");
             }
             catch (Exception ex)
             {

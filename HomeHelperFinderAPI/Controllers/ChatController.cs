@@ -173,7 +173,7 @@ public class ChatController : ControllerBase
 
     private (int?, int?) GetCurrentUserInfo()
     {
-        var userType = User.FindFirst("UserType")?.Value;
+        var userType = User.FindFirst(ClaimTypes.Role)?.Value;
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userType) || string.IsNullOrEmpty(userIdClaim))

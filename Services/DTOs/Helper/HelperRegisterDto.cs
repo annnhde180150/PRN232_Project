@@ -11,7 +11,7 @@ public class HelperRegisterDto
 
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid email format")]
-    [StringLength(255)]
+    [StringLength(200)]
     public string Email { get; set; } = null!;
 
     [Required(ErrorMessage = "Password is required")]
@@ -29,4 +29,8 @@ public class HelperRegisterDto
 
     [StringLength(10)]
     public string? Gender { get; set; }
+
+    public List<HelperSkillCreateDto>? Skills { get; set; }
+    public List<HelperWorkAreaCreateDto>? WorkAreas { get; set; }
+    public List<HelperDocumentCreateDto>? Documents { get; set; }
 } 
