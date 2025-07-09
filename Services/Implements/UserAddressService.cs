@@ -11,6 +11,8 @@ using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Repositories;
 using Microsoft.Extensions.Configuration;
+using System.Text.Json;
+using Services.DTOs.Coordination;
 
 namespace Services.Implements
 {
@@ -19,14 +21,26 @@ namespace Services.Implements
         IUserAddressService
     {
 
-        public async Task<bool> isValidVietnamAddress(int longtitude, int latitude)
+        public async Task<bool> isValidVietnamAddress(decimal longtitude, decimal latitude)
         {
+            if (longtitude < 102.144m || longtitude > 109.455m || latitude < 8.337m || latitude > 23.392m)
+            {
+                _logger.LogWarning("Coordinates out of Vietnam bounds: {longtitude}, {latitude}", longtitude, latitude);
+                return false;
+            }
             var url = _config["AddressConverter:CoordinateUrl"];
             url = url.Replace("{longtitude}", longtitude.ToString()).Replace("{latitude}",latitude.ToString());
             HttpClient client = new HttpClient() {
                 BaseAddress = new Uri(url)
             };
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("TestApp/1.0 (contact@example.com)");
             var response = await client.GetAsync("");
+            var content = JsonSerializer.Deserialize<CoordinateConvertedDto>(await response.Content.ReadAsStringAsync());
+            if(content == null || !content.Address.CountryCode.Equals("vn"))
+            {
+                _logger.LogWarning("Invalid address conversion response for coordinates: {longtitude}, {latitude}", longtitude, latitude);
+                return false;
+            }
             return true;
         }
     }

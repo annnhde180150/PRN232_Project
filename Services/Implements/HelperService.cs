@@ -131,7 +131,8 @@ public class HelperService : IHelperService
         var startTime = request.RequestedStartTime;
         //get list of helper(priority by rating and work hourse that day)
         var availableHelpers = _unitOfWork.Helpers.GetQueryable(h => h.ServiceRequests)
-            .Where(h => h.IsActive.Value);
+            .Where(h => h.IsActive.Value)
+            .Where(h => h.);
 
         //get free helpers based on requested time and duration
         availableHelpers = (IOrderedQueryable<Helper>)availableHelpers

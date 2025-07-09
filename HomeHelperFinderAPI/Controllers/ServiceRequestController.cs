@@ -13,7 +13,7 @@ namespace HomeHelperFinderAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ServiceRequestController(IUserService _userService, IServiceRequestService _requestService, IMapper _mapper, IUnitOfWork _unitOfWork, IHelperService _helperService) : ControllerBase
+    public class ServiceRequestController(IUserService _userService, IServiceRequestService _requestService, IMapper _mapper, IUnitOfWork _unitOfWork, IHelperService _helperService, IUserAddressService _addressService) : ControllerBase
     {
         [HttpPost("CreateRequest")]
         //[Authorize]
@@ -61,6 +61,10 @@ namespace HomeHelperFinderAPI.Controllers
 
             //check if valid status
             if (updatedRequest.Status != "Pending" && updatedRequest.Status != "InProgress" && updatedRequest.Status != "Completed" && updatedRequest.Status != "Cancelled")
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+
+            //check for valid address Id
+            if (updatedRequest.AddressId == null || !(await _addressService.ExistsAsync(updatedRequest.AddressId)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //mapp helper if not assigned
@@ -162,6 +166,10 @@ namespace HomeHelperFinderAPI.Controllers
             if (currentRequestHelperId == null || currentRequestHelperId != updatedRequest.HelperId)
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
+            //check for valid address Id
+            if (updatedRequest.AddressId == null || !(await _addressService.ExistsAsync(updatedRequest.AddressId)))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+
             //notify Helper
 
             //Check if valid state
@@ -181,6 +189,8 @@ namespace HomeHelperFinderAPI.Controllers
             var request = _requestService.GetByIdAsync(location.RequestId);
 
             //Verify valid location?
+            if (!(await _addressService.isValidVietnamAddress(location.Longitude.Value, location.Latitude.Value)))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             // fetch and update location of Request
             await request;
