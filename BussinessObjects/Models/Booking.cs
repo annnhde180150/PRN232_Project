@@ -12,8 +12,6 @@ public class Booking
 
     public int ServiceId { get; set; }
 
-    public int AddressId { get; set; }
-
     public DateTime ScheduledStartTime { get; set; }
 
     public DateTime ScheduledEndTime { get; set; }
@@ -21,8 +19,6 @@ public class Booking
     public DateTime? ActualStartTime { get; set; }
 
     public DateTime? ActualEndTime { get; set; }
-
-    public string? SpecialNotes { get; set; }
 
     public string Status { get; set; } = null!;
 
@@ -39,8 +35,6 @@ public class Booking
     public decimal? FinalPrice { get; set; }
 
     public DateTime? BookingCreationTime { get; set; }
-
-    public virtual UserAddress Address { get; set; } = null!;
 
     public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();
 
@@ -59,4 +53,11 @@ public class Booking
     public virtual User User { get; set; } = null!;
 
     public virtual ICollection<WalletTransaction> WalletTransactions { get; set; } = new List<WalletTransaction>();
+    public enum AvailableStatus
+    {
+        Pending = 0,
+        InProgress = 1,
+        Completed = 2,
+        Cancelled = 3
+    }
 }

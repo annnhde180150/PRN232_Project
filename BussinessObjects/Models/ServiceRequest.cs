@@ -7,7 +7,6 @@ public class ServiceRequest
     public int RequestId { get; set; }
 
     public int UserId { get; set; }
-    public int? HelperId { get; set; }
 
     public int ServiceId { get; set; }
 
@@ -35,13 +34,10 @@ public class ServiceRequest
     public virtual Service Service { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
-    [ForeignKey("HelperId")]
-    public virtual Helper Helper { get; set; } = null!;
-    public enum AvailableStatus
-    {
-        Pending = 0,
-        InProgress = 1,
-        Completed = 2,
-        Cancelled = 3
-    }
+        public enum AvailableStatus
+        {
+            Pending,
+            Accepted,
+            Cancelled 
+        }
 }

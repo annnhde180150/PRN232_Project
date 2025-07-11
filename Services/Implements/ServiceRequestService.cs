@@ -90,36 +90,44 @@ namespace Services.Implements
 
         public async Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int helperId, string action,string? specialNote)
         {
-            var serviceRepo = _unitOfWork.ServiceRequest;
-            var request = await serviceRepo.GetByIdAsync(requestId);
-            if (request == null)
-            {
-                _logger.LogWarning("Service request with id {RequestId} not found for response.", requestId);
-                return new ServiceRequestActionResultDto { Success = false, Message = "Request not found" };
-            }
-            if(request.Status != "Pending")
-            {
-                return new ServiceRequestActionResultDto { Success = false, Message = "Request is no longer pending" };
-            }
-            if(action == "Accept")
-            {
-                ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.InProgress;
-                request.Status = status.ToString();
-                request.SpecialNotes = specialNote;
-                serviceRepo.Update(request);
-                await _unitOfWork.CompleteAsync();               
-                return new ServiceRequestActionResultDto { Success = true, Message = "Request accepted successfully" };              
-            }
-            if (action == "Cancel")
-            {
-                ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Cancelled;
-                request.Status = status.ToString();
-                request.SpecialNotes = specialNote;
-                serviceRepo.Update(request);
-                await _unitOfWork.CompleteAsync();
-                return new ServiceRequestActionResultDto { Success = true, Message = "Request cancelled successfully" };
-            }
-            return new ServiceRequestActionResultDto { Success = false, Message = "Invalid action" };
+            //var serviceRepo = _unitOfWork.ServiceRequest;
+            //var request = await serviceRepo.GetByIdAsync(requestId);
+            //if (request == null)
+            //{
+            //    _logger.LogWarning("Service request with id {RequestId} not found for response.", requestId);
+            //    return new ServiceRequestActionResultDto { Success = false, Message = "Request not found" };
+            //}
+            //if (request.Status != "Pending")
+            //{
+            //    return new ServiceRequestActionResultDto { Success = false, Message = "Request is no longer pending" };
+            //}
+            //if (action == "Accept")
+            //{
+            //    ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.InProgress;
+            //    request.Status = status.ToString();
+            //    request.SpecialNotes = specialNote;
+            //    serviceRepo.Update(request);
+            //    await _unitOfWork.CompleteAsync();
+            //    return new ServiceRequestActionResultDto { Success = true, Message = "Request accepted successfully" };
+            //}
+            //if (action == "Cancel")
+            //{
+            //    ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Cancelled;
+            //    request.Status = status.ToString();
+            //    request.SpecialNotes = specialNote;
+            //    serviceRepo.Update(request);
+            //    await _unitOfWork.CompleteAsync();
+            //    return new ServiceRequestActionResultDto { Success = true, Message = "Request cancelled successfully" };
+            //}
+            //return new ServiceRequestActionResultDto { Success = false, Message = "Invalid action" };
+            return null;
+        }
+
+        public bool isValidStatus(string status)
+        {
+            return status.Equals(ServiceRequest.AvailableStatus.Pending) ||
+                status.Equals(ServiceRequest.AvailableStatus.Accepted) ||
+                status.Equals(ServiceRequest.AvailableStatus.Cancelled);
         }
     }
 }
