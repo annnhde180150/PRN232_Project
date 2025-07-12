@@ -42,14 +42,14 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 BookingId = latestBooking.BookingId,
                 Amount = latestBooking.FinalPrice ?? 0,
-                PaymentStatus = "Pending"
+                PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString(),
             };
             await _paymentService.CreatePayment(new PaymentCreateDto
             {
                 BookingId = latestBooking.BookingId,
                 UserId = latestBooking.UserId,
                 Amount = latestBooking.EstimatedPrice ?? 0,
-                PaymentStatus = "Pending"
+                PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString()
             });
             return Ok(_mapper.Map<BookingDetailDto>(latestBooking));
 
@@ -101,7 +101,7 @@ namespace HomeHelperFinderAPI.Controllers
                 BookingId = bookingResult.BookingId,
                 UserId = bookingResult.UserId,
                 Amount = bookingResult.EstimatedPrice ?? 0,
-                PaymentStatus = "Pending"
+                PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString()
             });
             return Ok(_mapper.Map<ServiceRequestDetailDto>(latestRequest));
         }
