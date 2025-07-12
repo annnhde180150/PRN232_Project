@@ -18,7 +18,7 @@ namespace Services.Implements
         public async Task<BookingDetailDto?> GetUserLatestBooking(int userId)
         {
             return (await GetAllAsync()).Where(b => b.UserId == userId)
-                .OrderByDescending(b => b.BookingDate)
+                .OrderByDescending(b => b.BookingCreationTime)
                 .FirstOrDefault();
         }
     }

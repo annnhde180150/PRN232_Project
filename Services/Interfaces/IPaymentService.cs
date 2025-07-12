@@ -10,5 +10,6 @@ namespace Services.Interfaces
     public interface IPaymentService
     {
         Task<GetPaymentDto> GetPayment(int userId, int bookingId);
+        Task<GetPaymentDto> CreatePayment(PaymentCreateDto newPayment);
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
 using Services.DTOs.Booking;
+using Services.DTOs.Payment;
 using Services.DTOs.ServiceRequest;
 using Services.Interfaces;
 
@@ -11,7 +12,7 @@ namespace HomeHelperFinderAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookingsController(IServiceRequestService _requestService, IMapper _mapper, IUnitOfWork _unitOfWork, IHelperService _helperService, IUserAddressService _addressService, IBookingService _bookingService, IServiceService _serviceService) : ControllerBase
+    public class BookingsController(IServiceRequestService _requestService, IMapper _mapper, IUnitOfWork _unitOfWork, IHelperService _helperService, IUserAddressService _addressService, IBookingService _bookingService, IServiceService _serviceService, IPaymentService _paymentService) : ControllerBase
     {
         [HttpPost("CreateBooking")]
         public async Task<ActionResult> CreateBooking([FromBody] BookingCreateDto newBooking)
@@ -32,8 +33,24 @@ namespace HomeHelperFinderAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to create booking");
             }
 
+            var basePrice = (await _serviceService.GetByIdAsync(newBooking.ServiceId)).BasePrice;
+            newBooking.EstimatedPrice = basePrice * (decimal)(newBooking.ScheduledEndTime - newBooking.ScheduledStartTime).TotalHours;
+
             //return new Booking under DetailDto
             var latestBooking = await _bookingService.GetUserLatestBooking(newBooking.UserId);
+            var payment = new Payment
+            {
+                BookingId = latestBooking.BookingId,
+                Amount = latestBooking.FinalPrice ?? 0,
+                PaymentStatus = "Pending"
+            };
+            await _paymentService.CreatePayment(new PaymentCreateDto
+            {
+                BookingId = latestBooking.BookingId,
+                UserId = latestBooking.UserId,
+                Amount = latestBooking.EstimatedPrice ?? 0,
+                PaymentStatus = "Pending"
+            });
             return Ok(_mapper.Map<BookingDetailDto>(latestBooking));
 
         }
@@ -74,9 +91,18 @@ namespace HomeHelperFinderAPI.Controllers
                 BookingCreationTime = DateTime.UtcNow
             };
 
+            var basePrice = (await _serviceService.GetByIdAsync(newBooking.ServiceId)).BasePrice;
+            newBooking.EstimatedPrice = basePrice * (decimal)(newBooking.ScheduledEndTime - newBooking.ScheduledStartTime).TotalHours;
+
             // insert the new booking
             var bookingResult = await _bookingService.CreateAsync(newBooking);
-
+            await _paymentService.CreatePayment(new PaymentCreateDto
+            {
+                BookingId = bookingResult.BookingId,
+                UserId = bookingResult.UserId,
+                Amount = bookingResult.EstimatedPrice ?? 0,
+                PaymentStatus = "Pending"
+            });
             return Ok(_mapper.Map<ServiceRequestDetailDto>(latestRequest));
         }
 
@@ -89,7 +115,7 @@ namespace HomeHelperFinderAPI.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             // check if booking exists
-            if (updateBooking.BookingId == null || updateBooking.BookingId <= 0 || !(await _bookingService.ExistsAsync(updateBooking.BookingId.Value)))
+            if (updateBooking.BookingId == null || updateBooking.BookingId <= 0 || !(await _bookingService.ExistsAsync(updateBooking.BookingId)))
             {
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             }

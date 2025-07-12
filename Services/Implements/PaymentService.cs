@@ -22,6 +22,18 @@ namespace Services.Implements
             _mapper = mapper;
         }
 
+        public async Task<GetPaymentDto> CreatePayment(PaymentCreateDto newPayment)
+        {
+            if (newPayment == null)
+            {
+                throw new ArgumentException("Invalid payment data");
+            }
+            var payment = _mapper.Map<Payment>(newPayment);
+            await _unitOfWork.Payments.AddAsync(payment);
+            await _unitOfWork.CompleteAsync();
+            return await GetPayment(payment.UserId, payment.BookingId);
+        }
+
         public async Task<GetPaymentDto> GetPayment(int userId ,int bookingId)
         {
             var listPayment = await _unitOfWork.Payments.GetPaymentsByUserIdAsync(userId);

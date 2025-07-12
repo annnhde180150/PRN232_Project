@@ -31,7 +31,7 @@ namespace Services.DTOs.UserAddress
 
         public bool? IsDefault { get; set; }
 
-        public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+        public virtual ICollection<BussinessObjects.Models.Booking> Bookings { get; set; } = new List<BussinessObjects.Models.Booking>();
 
         public virtual ICollection<BussinessObjects.Models.ServiceRequest> ServiceRequests { get; set; } = new List<BussinessObjects.Models.ServiceRequest>();
 

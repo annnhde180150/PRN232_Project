@@ -17,6 +17,29 @@ namespace Services.Mappers
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
                 .ForMember(dest => dest.PaymentDate, opt => opt.MapFrom(src => src.PaymentDate));
+
+            
+            CreateMap<Payment, PaymentCreateDto>();
+
+            //=========================================================================================
+
+            var ignoreName = new String[]
+            {
+                "TransactionId",
+                "PaymentDate",
+                "PaymentGatewayResponse",
+                "Booking",
+                "User"
+            };
+            CreateMap<PaymentCreateDto, Payment>()
+                .ForAllMembers(opt =>
+                {
+                    opt.Condition((src, dest, srcMember, destMember, context) =>
+                    {
+                        var memberName = opt.DestinationMember.Name;
+                        return !ignoreName.Contains(memberName);
+                    });
+                });
         }
     }
 }
