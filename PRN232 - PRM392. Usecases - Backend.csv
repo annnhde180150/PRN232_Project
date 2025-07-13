@@ -1,0 +1,46 @@
+                                                                                                                                                                                                                                                                                                                                       ,Use Case Name,Actors,Depends On, PIC,Status,Problem
+UC-01,Sign Up,"User, Helper",UC-01,MinhDQ,Pending,Add verify OTP via email
+UC-02,Sign In,"User, Helper, Admin",UC-01,MinhDQ,Finished,
+UC-03,Sign Out,"User, Helper, Admin",UC-02,MinhDQ,Pending,Handle on client
+UC-04,Edit User Profile,"User, Helper, Admin",UC-02,MinhDQ,Pending,"Handle update user address
+Handle authorization"
+UC-05,Post Help Request,User,UC-04,PhuongPH,Pending,"Need testing
+no JWT yet
+cannot verify address Id
+Need mapping helper
+Need real-time tracking
+need verify work hours of helper that day"
+UC-06,Edit Help Request,User,UC-05,PhuongPH,Pending,"Need testing
+no JWT yet
+cannot verify address Id
+Need mapping helper
+Need real-time tracking"
+UC-07,Delete Help Request,User,UC-05,PhuongPH,Pending,"Not clear constraint for cancel the request
+no JWT yet"
+UC-08,Search Helpers,User,UC-08,AnNNH,Not yet,
+UC-09,Book Helpers,User,UC-08,PhuongPH,Pending,"Not Yet Notify
+Not yet check Helper Schedule"
+UC-10,Make Payment,User,UC-09,AnNNH,On going,
+UC-11,View Notification,"User, Helper, Admin",UC-09,TuanNGP,Finished,
+UC-12,Add Favourite Helper,User,UC-09,DanhNV,Not yet,
+UC-13,View Favourite Helpers,User,UC-12,DanhNV,Not yet,
+UC-14,Delete Favourite Helper,User,UC-13,DanhNV,Not yet,
+UC-15,Track Helper Progress,User,UC-13,DanhNV,Not yet,
+UC-16,Accept/Cancel Request,Helper,UC-09,DanhNV,Not yet,
+UC-17,Rate and Feedback,User,UC-09,DanhNV,Not yet,
+UC-18,View Request History,User,UC-09,MinhDQ,Not yet,
+UC-19,Edit Helper Request,User,UC-09,PhuongPH,Pending,
+UC-20,View Scheduled Sessions,"User, Helper",UC-09,PhuongPH,Not yet,
+UC-21,Register as Helper,Helper,UC-01,MinhDQ,Finished,
+UC-22,Set Available to Receive Requests,Helper,UC-21,AnNNH,Pending,No authorize yet
+UC-23,Accept/Deny Requests,Helper,UC-22,AnNNH,Pending,"No authorize yet
+No notification yet"
+UC-24,View Income,Helper,UC-23,AnNNH,Pending,No authorize yet
+UC-25,Withdraw Income,Helper,UC-24,AnNNH,Pending,Cannot demo with sandbox 
+UC-26,View Feedback,Helper,UC-23,PhuongPH,On going,
+UC-27,Report Rate/Feedback,Helper,UC-17,DanhNV,Not yet,
+UC-28,Censoring Helper Profile,Admin,UC-27,TuanNGP,Not yet,
+UC-29,Ban/Unban Profiles,Admin,UC-21,TuanNGP,Finished,
+UC-30,View Request on Map,Admin,UC-21,TuanNGP,Not yet,
+UC-31,Create Report/Analytics,Admin,UC-09,TuanNGP,Finished,
+UC-32,Chat,"User, Helper",,TuanNGP,Finished,

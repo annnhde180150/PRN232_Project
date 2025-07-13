@@ -37,6 +37,7 @@ builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>();
 builder.Services.AddScoped<IUserAddressRepository, UserAddressRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IFavoriteHelperRepository, FavoriteHelperRepository>();
 
 // Service registrations
 builder.Services.AddScoped<IAdminService, AdminService>();
@@ -55,6 +56,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IFavoriteHelperService, FavoriteHelperService>();
 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
 
 

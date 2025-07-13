@@ -1,0 +1,47 @@
+using AutoMapper;
+using BussinessObjects.Models;
+using Repositories.Interfaces;
+using Services.DTOs.FavoriteHelper;
+using Services.Interfaces;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Repositories;
+
+namespace Services.Implements;
+
+public class FavoriteHelperService : IFavoriteHelperService
+{
+    private readonly IFavoriteHelperRepository _favoriteRepo;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+
+    public FavoriteHelperService(IFavoriteHelperRepository favoriteRepo, IUnitOfWork unitOfWork, IMapper mapper)
+    {
+        _favoriteRepo = favoriteRepo;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+    }
+
+    public async Task<FavoriteHelperDetailsDto> AddFavoriteAsync(FavoriteHelperCreateDto dto)
+    {
+        var existing = await _favoriteRepo.GetByUserAndHelperAsync(dto.UserId, dto.HelperId);
+        if (existing != null) return _mapper.Map<FavoriteHelperDetailsDto>(existing);
+        var entity = new FavoriteHelper { UserId = dto.UserId, HelperId = dto.HelperId };
+        await _favoriteRepo.AddAsync(entity);
+        await _unitOfWork.CompleteAsync();
+        return _mapper.Map<FavoriteHelperDetailsDto>(entity);
+    }
+
+    public async Task<IEnumerable<FavoriteHelperDetailsDto>> GetFavoritesByUserAsync(int userId)
+    {
+        var list = await _favoriteRepo.GetByUserIdAsync(userId);
+        return _mapper.Map<IEnumerable<FavoriteHelperDetailsDto>>(list);
+    }
+
+    public async Task<bool> DeleteFavoriteAsync(FavoriteHelperDeleteDto dto)
+    {
+        var result = await _favoriteRepo.DeleteByUserAndHelperAsync(dto.UserId, dto.HelperId);
+        if (result) await _unitOfWork.CompleteAsync();
+        return result;
+    }
+} 
