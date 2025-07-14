@@ -12,6 +12,8 @@ public class Booking
 
     public int ServiceId { get; set; }
 
+    public int AddressId { get; set; }
+
     public DateTime ScheduledStartTime { get; set; }
 
     public DateTime ScheduledEndTime { get; set; }
@@ -35,6 +37,8 @@ public class Booking
     public decimal? FinalPrice { get; set; }
 
     public DateTime? BookingCreationTime { get; set; }
+
+    public virtual UserAddress Address { get; set; } = null!;
 
     public virtual ICollection<Chat> Chats { get; set; } = new List<Chat>();
 

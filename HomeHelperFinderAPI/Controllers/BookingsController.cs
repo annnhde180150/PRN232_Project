@@ -42,14 +42,14 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 BookingId = latestBooking.BookingId,
                 Amount = latestBooking.FinalPrice ?? 0,
-                PaymentStatus = "Pending"
+                PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString(),
             };
             await _paymentService.CreatePayment(new PaymentCreateDto
             {
                 BookingId = latestBooking.BookingId,
                 UserId = latestBooking.UserId,
                 Amount = latestBooking.EstimatedPrice ?? 0,
-                PaymentStatus = "Pending"
+                PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString()
             });
             return Ok(_mapper.Map<BookingDetailDto>(latestBooking));
 
@@ -59,7 +59,7 @@ namespace HomeHelperFinderAPI.Controllers
         //[Authorize]
         public async Task<ActionResult> BookHelperRequest([FromBody] ServiceRequestCreateDto newRequest, [FromRoute] int helperId)
         {
-            if (!await _requestService.isValidatedCreateRequest(_mapper.Map<ServiceRequest>(newRequest)))
+            if (!await _requestService.IsValidatedCreateRequest(_mapper.Map<ServiceRequest>(newRequest)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //validate helper id and check if helper is available at time
@@ -101,7 +101,7 @@ namespace HomeHelperFinderAPI.Controllers
                 BookingId = bookingResult.BookingId,
                 UserId = bookingResult.UserId,
                 Amount = bookingResult.EstimatedPrice ?? 0,
-                PaymentStatus = "Pending"
+                PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString()
             });
             return Ok(_mapper.Map<ServiceRequestDetailDto>(latestRequest));
         }

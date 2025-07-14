@@ -13,6 +13,7 @@ namespace Services.Mappers
     {
         public PaymentProfile() {
             CreateMap<Payment,GetPaymentDto>()
+                .ForMember(dest => dest.PaymentId, opt => opt.MapFrom(src => src.PaymentId))
                 .ForMember(dest => dest.BookingId, opt => opt.MapFrom(src => src.BookingId))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))

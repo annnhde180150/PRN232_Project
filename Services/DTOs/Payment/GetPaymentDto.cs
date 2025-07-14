@@ -9,6 +9,8 @@ namespace Services.DTOs.Payment
 {
     public class GetPaymentDto
     {
+        public int PaymentId { get; set; }  
+
         public int BookingId { get; set; }
 
         public int UserId { get; set; }
