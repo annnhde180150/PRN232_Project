@@ -59,7 +59,7 @@ namespace HomeHelperFinderAPI.Controllers
         //[Authorize]
         public async Task<ActionResult> BookHelperRequest([FromBody] ServiceRequestCreateDto newRequest, [FromRoute] int helperId)
         {
-            if (!await _requestService.isValidatedCreateRequest(_mapper.Map<ServiceRequest>(newRequest)))
+            if (!await _requestService.IsValidatedCreateRequest(_mapper.Map<ServiceRequest>(newRequest)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //validate helper id and check if helper is available at time

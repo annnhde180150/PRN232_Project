@@ -92,6 +92,7 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
             entity.HasKey(e => e.BookingId).HasName("PK__Bookings__73951ACD92FB321F");
 
             entity.Property(e => e.BookingId).HasColumnName("BookingID");
+            entity.Property(e => e.AddressId).HasColumnName("AddressID");
             entity.Property(e => e.BookingCreationTime).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.CancelledBy).HasMaxLength(10);
             entity.Property(e => e.EstimatedPrice).HasColumnType("decimal(18, 2)");
@@ -101,6 +102,13 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
             entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.UserId).HasColumnName("UserID");
+
+            entity
+                .HasOne(d => d.Address)
+                .WithMany(p => p.Bookings)
+                .HasForeignKey(d => d.AddressId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Bookings__Addres__75A278F5");
 
             entity
                 .HasOne(d => d.Helper)

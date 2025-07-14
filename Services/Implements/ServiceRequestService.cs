@@ -12,6 +12,7 @@ using Repositories;
 using Microsoft.Extensions.Logging;
 using Services.DTOs.User;
 using Services.DTOs.ServiceRequest;
+using Services.DTOs.Admin;
 using Azure.Core;
 
 namespace Services.Implements
@@ -41,7 +42,7 @@ namespace Services.Implements
             };
         }
 
-        public async Task<bool> isValidatedCreateRequest(ServiceRequest request)
+        public async Task<bool> IsValidatedCreateRequest(ServiceRequest request)
         {
             //check if user is authenticated customer
             if (request.UserId == null || request.UserId <= 0)
@@ -123,11 +124,157 @@ namespace Services.Implements
             return null;
         }
 
-        public bool isValidStatus(string status)
+        public bool IsValidStatus(string status)
         {
             return status.Equals(ServiceRequest.AvailableStatus.Pending) ||
                 status.Equals(ServiceRequest.AvailableStatus.Accepted) ||
                 status.Equals(ServiceRequest.AvailableStatus.Cancelled);
+        }
+
+        public async Task<AdminServiceRequestListDto> GetServiceRequestsForAdminAsync(AdminServiceRequestFilterDto filter)
+        {
+            try
+            {
+                var (requests, totalCount) = await _unitOfWork.ServiceRequest.GetServiceRequestsForAdminAsync(
+                    filter.Status,
+                    filter.User,
+                    filter.DateFrom,
+                    filter.DateTo,
+                    filter.Location,
+                    filter.Page,
+                    filter.PageSize);
+
+                var adminRequests = requests.Select(MapToAdminServiceRequestDto).ToList();
+
+                return new AdminServiceRequestListDto
+                {
+                    Requests = adminRequests,
+                    Total = totalCount,
+                    Page = filter.Page,
+                    PageSize = filter.PageSize
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while getting service requests for admin");
+                throw new Exception("An error occurred while retrieving service requests.", ex);
+            }
+        }
+
+        public async Task<byte[]> ExportServiceRequestsToCsvAsync(AdminServiceRequestFilterDto filter)
+        {
+            try
+            {
+                // Get all requests without pagination for export
+                var exportFilter = new AdminServiceRequestFilterDto
+                {
+                    Status = filter.Status,
+                    User = filter.User,
+                    DateFrom = filter.DateFrom,
+                    DateTo = filter.DateTo,
+                    Location = filter.Location,
+                    Page = 1,
+                    PageSize = int.MaxValue
+                };
+
+                var (requests, _) = await _unitOfWork.ServiceRequest.GetServiceRequestsForAdminAsync(
+                    exportFilter.Status,
+                    exportFilter.User,
+                    exportFilter.DateFrom,
+                    exportFilter.DateTo,
+                    exportFilter.Location,
+                    exportFilter.Page,
+                    exportFilter.PageSize);
+
+                var csv = new StringBuilder();
+
+                // CSV Header
+                csv.AppendLine("RequestId,UserName,UserEmail,HelperName,ServiceName,ScheduledTime,Location,Status,RequestCreationTime,SpecialNotes,DurationHours");
+
+                // CSV Data
+                foreach (var request in requests)
+                {
+                    var adminRequest = MapToAdminServiceRequestDto(request);
+                    var helperName = adminRequest.Helper?.Name ?? "";
+                    var serviceName = adminRequest.Services.FirstOrDefault() ?? "";
+
+                    csv.AppendLine($"{adminRequest.RequestId}," +
+                                 $"\"{adminRequest.User.Name}\"," +
+                                 $"\"{adminRequest.User.Email}\"," +
+                                 $"\"{helperName}\"," +
+                                 $"\"{serviceName}\"," +
+                                 $"{adminRequest.ScheduledTime:yyyy-MM-dd HH:mm:ss}," +
+                                 $"\"{adminRequest.Location}\"," +
+                                 $"{adminRequest.Status}," +
+                                 $"{adminRequest.RequestCreationTime:yyyy-MM-dd HH:mm:ss}," +
+                                 $"\"{adminRequest.SpecialNotes ?? ""}\"," +
+                                 $"{adminRequest.RequestedDurationHours ?? 0}");
+                }
+
+                return Encoding.UTF8.GetBytes(csv.ToString());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while exporting service requests to CSV");
+                throw new Exception("An error occurred while exporting service requests.", ex);
+            }
+        }
+
+        private AdminServiceRequestDto MapToAdminServiceRequestDto(ServiceRequest request)
+        {
+            // Determine status based on ServiceRequest status and Booking status
+            var status = DetermineRequestStatus(request);
+
+            // Get helper info from the most recent booking if available
+            var latestBooking = request.Bookings?.OrderByDescending(b => b.BookingCreationTime).FirstOrDefault();
+
+            return new AdminServiceRequestDto
+            {
+                RequestId = request.RequestId,
+                User = new AdminUserInfoDto
+                {
+                    Id = request.User.UserId,
+                    Name = request.User.FullName ?? "",
+                    Email = request.User.Email ?? ""
+                },
+                Helper = latestBooking?.Helper != null ? new AdminHelperInfoDto
+                {
+                    Id = latestBooking.Helper.HelperId,
+                    Name = latestBooking.Helper.FullName
+                } : null,
+                Services = new List<string> { request.Service.ServiceName },
+                ScheduledTime = request.RequestedStartTime,
+                Location = request.Address.FullAddress ?? $"{request.Address.AddressLine1}, {request.Address.District}, {request.Address.City}",
+                Status = status,
+                RequestCreationTime = request.RequestCreationTime,
+                SpecialNotes = request.SpecialNotes,
+                RequestedDurationHours = request.RequestedDurationHours
+            };
+        }
+
+        private string DetermineRequestStatus(ServiceRequest request)
+        {
+            // If request is cancelled, return cancelled
+            if (request.Status?.ToLower() == "cancelled")
+                return "cancelled";
+
+            // Check if there are any bookings
+            var latestBooking = request.Bookings?.OrderByDescending(b => b.BookingCreationTime).FirstOrDefault();
+
+            if (latestBooking == null)
+            {
+                // No booking exists
+                return request.Status?.ToLower() == "pending" ? "pending" : "pending";
+            }
+
+            // Map booking status to admin status
+            return latestBooking.Status.ToLower() switch
+            {
+                "pending" or "inprogress" => "matched",
+                "completed" => "completed",
+                "cancelled" => "cancelled",
+                _ => "pending"
+            };
         }
     }
 }

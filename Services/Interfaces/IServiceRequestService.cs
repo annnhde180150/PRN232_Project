@@ -1,4 +1,5 @@
 ﻿using BussinessObjects.Models;
+using Services.DTOs.Admin;
 using Services.DTOs.ServiceRequest;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,12 @@ namespace Services.Interfaces
     {
         public Task<ServiceRequest> GetLatestRequestByUserId(int userId);
         public Task SoftDeleteRequest(int requestId);
-        public Task<bool> isValidatedCreateRequest(ServiceRequest request);
+        public Task<bool> IsValidatedCreateRequest(ServiceRequest request);
         Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int helperId, string action, string? specialNote);
-        public bool isValidStatus(string status);
+        public bool IsValidStatus(string status);
+
+        // Admin methods
+        Task<AdminServiceRequestListDto> GetServiceRequestsForAdminAsync(AdminServiceRequestFilterDto filter);
+        Task<byte[]> ExportServiceRequestsToCsvAsync(AdminServiceRequestFilterDto filter);
     }
 }

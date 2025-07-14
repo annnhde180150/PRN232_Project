@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{4B9BFFF5-B5B1-4590-BF52-AC3BFB928361}"
 	ProjectSection(SolutionItems) = preProject
 		SignalR_README.md = SignalR_README.md
+		Docs\AdminServiceRequestAPI.md = Docs\AdminServiceRequestAPI.md
 	EndProjectSection
 EndProject
 Global
