@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Repositories;
 using Services.DTOs.Helper;
 using Services.DTOs.User;
+using Services.DTOs.Admin;
+using Services.DTOs.Notification;
 using Services.Interfaces;
 
 namespace Services.Implements;
@@ -15,13 +17,15 @@ public class HelperService : IHelperService
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly INotificationService _notificationService;
 
-    public HelperService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<HelperService> logger, IPasswordHasher passwordHasher)
+    public HelperService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<HelperService> logger, IPasswordHasher passwordHasher, INotificationService notificationService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _logger = logger;
         _passwordHasher = passwordHasher;
+        _notificationService = notificationService;
     }
 
     public async Task<IEnumerable<HelperDetailsDto>> GetAllAsync()
@@ -229,6 +233,137 @@ public class HelperService : IHelperService
         await _unitOfWork.CompleteAsync();
 
         _logger.LogInformation($"Password changed successfully for helper ID: {helperId}");
+        return true;
+    }
+
+    // Admin helper application methods
+    public async Task<(IEnumerable<HelperApplicationListDto> applications, int totalCount)> GetHelperApplicationsAsync(
+        string? status = null,
+        int page = 1,
+        int pageSize = 20)
+    {
+        _logger.LogInformation($"Getting helper applications with status: {status}, page: {page}, pageSize: {pageSize}");
+
+        var (helpers, totalCount) = await _unitOfWork.Helpers.GetHelperApplicationsAsync(status, page, pageSize);
+
+        var applications = helpers.Select(h => new HelperApplicationListDto
+        {
+            HelperId = h.HelperId,
+            FullName = h.FullName,
+            Email = h.Email,
+            PhoneNumber = h.PhoneNumber,
+            RegistrationDate = h.RegistrationDate,
+            ApprovalStatus = h.ApprovalStatus,
+            DocumentCount = h.HelperDocuments?.Count ?? 0,
+            SkillCount = h.HelperSkills?.Count ?? 0,
+            WorkAreaCount = h.HelperWorkAreas?.Count ?? 0,
+            PrimaryService = h.HelperSkills?.FirstOrDefault(s => s.IsPrimarySkill == true)?.Service?.ServiceName
+        });
+
+        return (applications, totalCount);
+    }
+
+    public async Task<HelperApplicationDetailsDto?> GetHelperApplicationByIdAsync(int helperId)
+    {
+        _logger.LogInformation($"Getting helper application details for ID: {helperId}");
+
+        var helper = await _unitOfWork.Helpers.GetHelperApplicationByIdAsync(helperId);
+        if (helper == null)
+        {
+            _logger.LogWarning($"Helper application with ID {helperId} not found");
+            return null;
+        }
+
+        var detailsDto = _mapper.Map<HelperApplicationDetailsDto>(helper);
+
+        // Calculate document statistics
+        if (helper.HelperDocuments != null)
+        {
+            detailsDto.TotalDocuments = helper.HelperDocuments.Count;
+            detailsDto.VerifiedDocuments = helper.HelperDocuments.Count(d => d.VerificationStatus == "Verified");
+            detailsDto.PendingDocuments = helper.HelperDocuments.Count(d => d.VerificationStatus == "Pending");
+        }
+
+        return detailsDto;
+    }
+
+    public async Task<bool> ProcessHelperApplicationDecisionAsync(int helperId, HelperApplicationDecisionDto decision, int adminId)
+    {
+        _logger.LogInformation($"Processing helper application decision for ID: {helperId}, Status: {decision.Status}, Admin: {adminId}");
+
+        var helper = await _unitOfWork.Helpers.GetByIdAsync(helperId);
+        if (helper == null)
+        {
+            _logger.LogWarning($"Helper with ID {helperId} not found");
+            return false;
+        }
+
+        // Validate current status allows this transition
+        if (helper.ApprovalStatus == "approved" && decision.Status != "rejected")
+        {
+            _logger.LogWarning($"Cannot change status from approved to {decision.Status} for helper {helperId}");
+            return false;
+        }
+
+        // Update helper status
+        var oldStatus = helper.ApprovalStatus;
+        helper.ApprovalStatus = decision.Status;
+
+        if (decision.Status == "approved")
+        {
+            helper.IsActive = true;
+            helper.ApprovedByAdminId = adminId;
+            helper.ApprovalDate = DateTime.UtcNow;
+        }
+        else
+        {
+            helper.IsActive = false;
+            if (decision.Status == "rejected")
+            {
+                helper.ApprovedByAdminId = adminId;
+                helper.ApprovalDate = DateTime.UtcNow;
+            }
+        }
+
+        _unitOfWork.Helpers.Update(helper);
+        await _unitOfWork.CompleteAsync();
+
+        // Send notification to helper
+        try
+        {
+            var notificationTitle = decision.Status switch
+            {
+                "approved" => "Application Approved",
+                "rejected" => "Application Rejected",
+                "revision_requested" => "Application Revision Required",
+                _ => "Application Status Update"
+            };
+
+            var notificationMessage = decision.Status switch
+            {
+                "approved" => "Congratulations! Your helper application has been approved. You can now start accepting bookings.",
+                "rejected" => $"Your helper application has been rejected. {(string.IsNullOrEmpty(decision.Comment) ? "" : $"Reason: {decision.Comment}")}",
+                "revision_requested" => $"Your helper application requires revision. Please review and resubmit. {(string.IsNullOrEmpty(decision.Comment) ? "" : $"Details: {decision.Comment}")}",
+                _ => "Your application status has been updated."
+            };
+
+            var notificationDto = new NotificationCreateDto
+            {
+                Title = notificationTitle,
+                Message = notificationMessage,
+                RecipientHelperId = helperId,
+                NotificationType = "ApplicationStatus"
+            };
+
+            await _notificationService.CreateAsync(notificationDto);
+            _logger.LogInformation($"Notification sent to helper {helperId} for status change to {decision.Status}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Failed to send notification to helper {helperId}, but status was updated successfully");
+        }
+
+        _logger.LogInformation($"Helper application {helperId} status changed from {oldStatus} to {decision.Status} by admin {adminId}");
         return true;
     }
 }

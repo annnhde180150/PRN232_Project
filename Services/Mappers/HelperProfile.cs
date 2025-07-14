@@ -1,6 +1,7 @@
 using AutoMapper;
 using BussinessObjects.Models;
 using Services.DTOs.Helper;
+using Services.DTOs.Admin;
 
 namespace Services.Mappers;
 
@@ -218,5 +219,27 @@ public class HelperProfile : Profile
             .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
             .ForMember(dest => dest.Helper, opt => opt.Ignore())
             .ForMember(dest => dest.VerifiedByAdmin, opt => opt.Ignore());
+
+        // Admin DTOs mappings
+        CreateMap<Helper, HelperApplicationDetailsDto>()
+            .ForMember(dest => dest.HelperId, opt => opt.MapFrom(src => src.HelperId))
+            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
+            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+            .ForMember(dest => dest.ProfilePictureUrl, opt => opt.MapFrom(src => src.ProfilePictureUrl))
+            .ForMember(dest => dest.Bio, opt => opt.MapFrom(src => src.Bio))
+            .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
+            .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
+            .ForMember(dest => dest.RegistrationDate, opt => opt.MapFrom(src => src.RegistrationDate))
+            .ForMember(dest => dest.ApprovalStatus, opt => opt.MapFrom(src => src.ApprovalStatus))
+            .ForMember(dest => dest.ApprovedByAdminId, opt => opt.MapFrom(src => src.ApprovedByAdminId))
+            .ForMember(dest => dest.ApprovalDate, opt => opt.MapFrom(src => src.ApprovalDate))
+            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+            .ForMember(dest => dest.Documents, opt => opt.MapFrom(src => src.HelperDocuments))
+            .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.HelperSkills))
+            .ForMember(dest => dest.WorkAreas, opt => opt.MapFrom(src => src.HelperWorkAreas))
+            .ForMember(dest => dest.TotalDocuments, opt => opt.Ignore()) // Calculated in service
+            .ForMember(dest => dest.VerifiedDocuments, opt => opt.Ignore()) // Calculated in service
+            .ForMember(dest => dest.PendingDocuments, opt => opt.Ignore()); // Calculated in service
     }
 }
