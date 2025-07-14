@@ -9,9 +9,9 @@ namespace HomeHelperFinderAPI.Controllers
     public class ServicesController(IServiceService _serviceService) : ControllerBase
     {
         [HttpGet]
-        public Task<ActionResult> getServicesList()
+        public async Task<ActionResult> getServicesList()
         {
-            var list = _serviceService.GetAllAsync();
+            var list = await _serviceService.GetAllAsync();
             return Ok(list);
         }
     }

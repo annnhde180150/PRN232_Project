@@ -26,6 +26,7 @@ public class UnitOfWork : IUnitOfWork
         HelperSkills = new HelperSkillRepository(_context);
         HelperWorkAreas = new HelperWorkAreaRepository(_context);
         HelperDocuments = new HelperDocumentRepository(_context);
+
     }
 
     public IAdminRepository Admins { get; }
@@ -42,6 +43,8 @@ public class UnitOfWork : IUnitOfWork
     public IServiceRequestRepository ServiceRequest { get; }
 
     public IUserAddressRepository addressRepository { get; }
+
+    public IAddressRepository AddressRepository { get; }
 
     public IHelperSkillRepository HelperSkills { get; }
     public IHelperWorkAreaRepository HelperWorkAreas { get; }
