@@ -67,7 +67,10 @@ public class HelperService : IHelperService
         {
             var documents = _mapper.Map<List<HelperDocument>>(dto.Documents);
             foreach (var doc in documents)
+            {
                 doc.HelperId = helper.HelperId;
+                doc.UploadDate = DateTime.Now;
+            }
             await _unitOfWork.HelperDocuments.AddRangeAsync(documents);
         }
         await _unitOfWork.CompleteAsync();

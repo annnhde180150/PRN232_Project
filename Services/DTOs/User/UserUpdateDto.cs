@@ -1,4 +1,6 @@
-﻿namespace Services.DTOs.User;
+﻿using Services.DTOs.UserAddress;
+
+namespace Services.DTOs.User;
 
 public class UserUpdateDto
 {
@@ -8,4 +10,5 @@ public class UserUpdateDto
     public string? ProfilePictureUrl { get; set; }
     public bool? IsActive { get; set; }
     public int? DefaultAddressId { get; set; }
+    public UserAddressUpdateDto? DefaultAddress { get; set; }
 }
