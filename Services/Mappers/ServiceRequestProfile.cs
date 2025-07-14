@@ -14,9 +14,7 @@ namespace Services.Mappers
         public ServiceRequestProfile()
         {
             //Entity to Dto
-            CreateMap<ServiceRequest , ServiceRequestDetailDto>()
-                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
-                .ForMember(dest => dest.Bookings, opt => opt.MapFrom(src => src.Bookings));
+            CreateMap<ServiceRequest, ServiceRequestDetailDto>();
             CreateMap<ServiceRequest, ServiceRequestCreateDto>();
             CreateMap<ServiceRequest, ServiceRequestUpdateDto>();
 
@@ -36,8 +34,8 @@ namespace Services.Mappers
             CreateMap<ServiceRequestDetailDto, ServiceRequest>()
                 .ForMember(dest => dest.Service, opt => opt.Ignore())
                 .ForMember(dest => dest.User, opt => opt.Ignore())
-                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Address))
-                .ForMember(dest => dest.Bookings, opt => opt.MapFrom(src => src.Bookings));
+                .ForMember(dest => dest.Address, opt => opt.Ignore())
+                .ForMember(dest => dest.Bookings, opt => opt.Ignore());
 
             // Dto to Dto additional if nessesary
             CreateMap<ServiceRequestDetailDto, ServiceRequestUpdateDto>();
