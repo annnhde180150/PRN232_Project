@@ -44,8 +44,6 @@ public class UnitOfWork : IUnitOfWork
 
     public IUserAddressRepository addressRepository { get; }
 
-    public IAddressRepository AddressRepository { get; }
-
     public IHelperSkillRepository HelperSkills { get; }
     public IHelperWorkAreaRepository HelperWorkAreas { get; }
     public IHelperDocumentRepository HelperDocuments { get; }
