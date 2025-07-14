@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Services.DTOs.Admin;
 using Services.DTOs.Notification;
 using Services.Interfaces;
+using System.Threading.Channels;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HomeHelperFinderAPI.Controllers
 {
@@ -60,30 +62,17 @@ namespace HomeHelperFinderAPI.Controllers
                     _logger.LogWarning($"Failed to send admin profile update notification to admin {adminId}: {notificationEx.Message}");
                 }
 
-                return Ok(new
-                {
-                    Success = true,
-                    Message = "Admin profile updated successfully",
-                    Data = updatedAdmin
-                });
+                return Ok(updatedAdmin);
             }
             catch (ArgumentException ex)
             {
                 _logger.LogWarning($"Invalid argument when editing profile for admin {adminId}: {ex.Message}");
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = ex.Message
-                });
+                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error editing profile for admin {adminId}: {ex.Message}");
-                return StatusCode(500, new
-                {
-                    Success = false,
-                    Message = "An error occurred while updating the admin profile"
-                });
+                return StatusCode(500, "An error occurred while updating the admin profile");
             }
         }
 
@@ -103,20 +92,12 @@ namespace HomeHelperFinderAPI.Controllers
                 // Get admin profile
                 var adminProfile = await _adminService.GetByIdAsync(adminId);
 
-                return Ok(new
-                {
-                    Success = true,
-                    Data = adminProfile
-                });
+                return Ok(adminProfile);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error getting profile for admin {adminId}: {ex.Message}");
-                return StatusCode(500, new
-                {
-                    Success = false,
-                    Message = "An error occurred while retrieving the admin profile"
-                });
+                return StatusCode(500, "An error occurred while retrieving the admin profile");
             }
         }
 
@@ -176,29 +157,17 @@ namespace HomeHelperFinderAPI.Controllers
                         _logger.LogWarning($"Failed to send admin password change notification to admin {adminId}: {notificationEx.Message}");
                     }
 
-                    return Ok(new
-                    {
-                        Success = true,
-                        Message = "Password changed successfully"
-                    });
+                    return Ok("Password changed successfully");
                 }
                 else
                 {
-                    return BadRequest(new
-                    {
-                        Success = false,
-                        Message = "Current password is incorrect"
-                    });
+                    return BadRequest("Current password is incorrect");
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error changing password for admin {adminId}: {ex.Message}");
-                return StatusCode(500, new
-                {
-                    Success = false,
-                    Message = "An error occurred while changing the password"
-                });
+                return StatusCode(500, "An error occurred while changing the password");
             }
         }
     }

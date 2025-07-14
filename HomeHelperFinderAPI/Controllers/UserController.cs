@@ -14,12 +14,14 @@ namespace HomeHelperFinderAPI.Controllers
         private readonly IUserService _userService;
         private readonly INotificationService _notificationService;
         private readonly ILogger<UserController> _logger;
+        private readonly IUserAddressService _addressService;
 
-        public UserController(IUserService userService, INotificationService notificationService, ILogger<UserController> logger)
+        public UserController(IUserService userService, INotificationService notificationService, ILogger<UserController> logger, IUserAddressService addressService)
         {
             _userService = userService;
             _notificationService = notificationService;
             _logger = logger;
+            _addressService = addressService;
         }
 
       
@@ -42,6 +44,13 @@ namespace HomeHelperFinderAPI.Controllers
 
                 var updatedUser = await _userService.UpdateAsync(userId, updateDto);
 
+                // If address update is included, update the address
+                if (updateDto.DefaultAddress != null && updateDto.DefaultAddressId.HasValue)
+                {
+                    updateDto.DefaultAddress.AddressId = updateDto.DefaultAddressId.Value;
+                    await _addressService.UpdateAsync(updateDto.DefaultAddressId.Value, updateDto.DefaultAddress);
+                }
+
                 // Send notification
                 try
                 {
@@ -61,12 +70,7 @@ namespace HomeHelperFinderAPI.Controllers
                     _logger.LogWarning($"Failed to send profile update notification to user {userId}: {notificationEx.Message}");
                 }
 
-                return Ok(new
-                {
-                    Success = true,
-                    Message = "Profile updated successfully",
-                    Data = updatedUser
-                });
+                return Ok(updatedUser);
             }
             catch (ArgumentException ex)
             {
@@ -95,11 +99,7 @@ namespace HomeHelperFinderAPI.Controllers
 
                 var userProfile = await _userService.GetByIdAsync(userId);
 
-                return Ok(new
-                {
-                    Success = true,
-                    Data = userProfile
-                });
+                return Ok(userProfile);
             }
             catch (Exception ex)
             {

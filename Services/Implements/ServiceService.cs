@@ -1,16 +1,33 @@
-﻿using AutoMapper;
+using AutoMapper;
+using BussinessObjects.Models;
+using Microsoft.Extensions.Logging;
 using Repositories;
 using Repositories.Interfaces;
-using System;
+using Services.DTOs.Service;
+using Services.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using BussinessObjects.Models;
 
 namespace Services.Implements
 {
-    public class ServiceService(IServiceRepository _serviceRepo, IMapper _mapper, IUnitOfWork _unitofWork) :BaseService<Service, Service, Service, Service>(_serviceRepo, _mapper, _unitofWork), Services.Interfaces.IServiceService
+    public class ServiceService : IServiceService
     {
+        private readonly ILogger<ServiceService> _logger;
+        private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
+        public ServiceService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<ServiceService> logger)
+        {
+            _unitOfWork = unitOfWork;
+            _mapper = mapper;
+            _logger = logger;
+        }
+
+        public async Task<IEnumerable<ServiceDto>> GetActiveServicesAsync()
+        {
+            var services = await _unitOfWork.Services.GetActiveServicesAsync();
+            return _mapper.Map<IEnumerable<ServiceDto>>(services);
+        }
     }
-}
+} 
