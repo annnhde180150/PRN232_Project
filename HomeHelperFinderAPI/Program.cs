@@ -48,6 +48,7 @@ builder.Services.AddScoped<IProfileManagementService, ProfileManagementService>(
 builder.Services.AddScoped<IConnectionManager, ConnectionManager>();
 builder.Services.AddScoped<IRealtimeNotificationService, SignalRNotificationService>();
 builder.Services.AddScoped<IServiceRequestService, ServiceRequestService>();
+builder.Services.AddScoped<IUserAddressService, UserAddressService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
