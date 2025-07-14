@@ -121,12 +121,7 @@ namespace HomeHelperFinderAPI.Controllers
                     _logger.LogWarning($"Failed to send profile update notification to helper {helperId}: {notificationEx.Message}");
                 }
 
-                return Ok(new
-                {
-                    Success = true,
-                    Message = "Helper profile updated successfully",
-                    Data = updatedHelper
-                });
+                return Ok(updatedHelper);
             }
             catch (ArgumentException ex)
             {
@@ -154,11 +149,7 @@ namespace HomeHelperFinderAPI.Controllers
 
                 var helperProfile = await _helperService.GetByIdAsync(helperId);
 
-                return Ok(new
-                {
-                    Success = true,
-                    Data = helperProfile
-                });
+                return Ok(helperProfile);
             }
             catch (Exception ex)
             {

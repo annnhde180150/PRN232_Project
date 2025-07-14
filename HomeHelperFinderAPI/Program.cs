@@ -35,6 +35,7 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>();
+builder.Services.AddScoped<IUserAddressRepository, UserAddressRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Service registrations
@@ -47,12 +48,15 @@ builder.Services.AddScoped<IProfileManagementService, ProfileManagementService>(
 builder.Services.AddScoped<IConnectionManager, ConnectionManager>();
 builder.Services.AddScoped<IRealtimeNotificationService, SignalRNotificationService>();
 builder.Services.AddScoped<IServiceRequestService, ServiceRequestService>();
+builder.Services.AddScoped<IUserAddressService, UserAddressService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IUserAddressService, UserAddressService>();
+
 
 builder.Services.AddAuthentication(options =>
     {
