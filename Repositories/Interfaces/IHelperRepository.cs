@@ -11,4 +11,11 @@ public interface IHelperRepository : IBaseRepository<Helper>
     Task<bool> SetHelperStatusOnlineAsync(int helperId);
     Task<bool> SetHelperStatusOfflineAsync(int helperId);
     Task<bool> SetHelperStatusBusyAsync(int helperId);
+
+    // Admin helper application methods
+    Task<(IEnumerable<Helper> applications, int totalCount)> GetHelperApplicationsAsync(
+        string? status = null,
+        int page = 1,
+        int pageSize = 20);
+    Task<Helper?> GetHelperApplicationByIdAsync(int helperId);
 }
