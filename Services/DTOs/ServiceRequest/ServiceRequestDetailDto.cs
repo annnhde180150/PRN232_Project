@@ -16,7 +16,6 @@ namespace Services.DTOs.ServiceRequest
         public int ServiceId { get; set; }
 
         public int AddressId { get; set; }
-        public int? HelperId { get; set; }
 
         public DateTime RequestedStartTime { get; set; }
 
@@ -31,10 +30,6 @@ namespace Services.DTOs.ServiceRequest
         public decimal? Latitude { get; set; }
 
         public decimal? Longitude { get; set; }
-
-        public virtual BussinessObjects.Models.UserAddress Address { get; set; } = null!;
-
-        public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 
     }
 }

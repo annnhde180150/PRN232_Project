@@ -95,10 +95,6 @@ namespace BussinessObjects.Migrations
                     b.Property<DateTime?>("ActualStartTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("AddressId")
-                        .HasColumnType("int")
-                        .HasColumnName("AddressID");
-
                     b.Property<DateTime?>("BookingCreationTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -141,9 +137,6 @@ namespace BussinessObjects.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ServiceID");
 
-                    b.Property<string>("SpecialNotes")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -155,8 +148,6 @@ namespace BussinessObjects.Migrations
 
                     b.HasKey("BookingId")
                         .HasName("PK__Bookings__73951ACD92FB321F");
-
-                    b.HasIndex("AddressId");
 
                     b.HasIndex("HelperId");
 
@@ -1254,12 +1245,6 @@ namespace BussinessObjects.Migrations
 
             modelBuilder.Entity("BussinessObjects.Models.Booking", b =>
                 {
-                    b.HasOne("BussinessObjects.Models.UserAddress", "Address")
-                        .WithMany("Bookings")
-                        .HasForeignKey("AddressId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Bookings__Addres__75A278F5");
-
                     b.HasOne("BussinessObjects.Models.Helper", "Helper")
                         .WithMany("Bookings")
                         .HasForeignKey("HelperId")
@@ -1274,16 +1259,14 @@ namespace BussinessObjects.Migrations
                     b.HasOne("BussinessObjects.Models.Service", "Service")
                         .WithMany("Bookings")
                         .HasForeignKey("ServiceId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Bookings__Servic__74AE54BC");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("BussinessObjects.Models.User", "User")
                         .WithMany("Bookings")
                         .HasForeignKey("UserId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Bookings__UserID__72C60C4A");
-
-                    b.Navigation("Address");
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Helper");
 
@@ -1517,7 +1500,7 @@ namespace BussinessObjects.Migrations
                         .IsRequired()
                         .HasConstraintName("FK__ServiceRe__Addre__6E01572D");
 
-                    b.HasOne("BussinessObjects.Models.Helper", "Helper")
+                    b.HasOne("BussinessObjects.Models.Helper", null)
                         .WithMany("ServiceRequests")
                         .HasForeignKey("HelperId");
 
@@ -1535,8 +1518,6 @@ namespace BussinessObjects.Migrations
                         .HasConstraintName("FK__ServiceRe__UserI__6C190EBB");
 
                     b.Navigation("Address");
-
-                    b.Navigation("Helper");
 
                     b.Navigation("Service");
 
@@ -1750,8 +1731,6 @@ namespace BussinessObjects.Migrations
 
             modelBuilder.Entity("BussinessObjects.Models.UserAddress", b =>
                 {
-                    b.Navigation("Bookings");
-
                     b.Navigation("ServiceRequests");
 
                     b.Navigation("Users");

@@ -8,20 +8,12 @@ using Services.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BussinessObjects.Models;
 
 namespace Services.Implements
 {
-    public class ServiceService : IServiceService
+    public class ServiceService(ILogger<ServiceService> _logger, IMapper _mapper, IUnitOfWork _unitOfWork) : BaseService<ServiceDto,ServiceDto,ServiceDto,Service>(_unitOfWork.Services, _mapper, _unitOfWork),IServiceService
     {
-        private readonly ILogger<ServiceService> _logger;
-        private readonly IMapper _mapper;
-        private readonly IUnitOfWork _unitOfWork;
-        public ServiceService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<ServiceService> logger)
-        {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _logger = logger;
-        }
 
         public async Task<IEnumerable<ServiceDto>> GetActiveServicesAsync()
         {

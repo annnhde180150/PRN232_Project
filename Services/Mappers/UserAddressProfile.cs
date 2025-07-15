@@ -17,7 +17,6 @@ namespace Services.Mappers
             CreateMap<UserAddress, UserAddressCreateDto>();
             CreateMap<UserAddress, UserAddressUpdateDto>();
             CreateMap<UserAddress, UserAddressDetailDto>()
-                .ForMember(dest => dest.Bookings, opt => opt.MapFrom(sr => sr.Bookings)) // Ignore navigation properties
                 .ForMember(dest => dest.ServiceRequests, opt => opt.MapFrom(sr => sr.ServiceRequests))
                 .ForMember(dest => dest.User, opt => opt.MapFrom(sr => sr.User)); // Ignore navigation properties
 
@@ -26,17 +25,14 @@ namespace Services.Mappers
                 .ForMember(dest => dest.AddressId, opt => opt.Ignore()) // Ignore ID for creation
                 .ForMember(dest => dest.Users, opt => opt.Ignore())
                 .ForMember(dest => dest.User, opt => opt.Ignore()) // Ignore navigation properties
-                .ForMember(dest => dest.Bookings, opt => opt.Ignore())
                 .ForMember(dest => dest.ServiceRequests, opt => opt.Ignore());
             CreateMap<UserAddressUpdateDto, UserAddress>()
                 .ForMember(dest => dest.Users, opt => opt.Ignore())
                 .ForMember(dest => dest.User, opt => opt.Ignore()) // Ignore navigation properties
-                .ForMember(dest => dest.Bookings, opt => opt.Ignore())
                 .ForMember(dest => dest.ServiceRequests, opt => opt.Ignore());
             CreateMap<UserAddressDetailDto, UserAddress>()
                 .ForMember(dest => dest.Users, opt => opt.Ignore())
                 .ForMember(dest => dest.User, opt => opt.Ignore()) // Ignore navigation properties
-                .ForMember(dest => dest.Bookings, opt => opt.MapFrom(src => src.Bookings))
                 .ForMember(dest => dest.ServiceRequests, opt => opt.MapFrom(src => src.ServiceRequests));
         }
     }

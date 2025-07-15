@@ -16,7 +16,7 @@ using Services.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile), typeof(ChatProfile), typeof(UserProfile), typeof(HelperProfile), typeof(ReportProfile), typeof(ServiceRequestProfile), typeof(UserAddressProfile));
+builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile), typeof(ChatProfile), typeof(UserProfile), typeof(HelperProfile), typeof(ReportProfile), typeof(ServiceRequestProfile), typeof(UserAddressProfile), typeof(AdminProfile));
 
 builder.Services.AddDbContext<Prn232HomeHelperFinderSystemContext>(options =>
 {
@@ -52,7 +52,11 @@ builder.Services.AddScoped<IUserAddressService, UserAddressService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IUserAddressService, UserAddressService>();
+
 
 builder.Services.AddAuthentication(options =>
     {

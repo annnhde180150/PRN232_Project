@@ -12,7 +12,9 @@ using Repositories;
 using Microsoft.Extensions.Logging;
 using Services.DTOs.User;
 using Services.DTOs.ServiceRequest;
+using Services.DTOs.Admin;
 using Azure.Core;
+using Services.DTOs.Helper;
 
 namespace Services.Implements
 {
@@ -41,7 +43,7 @@ namespace Services.Implements
             };
         }
 
-        public async Task<bool> isValidatedCreateRequest(ServiceRequest request)
+        public async Task<bool> IsValidatedCreateRequest(ServiceRequest request)
         {
             //check if user is authenticated customer
             if (request.UserId == null || request.UserId <= 0)
@@ -90,36 +92,252 @@ namespace Services.Implements
 
         public async Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int helperId, string action,string? specialNote)
         {
-            var serviceRepo = _unitOfWork.ServiceRequest;
-            var request = await serviceRepo.GetByIdAsync(requestId);
-            if (request == null)
+            //var serviceRepo = _unitOfWork.ServiceRequest;
+            //var request = await serviceRepo.GetByIdAsync(requestId);
+            //if (request == null)
+            //{
+            //    _logger.LogWarning("Service request with id {RequestId} not found for response.", requestId);
+            //    return new ServiceRequestActionResultDto { Success = false, Message = "Request not found" };
+            //}
+            //if (request.Status != "Pending")
+            //{
+            //    return new ServiceRequestActionResultDto { Success = false, Message = "Request is no longer pending" };
+            //}
+            //if (action == "Accept")
+            //{
+            //    ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.InProgress;
+            //    request.Status = status.ToString();
+            //    request.SpecialNotes = specialNote;
+            //    serviceRepo.Update(request);
+            //    await _unitOfWork.CompleteAsync();
+            //    return new ServiceRequestActionResultDto { Success = true, Message = "Request accepted successfully" };
+            //}
+            //if (action == "Cancel")
+            //{
+            //    ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Cancelled;
+            //    request.Status = status.ToString();
+            //    request.SpecialNotes = specialNote;
+            //    serviceRepo.Update(request);
+            //    await _unitOfWork.CompleteAsync();
+            //    return new ServiceRequestActionResultDto { Success = true, Message = "Request cancelled successfully" };
+            //}
+            //return new ServiceRequestActionResultDto { Success = false, Message = "Invalid action" };
+            return null;
+        }
+
+        public bool IsValidStatus(string status)
+        {
+            return status.Equals(ServiceRequest.AvailableStatus.Pending.ToString()) ||
+                status.Equals(ServiceRequest.AvailableStatus.Accepted.ToString()) ||
+                status.Equals(ServiceRequest.AvailableStatus.Cancelled.ToString());
+        }
+
+        public async Task<AdminServiceRequestListDto> GetServiceRequestsForAdminAsync(AdminServiceRequestFilterDto filter)
+        {
+            try
             {
-                _logger.LogWarning("Service request with id {RequestId} not found for response.", requestId);
-                return new ServiceRequestActionResultDto { Success = false, Message = "Request not found" };
+                var (requests, totalCount) = await _unitOfWork.ServiceRequest.GetServiceRequestsForAdminAsync(
+                    filter.Status,
+                    filter.User,
+                    filter.DateFrom,
+                    filter.DateTo,
+                    filter.Location,
+                    filter.Page,
+                    filter.PageSize);
+
+                var adminRequests = requests.Select(MapToAdminServiceRequestDto).ToList();
+
+                return new AdminServiceRequestListDto
+                {
+                    Requests = adminRequests,
+                    Total = totalCount,
+                    Page = filter.Page,
+                    PageSize = filter.PageSize
+                };
             }
-            if(request.Status != "Pending")
+            catch (Exception ex)
             {
-                return new ServiceRequestActionResultDto { Success = false, Message = "Request is no longer pending" };
+                _logger.LogError(ex, "Error occurred while getting service requests for admin");
+                throw new Exception("An error occurred while retrieving service requests.", ex);
             }
-            if(action == "Accept")
+        }
+
+        public async Task<byte[]> ExportServiceRequestsToCsvAsync(AdminServiceRequestFilterDto filter)
+        {
+            try
             {
-                ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.InProgress;
-                request.Status = status.ToString();
-                request.SpecialNotes = specialNote;
-                serviceRepo.Update(request);
-                await _unitOfWork.CompleteAsync();               
-                return new ServiceRequestActionResultDto { Success = true, Message = "Request accepted successfully" };              
+                // Get all requests without pagination for export
+                var exportFilter = new AdminServiceRequestFilterDto
+                {
+                    Status = filter.Status,
+                    User = filter.User,
+                    DateFrom = filter.DateFrom,
+                    DateTo = filter.DateTo,
+                    Location = filter.Location,
+                    Page = 1,
+                    PageSize = int.MaxValue
+                };
+
+                var (requests, _) = await _unitOfWork.ServiceRequest.GetServiceRequestsForAdminAsync(
+                    exportFilter.Status,
+                    exportFilter.User,
+                    exportFilter.DateFrom,
+                    exportFilter.DateTo,
+                    exportFilter.Location,
+                    exportFilter.Page,
+                    exportFilter.PageSize);
+
+                var csv = new StringBuilder();
+
+                // CSV Header
+                csv.AppendLine("RequestId,UserName,UserEmail,HelperName,ServiceName,ScheduledTime,Location,Status,RequestCreationTime,SpecialNotes,DurationHours");
+
+                // CSV Data
+                foreach (var request in requests)
+                {
+                    var adminRequest = MapToAdminServiceRequestDto(request);
+                    var helperName = adminRequest.Helper?.Name ?? "";
+                    var serviceName = adminRequest.Services.FirstOrDefault() ?? "";
+
+                    csv.AppendLine($"{adminRequest.RequestId}," +
+                                 $"\"{adminRequest.User.Name}\"," +
+                                 $"\"{adminRequest.User.Email}\"," +
+                                 $"\"{helperName}\"," +
+                                 $"\"{serviceName}\"," +
+                                 $"{adminRequest.ScheduledTime:yyyy-MM-dd HH:mm:ss}," +
+                                 $"\"{adminRequest.Location}\"," +
+                                 $"{adminRequest.Status}," +
+                                 $"{adminRequest.RequestCreationTime:yyyy-MM-dd HH:mm:ss}," +
+                                 $"\"{adminRequest.SpecialNotes ?? ""}\"," +
+                                 $"{adminRequest.RequestedDurationHours ?? 0}");
+                }
+
+                return Encoding.UTF8.GetBytes(csv.ToString());
             }
-            if (action == "Cancel")
+            catch (Exception ex)
             {
-                ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Cancelled;
-                request.Status = status.ToString();
-                request.SpecialNotes = specialNote;
-                serviceRepo.Update(request);
-                await _unitOfWork.CompleteAsync();
-                return new ServiceRequestActionResultDto { Success = true, Message = "Request cancelled successfully" };
+                _logger.LogError(ex, "Error occurred while exporting service requests to CSV");
+                throw new Exception("An error occurred while exporting service requests.", ex);
             }
-            return new ServiceRequestActionResultDto { Success = false, Message = "Invalid action" };
+        }
+
+        private AdminServiceRequestDto MapToAdminServiceRequestDto(ServiceRequest request)
+        {
+            // Determine status based on ServiceRequest status and Booking status
+            var status = DetermineRequestStatus(request);
+
+            // Get helper info from the most recent booking if available
+            var latestBooking = request.Bookings?.OrderByDescending(b => b.BookingCreationTime).FirstOrDefault();
+
+            return new AdminServiceRequestDto
+            {
+                RequestId = request.RequestId,
+                User = new AdminUserInfoDto
+                {
+                    Id = request.User.UserId,
+                    Name = request.User.FullName ?? "",
+                    Email = request.User.Email ?? ""
+                },
+                Helper = latestBooking?.Helper != null ? new AdminHelperInfoDto
+                {
+                    Id = latestBooking.Helper.HelperId,
+                    Name = latestBooking.Helper.FullName
+                } : null,
+                Services = new List<string> { request.Service.ServiceName },
+                ScheduledTime = request.RequestedStartTime,
+                Location = request.Address.FullAddress ?? $"{request.Address.AddressLine1}, {request.Address.District}, {request.Address.City}",
+                Status = status,
+                RequestCreationTime = request.RequestCreationTime,
+                SpecialNotes = request.SpecialNotes,
+                RequestedDurationHours = request.RequestedDurationHours
+            };
+        }
+
+        private string DetermineRequestStatus(ServiceRequest request)
+        {
+            // If request is cancelled, return cancelled
+            if (request.Status?.ToLower() == "cancelled")
+                return "cancelled";
+
+            // Check if there are any bookings
+            var latestBooking = request.Bookings?.OrderByDescending(b => b.BookingCreationTime).FirstOrDefault();
+
+            if (latestBooking == null)
+            {
+                // No booking exists
+                return request.Status?.ToLower() == "pending" ? "pending" : "pending";
+            }
+
+            // Map booking status to admin status
+            return latestBooking.Status.ToLower() switch
+            {
+                "pending" or "inprogress" => "matched",
+                "completed" => "completed",
+                "cancelled" => "cancelled",
+                _ => "pending"
+            };
+        }
+        public async Task<IEnumerable<HelperGetServiceRequestDto>> GetAllServiceRequestByHelperId(int helperId)
+        {
+            var allBookings = await _unitOfWork.Bookings.GetAllAsync();
+            var helperBookings = allBookings
+                .Where(b => b.HelperId == helperId)
+                .ToList();
+
+            // 2. Lấy toàn bộ requestId từ booking
+            var requestIds = helperBookings.Select(b => b.RequestId).Distinct().ToList();
+
+            // 3. Lấy các ServiceRequest có RequestId trong danh sách và Status = "Pending"
+            var allRequests = await _unitOfWork.ServiceRequest.GetAllAsync();
+            var filteredRequests = allRequests
+                .Where(r => requestIds.Contains(r.RequestId) && r.Status == "Pending")
+                .ToList();
+
+            // 4. Lấy serviceId, userId, addressId
+            var serviceIds = filteredRequests.Select(r => r.ServiceId).Distinct().ToList();
+            var userIds = filteredRequests.Select(r => r.UserId).Distinct().ToList();
+            var addressIds = filteredRequests.Select(r => r.AddressId).Distinct().ToList();
+
+            // 5. Lấy Service, Address và User (để lấy Username)
+            var services = await _unitOfWork.Services.GetAllAsync();
+            var servicesDict = services.Where(s => serviceIds.Contains(s.ServiceId))
+                                       .ToDictionary(s => s.ServiceId);
+
+            var addresses = await _unitOfWork.addressRepository.GetAllAsync();
+            var addressesDict = addresses.Where(a => addressIds.Contains(a.AddressId))
+                                         .ToDictionary(a => a.AddressId);
+
+            var users = await _unitOfWork.Users.GetAllAsync();
+            var usersDict = users.Where(u => userIds.Contains(u.UserId))
+                                 .ToDictionary(u => u.UserId);
+
+            // 6. Map từng ServiceRequest sang DTO
+            var result = filteredRequests.Select(request =>
+            {
+                var booking = helperBookings.FirstOrDefault(b => b.RequestId == request.RequestId);
+                var address = addressesDict.ContainsKey(request.AddressId) ? addressesDict[request.AddressId] : null;
+                var service = servicesDict.ContainsKey(request.ServiceId) ? servicesDict[request.ServiceId] : null;
+                var user = usersDict.ContainsKey(request.UserId) ? usersDict[request.UserId] : null;
+
+                return new HelperGetServiceRequestDto
+                {
+                    RequestId = request.RequestId,
+                    Username = user?.FullName ?? "Unknown",
+                    ScheduledStartTime = booking?.ScheduledStartTime ?? request.RequestedStartTime,
+                    ScheduledEndTime = booking?.ScheduledEndTime ?? request.RequestedStartTime.AddHours((double)(request.RequestedDurationHours ?? 1)),
+                    SpecialNotes = request.SpecialNotes ?? string.Empty,
+                    ServiceName = service?.ServiceName ?? "Unknown",
+                    EstimatedPrice = booking?.EstimatedPrice ?? 0,
+                    Ward = address?.Ward ?? "",
+                    District = address?.District ?? "",
+                    City = address?.City ?? "",
+                    FullAddress = address?.FullAddress ?? "",
+                    Latitude = (double)(request.Latitude ?? 0),
+                    Longitude = (double)(request.Longitude ?? 0)
+                };
+            }).ToList();
+
+            return result;
         }
     }
 }

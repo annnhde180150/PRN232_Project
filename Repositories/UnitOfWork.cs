@@ -26,6 +26,7 @@ public class UnitOfWork : IUnitOfWork
         HelperSkills = new HelperSkillRepository(_context);
         HelperWorkAreas = new HelperWorkAreaRepository(_context);
         HelperDocuments = new HelperDocumentRepository(_context);
+
     }
 
     public IAdminRepository Admins { get; }

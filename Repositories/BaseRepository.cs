@@ -19,6 +19,7 @@ public class BaseRepository<T>(Prn232HomeHelperFinderSystemContext context) : IB
         }
         return result;
     }
+    //Users.GetQueryable(u => u.UserRoles, u => u.UserSkills);
 
     public virtual async Task<T?> GetByIdAsync(int id)
     {

@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Services.DTOs.Service; // Will create this DTO
+using Services.DTOs.Service; 
 
 namespace Services.Interfaces
 {
-    public interface IServiceService
+    public interface IServiceService : IBaseService<ServiceDto, ServiceDto, ServiceDto>
     {
         Task<IEnumerable<ServiceDto>> GetActiveServicesAsync();
     }
