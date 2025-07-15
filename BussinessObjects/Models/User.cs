@@ -26,6 +26,8 @@ public class User
 
     public int? DefaultAddressId { get; set; }
 
+    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+
     public virtual ICollection<Chat> ChatReceiverUsers { get; set; } = new List<Chat>();
 
     public virtual ICollection<Chat> ChatSenderUsers { get; set; } = new List<Chat>();
