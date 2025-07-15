@@ -26,23 +26,10 @@ namespace BussinessObjects.Migrations
                 name: "SpecialNotes",
                 table: "Bookings");
 
-            migrationBuilder.AddColumn<int>(
-                name: "UserAddressAddressId",
-                table: "Bookings",
-                type: "int",
-                nullable: true);
-
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_UserAddressAddressId",
                 table: "Bookings",
                 column: "UserAddressAddressId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Bookings_UserAddresses_UserAddressAddressId",
-                table: "Bookings",
-                column: "UserAddressAddressId",
-                principalTable: "UserAddresses",
-                principalColumn: "AddressID");
         }
 
         /// <inheritdoc />

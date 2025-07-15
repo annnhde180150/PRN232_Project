@@ -24,8 +24,6 @@ public class UserAddress
 
     public bool? IsDefault { get; set; }
 
-    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-
     public virtual ICollection<ServiceRequest> ServiceRequests { get; set; } = new List<ServiceRequest>();
 
     public virtual User User { get; set; } = null!;
