@@ -164,5 +164,24 @@ namespace HomeHelperFinderAPI.Controllers
             var reusult = await _requestService.RespondToRequestAsync(updatedRequest.RequestId,updatedRequest.HelperId,updatedRequest.Action,updatedRequest.SpecialNotes);
             return Ok(reusult);
         }
+
+        [HttpGet("GetServiceRequest/{helperId}")]
+        public async Task<IActionResult> GetServiceRequest(int helperId)
+        {
+            try
+            {
+                if (!await _helperService.ExistsAsync(helperId))
+                {
+                    return NotFound($"Helper with ID {helperId} not found");
+                }
+                //var serviceRequest = await _helperService.GetAvailableHelper(helperId);
+                var helperGetServiceRequest = await _requestService.GetAllServiceRequestByHelperId(helperId);
+                return Ok(helperGetServiceRequest);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while getting the service request");
+            }
+        }
     }
 }
