@@ -15,15 +15,7 @@ namespace HomeHelperFinderAPI.Controllers
             _userAddressService = addressService;
         }
 
-        [HttpGet("GetUserAddresses/{id}")]
-        public async Task<ActionResult<List<UserAddressDetailDto>>> GetUserAddressesByUserId(int id)
-        {
-            var addresses = (await _userAddressService.GetAllAsync()).Where(a => a.UserId == id);
-            if (addresses == null || addresses.Count() < 1)
-                return BadRequest("Invalid Request!");
-            return Ok(addresses);
-        }
-
+    
         [HttpGet("UserAddress/{id}")]
         public async Task<ActionResult<UserAddressDetailDto>> GetUserAddressById(int id)
         {
@@ -57,7 +49,7 @@ namespace HomeHelperFinderAPI.Controllers
         [HttpGet("User/{userId}")]
         public async Task<ActionResult<IEnumerable<UserAddressDetailDto>>> GetUserAddressesByUserId(int userId)
         {
-            var addresses = await _userAddressService.GetByUserIdAsync(userId);
+            var addresses = (await _userAddressService.GetAllAsync()).Where(a => a.UserId == userId);
             if (addresses == null || !addresses.Any()) return NotFound();
             return Ok(addresses);
         }

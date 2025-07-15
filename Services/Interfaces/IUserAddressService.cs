@@ -9,7 +9,7 @@ namespace Services.Interfaces
 {
     public interface IUserAddressService : IBaseService<UserAddressDetailDto, UserAddressCreateDto, UserAddressUpdateDto>
     {
-        public Task<bool> isValidVietnamAddress(int longtitude, int latitude);
+        public Task<bool> isValidVietnamAddress(decimal longtitude, decimal latitude);
         Task<UserAddressDetailDto> UpdateUserAddress(int id, UserAddressUpdateDto dto);
     }
 }

@@ -45,11 +45,7 @@ namespace Services.Implements
             return true;
         }
 
-        public async Task<IEnumerable<UserAddressDetailDto>> GetByUserIdAsync(int userId)
-        {
-            var addresses = await _unitOfWork.addressRepository.GetByUserIdAsync(userId);
-            return _mapper.Map<IEnumerable<UserAddressDetailDto>>(addresses);
-        }
+      
 
         public async Task<UserAddressDetailDto> UpdateUserAddress(int id, UserAddressUpdateDto dto)
         {
