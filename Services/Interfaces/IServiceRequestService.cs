@@ -1,4 +1,5 @@
 ﻿using BussinessObjects.Models;
+using Services.DTOs.Helper;
 using Services.DTOs.ServiceRequest;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,6 @@ namespace Services.Interfaces
         public Task<bool> isValidatedCreateRequest(ServiceRequest request);
         Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int helperId, string action, string? specialNote);
         public bool isValidStatus(string status);
+        Task<IEnumerable<HelperGetServiceRequestDto>> GetAllServiceRequestByHelperId(int helperId);
     }
 }
