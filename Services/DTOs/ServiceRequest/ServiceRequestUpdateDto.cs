@@ -14,7 +14,6 @@ namespace Services.DTOs.ServiceRequest
         public int ServiceId { get; set; }
 
         public int AddressId { get; set; }
-        public int? HelperId { get; set; }
 
         public DateTime RequestedStartTime { get; set; }
 
@@ -23,8 +22,6 @@ namespace Services.DTOs.ServiceRequest
         public string? SpecialNotes { get; set; }
 
         public string? Status { get; set; }
-
-        public DateTime? RequestCreationTime { get; set; }
 
         public decimal? Latitude { get; set; }
 

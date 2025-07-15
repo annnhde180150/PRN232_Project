@@ -126,9 +126,9 @@ namespace Services.Implements
 
         public bool IsValidStatus(string status)
         {
-            return status.Equals(ServiceRequest.AvailableStatus.Pending) ||
-                status.Equals(ServiceRequest.AvailableStatus.Accepted) ||
-                status.Equals(ServiceRequest.AvailableStatus.Cancelled);
+            return status.Equals(ServiceRequest.AvailableStatus.Pending.ToString()) ||
+                status.Equals(ServiceRequest.AvailableStatus.Accepted.ToString()) ||
+                status.Equals(ServiceRequest.AvailableStatus.Cancelled.ToString());
         }
 
         public async Task<AdminServiceRequestListDto> GetServiceRequestsForAdminAsync(AdminServiceRequestFilterDto filter)

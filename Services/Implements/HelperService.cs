@@ -234,4 +234,16 @@ public class HelperService : IHelperService
         _logger.LogInformation($"Password changed successfully for helper ID: {helperId}");
         return true;
     }
+
+    public async Task<bool> isAvailalble(int helperId, DateTime startTime, DateTime endTime)
+    {
+        var booking = _unitOfWork.Bookings;
+        var bookings = (await booking.GetAllAsync())
+            .Where(b => b.HelperId == helperId
+                && (b.ScheduledStartTime < endTime && b.ScheduledStartTime > startTime)
+                && (b.ScheduledEndTime < endTime && b.ScheduledEndTime > startTime))
+            .ToList();
+        return bookings.Any();
+
+    }
 }
