@@ -32,4 +32,14 @@ public class UserRepository(Prn232HomeHelperFinderSystemContext context)
             .Where(h => h.IsActive == false)
             .ToListAsync();
     }
+
+    public async Task<bool> IsEmailUniqueAsync(string email, int exceptUserId)
+    {
+        return !await _context.Users.AnyAsync(u => u.Email == email && u.UserId != exceptUserId);
+    }
+
+    public async Task<bool> IsPhoneUniqueAsync(string phoneNumber, int exceptUserId)
+    {
+        return !await _context.Users.AnyAsync(u => u.PhoneNumber == phoneNumber && u.UserId != exceptUserId);
+    }
 }

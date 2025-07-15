@@ -24,25 +24,33 @@ namespace HomeHelperFinderAPI.Controllers
         }
 
         [HttpPost("UserAddress")]
-        public async Task<ActionResult<UserAddressDetailDto>> CreateUserAddressB(UserAddressCreateDto dto)
+        public async Task<ActionResult<UserAddressDetailDto>> CreateUserAddressById(UserAddressCreateDto dto)
         {
             var created = await _userAddressService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetUserAddressById), new { id = created.AddressId }, created);
+            return Ok(new { data = created });
         }
 
         [HttpPut("UserAddress/{id}")]
-        public async Task<ActionResult<UserAddressDetailDto>> UpdateUserAddressB(int id, UserAddressUpdateDto dto)
+        public async Task<ActionResult<UserAddressDetailDto>> UpdateUserAddressById(int id, UserAddressUpdateDto dto)
         {
-            var updated = await _userAddressService.UpdateAsync(id, dto);
-            if (updated == null) return NotFound();
+            var updated = await _userAddressService.UpdateUserAddress(id, dto);
+            if (updated == null) return NotFound($"User address with ID {id} not found");
             return Ok(updated);
         }
 
         [HttpDelete("UserAddress/{id}")]
-        public async Task<IActionResult> DeleteUserAddressB(int id)
+        public async Task<IActionResult> DeleteUserAddressById(int id)
         {
             await _userAddressService.DeleteAsync(id);
-            return NoContent();
+            return Ok(new { success = true });
+        }
+
+        [HttpGet("User/{userId}")]
+        public async Task<ActionResult<IEnumerable<UserAddressDetailDto>>> GetUserAddressesByUserId(int userId)
+        {
+            var addresses = await _userAddressService.GetByUserIdAsync(userId);
+            if (addresses == null || !addresses.Any()) return NotFound();
+            return Ok(addresses);
         }
     }
 }

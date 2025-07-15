@@ -9,6 +9,6 @@ namespace Repositories.Interfaces
 {
     public interface IUserAddressRepository : IBaseRepository<UserAddress>
     {
-        
+        Task<IEnumerable<UserAddress>> GetByUserIdAsync(int userId);
     }
 }
