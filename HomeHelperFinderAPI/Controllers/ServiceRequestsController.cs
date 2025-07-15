@@ -20,7 +20,7 @@ namespace HomeHelperFinderAPI.Controllers
         //[Authorize]
         public async Task<ActionResult> CreateHelpRequest([FromBody] ServiceRequestCreateDto newRequest)
         {
-            if (!await _requestService.isValidatedCreateRequest(_mapper.Map<ServiceRequest>(newRequest)))
+            if (!await _requestService.IsValidatedCreateRequest(_mapper.Map<ServiceRequest>(newRequest)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //auto map to helper if no helper is assigned
@@ -57,32 +57,16 @@ namespace HomeHelperFinderAPI.Controllers
         //[Authorize]
         public async Task<ActionResult> EditHelpRequest([FromBody] ServiceRequestUpdateDto updatedRequest)
         {
-            if (!await _requestService.isValidatedCreateRequest(_mapper.Map<ServiceRequest>(updatedRequest)))
+            if (!await _requestService.IsValidatedCreateRequest(_mapper.Map<ServiceRequest>(updatedRequest)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //check if valid status
-            if (!_requestService.isValidStatus(updatedRequest.Status))
+            if (!_requestService.IsValidStatus(updatedRequest.Status))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //check for valid address Id
             if (updatedRequest.AddressId == null || !(await _addressService.ExistsAsync(updatedRequest.AddressId)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
-
-            //mapp helper if not assigned
-            //if (updatedRequest.HelperId == null)
-            //{
-            //    var helperId = await _helperService.GetAvailableHelper(_mapper.Map<ServiceRequest>(updatedRequest));
-            //    if (helperId != null)
-            //    {
-            //        updatedRequest.HelperId = helperId;
-            //    }
-            //    else
-            //    {
-            //        return StatusCode(StatusCodes.Status400BadRequest, "No Helper Available");
-            //    }
-            //}
-
-            //notify helper
 
             //notify real time tracking (latitude and longtitude) if provided
             //if (updatedRequest.Latitude != null || updatedRequest.Longitude != null)

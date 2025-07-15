@@ -31,9 +31,5 @@ namespace Services.DTOs.ServiceRequest
 
         public decimal? Longitude { get; set; }
 
-        public virtual BussinessObjects.Models.UserAddress Address { get; set; } = null!;
-
-        public virtual ICollection<BussinessObjects.Models.Booking> Bookings { get; set; } = new List<BussinessObjects.Models.Booking>();
-
     }
 }

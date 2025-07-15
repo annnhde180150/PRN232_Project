@@ -1,6 +1,7 @@
 using BussinessObjects.Models;
 using Services.DTOs.Helper;
 using Services.DTOs.User;
+using Services.DTOs.Admin;
 
 namespace Services.Interfaces;
 
@@ -18,4 +19,13 @@ public interface IHelperService : IBaseService<HelperDetailsDto, HelperCreateDto
     Task<bool> SetHelperStatusBusyAsync(int helperId);
     Task<HelperViewIncomeDto> HelperViewIncomeAsync(int helperId);
     Task<bool> ChangePasswordAsync(int helperId, string currentPassword, string newPassword);
+    Task<bool> isAvailalble(int helperId, DateTime startTime, DateTime endTime);
+
+    // Admin helper application methods
+    Task<(IEnumerable<HelperApplicationListDto> applications, int totalCount)> GetHelperApplicationsAsync(
+        string? status = null,
+        int page = 1,
+        int pageSize = 20);
+    Task<HelperApplicationDetailsDto?> GetHelperApplicationByIdAsync(int helperId);
+    Task<bool> ProcessHelperApplicationDecisionAsync(int helperId, HelperApplicationDecisionDto decision, int adminId);
 }
