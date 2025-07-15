@@ -12,11 +12,7 @@ namespace Services.DTOs.Booking
 
         public int? RequestId { get; set; }
 
-        public int UserId { get; set; }
-
         public int HelperId { get; set; }
-
-        public int ServiceId { get; set; }
 
         public DateTime ScheduledStartTime { get; set; }
 

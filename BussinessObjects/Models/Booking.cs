@@ -6,11 +6,7 @@ public class Booking
 
     public int? RequestId { get; set; }
 
-    public int UserId { get; set; }
-
     public int HelperId { get; set; }
-
-    public int ServiceId { get; set; }
 
     public DateTime ScheduledStartTime { get; set; }
 
@@ -46,11 +42,7 @@ public class Booking
 
     public virtual Review? Review { get; set; }
 
-    public virtual Service Service { get; set; } = null!;
-
     public virtual ICollection<SupportTicket> SupportTickets { get; set; } = new List<SupportTicket>();
-
-    public virtual User User { get; set; } = null!;
 
     public virtual ICollection<WalletTransaction> WalletTransactions { get; set; } = new List<WalletTransaction>();
     public enum AvailableStatus

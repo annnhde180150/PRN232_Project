@@ -18,8 +18,6 @@ public class Service
 
     public int? ParentServiceId { get; set; }
 
-    public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-
     public virtual ICollection<HelperSkill> HelperSkills { get; set; } = new List<HelperSkill>();
 
     public virtual ICollection<Service> InverseParentService { get; set; } = new List<Service>();

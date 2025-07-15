@@ -49,7 +49,8 @@ namespace HomeHelperFinderAPI.Controllers
                 BookingId = latestBooking.BookingId,
                 UserId = latestBooking.UserId,
                 Amount = latestBooking.EstimatedPrice ?? 0,
-                PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString()
+                PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString(),
+                PaymentMethod = "None"
             });
             return Ok(_mapper.Map<BookingDetailDto>(latestBooking));
 

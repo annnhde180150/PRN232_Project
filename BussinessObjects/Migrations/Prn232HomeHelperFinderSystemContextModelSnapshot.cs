@@ -133,21 +133,10 @@ namespace BussinessObjects.Migrations
                     b.Property<DateTime>("ScheduledStartTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ServiceId")
-                        .HasColumnType("int")
-                        .HasColumnName("ServiceID");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<int?>("UserAddressAddressId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int")
-                        .HasColumnName("UserID");
 
                     b.HasKey("BookingId")
                         .HasName("PK__Bookings__73951ACD92FB321F");
@@ -155,12 +144,6 @@ namespace BussinessObjects.Migrations
                     b.HasIndex("HelperId");
 
                     b.HasIndex("RequestId");
-
-                    b.HasIndex("ServiceId");
-
-                    b.HasIndex("UserAddressAddressId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
                 });
@@ -1261,29 +1244,9 @@ namespace BussinessObjects.Migrations
                         .HasForeignKey("RequestId")
                         .HasConstraintName("FK__Bookings__Reques__71D1E811");
 
-                    b.HasOne("BussinessObjects.Models.Service", "Service")
-                        .WithMany("Bookings")
-                        .HasForeignKey("ServiceId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Bookings__Servic__74AE54BC");
-
-                    b.HasOne("BussinessObjects.Models.UserAddress", null)
-                        .WithMany("Bookings")
-                        .HasForeignKey("UserAddressAddressId");
-
-                    b.HasOne("BussinessObjects.Models.User", "User")
-                        .WithMany("Bookings")
-                        .HasForeignKey("UserId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Bookings__UserID__72C60C4A");
-
                     b.Navigation("Helper");
 
                     b.Navigation("Request");
-
-                    b.Navigation("Service");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BussinessObjects.Models.Chat", b =>
@@ -1701,8 +1664,6 @@ namespace BussinessObjects.Migrations
 
             modelBuilder.Entity("BussinessObjects.Models.Service", b =>
                 {
-                    b.Navigation("Bookings");
-
                     b.Navigation("HelperSkills");
 
                     b.Navigation("InverseParentService");
@@ -1717,8 +1678,6 @@ namespace BussinessObjects.Migrations
 
             modelBuilder.Entity("BussinessObjects.Models.User", b =>
                 {
-                    b.Navigation("Bookings");
-
                     b.Navigation("ChatReceiverUsers");
 
                     b.Navigation("ChatSenderUsers");
@@ -1740,8 +1699,6 @@ namespace BussinessObjects.Migrations
 
             modelBuilder.Entity("BussinessObjects.Models.UserAddress", b =>
                 {
-                    b.Navigation("Bookings");
-
                     b.Navigation("ServiceRequests");
 
                     b.Navigation("Users");

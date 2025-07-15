@@ -98,9 +98,7 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
             entity.Property(e => e.FinalPrice).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.HelperId).HasColumnName("HelperID");
             entity.Property(e => e.RequestId).HasColumnName("RequestID");
-            entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
             entity.Property(e => e.Status).HasMaxLength(50);
-            entity.Property(e => e.UserId).HasColumnName("UserID");
 
             entity
                 .HasOne(d => d.Helper)
@@ -114,23 +112,6 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
                 .WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.RequestId)
                 .HasConstraintName("FK__Bookings__Reques__71D1E811");
-
-            entity
-                .HasOne(d => d.Service)
-                .WithMany(p => p.Bookings)
-                .HasForeignKey(d => d.ServiceId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Bookings__Servic__74AE54BC");
-
-            entity
-                .HasOne(d => d.User)
-                .WithMany(p => p.Bookings)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Bookings__UserID__72C60C4A");
-
-            entity.Navigation(b => b.Service).AutoInclude();
-            entity.Navigation(b => b.User).AutoInclude();
         });
 
         modelBuilder.Entity<Chat>(entity =>
