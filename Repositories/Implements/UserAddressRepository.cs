@@ -12,10 +12,9 @@ namespace Repositories.Implements
     public class UserAddressRepository(Prn232HomeHelperFinderSystemContext _context) :
         BaseRepository<UserAddress>(_context), IUserAddressRepository
     {
-        public async Task<UserAddress> GetAddressByUserIdAsync(int userId)
+        public async Task<IEnumerable<UserAddress>> GetByUserIdAsync(int userId)
         {
-            var userAdress = await _context.UserAddresses.FirstOrDefaultAsync(s => s.UserId == userId);
-            return userAdress;
+            return await Task.FromResult(_context.UserAddresses.Where(a => a.UserId == userId).ToList());
         }
     }
 }

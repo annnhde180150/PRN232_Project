@@ -108,10 +108,20 @@ public class UserService : IUserService
         return user != null;
     }
 
+    public async Task<bool> IsEmailUniqueAsync(string email, int exceptUserId)
+    {
+        return await _unitOfWork.Users.IsEmailUniqueAsync(email, exceptUserId);
+    }
+
     public async Task<bool> IsPhoneNumberExistsAsync(string phoneNumber)
     {
         var user = await _unitOfWork.Users.GetUserByPhoneAsync(phoneNumber);
         return user != null;
+    }
+
+    public async Task<bool> IsPhoneUniqueAsync(string phoneNumber, int exceptUserId)
+    {
+        return await _unitOfWork.Users.IsPhoneUniqueAsync(phoneNumber, exceptUserId);
     }
 
     public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)

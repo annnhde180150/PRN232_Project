@@ -8,7 +8,6 @@ namespace Services.DTOs.UserAddress
 {
     public class UserAddressUpdateDto
     {
-        public int AddressId { get; set; }
 
         public int UserId { get; set; }
 

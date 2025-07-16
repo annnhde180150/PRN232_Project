@@ -42,12 +42,23 @@ namespace HomeHelperFinderAPI.Controllers
                     return NotFound($"User with ID {userId} not found");
                 }
 
+                if (!await _userService.IsEmailUniqueAsync(updateDto.Email, userId))
+                {
+                    ModelState.AddModelError("Email", "Email is already registered.");
+                    return BadRequest(ModelState);
+                }
+
+                if (!await _userService.IsPhoneUniqueAsync(updateDto.PhoneNumber, userId))
+                {
+                    ModelState.AddModelError("PhoneNumber", "Phone number is already registered.");
+                    return BadRequest(ModelState);
+                }
+
                 var updatedUser = await _userService.UpdateAsync(userId, updateDto);
 
                 // If address update is included, update the address
                 if (updateDto.DefaultAddress != null && updateDto.DefaultAddressId.HasValue)
                 {
-                    updateDto.DefaultAddress.AddressId = updateDto.DefaultAddressId.Value;
                     await _addressService.UpdateAsync(updateDto.DefaultAddressId.Value, updateDto.DefaultAddress);
                 }
 

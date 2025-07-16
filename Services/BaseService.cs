@@ -31,7 +31,7 @@ namespace Services
 
         public async Task DeleteAsync(int id)
         {
-            if (await ExistsAsync(id)) return;
+            if (!await ExistsAsync(id)) return;
             try
             {
                 // in case using fan in fan out pattern
@@ -67,7 +67,7 @@ namespace Services
 
         public async Task<TDetailDto> UpdateAsync(int id, TUpdateDto dto)
         {
-            if (await ExistsAsync(id)) return default;
+            if (!await ExistsAsync(id)) return default;
             try
             {
                 baseRepository.Update(mapper.Map<TEntity>(dto));

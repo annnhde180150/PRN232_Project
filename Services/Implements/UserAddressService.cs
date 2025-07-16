@@ -16,7 +16,7 @@ using Services.DTOs.Coordination;
 
 namespace Services.Implements
 {
-    public class UserAddressService(IUnitOfWork _unitOfWork, IMapper _mapper, ILogger<UserAddressService> _logger, IConfiguration _config) : 
+    public class UserAddressService(IUnitOfWork _unitOfWork, IMapper _mapper, ILogger<UserAddressService> _logger, IConfiguration _config) :
         BaseService<UserAddressDetailDto, UserAddressCreateDto, UserAddressUpdateDto, UserAddress>(_unitOfWork.addressRepository, _mapper, _unitOfWork),
         IUserAddressService
     {
@@ -29,8 +29,9 @@ namespace Services.Implements
                 return false;
             }
             var url = _config["AddressConverter:CoordinateUrl"];
-            url = url.Replace("{longtitude}", longtitude.ToString()).Replace("{latitude}",latitude.ToString());
-            HttpClient client = new HttpClient() {
+            url = url.Replace("{longtitude}", longtitude.ToString()).Replace("{latitude}", latitude.ToString());
+            HttpClient client = new HttpClient()
+            {
                 BaseAddress = new Uri(url)
             };
             client.DefaultRequestHeaders.UserAgent.ParseAdd("TestApp/1.0 (contact@example.com)");
@@ -42,6 +43,22 @@ namespace Services.Implements
                 return false;
             }
             return true;
+        }
+
+      
+
+        public async Task<UserAddressDetailDto> UpdateUserAddress(int id, UserAddressUpdateDto dto)
+        {
+            _logger.LogInformation($"Updating user address with ID: {id}");
+
+            var existingAddress = await _unitOfWork.addressRepository.GetByIdAsync(id);
+            if (existingAddress == null) throw new ArgumentException($"User address with ID {id} not found");
+
+            _mapper.Map(dto, existingAddress);
+            _unitOfWork.addressRepository.Update(existingAddress);
+            await _unitOfWork.CompleteAsync();
+            return _mapper.Map<UserAddressDetailDto>(existingAddress);
+
         }
     }
 }
