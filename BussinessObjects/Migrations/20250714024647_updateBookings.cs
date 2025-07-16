@@ -25,11 +25,6 @@ namespace BussinessObjects.Migrations
             migrationBuilder.DropColumn(
                 name: "SpecialNotes",
                 table: "Bookings");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Bookings_UserAddressAddressId",
-                table: "Bookings",
-                column: "UserAddressAddressId");
         }
 
         /// <inheritdoc />
