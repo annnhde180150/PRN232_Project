@@ -15,14 +15,14 @@ namespace BussinessObjects.Migrations
                 table: "Bookings",
                 type: "int",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 1);
 
             migrationBuilder.AddColumn<int>(
                 name: "UserID",
                 table: "Bookings",
                 type: "int",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 1);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_ServiceID",
