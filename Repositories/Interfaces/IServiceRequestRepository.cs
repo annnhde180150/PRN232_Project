@@ -17,5 +17,6 @@ namespace Repositories.Interfaces
             string? location = null,
             int page = 1,
             int pageSize = 20);
+        Task<IEnumerable<ServiceRequest>> GetAllServiceRequestByHelperId(int helperId);
     }
 }
