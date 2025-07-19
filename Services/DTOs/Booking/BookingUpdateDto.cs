@@ -40,4 +40,13 @@ namespace Services.DTOs.Booking
 
         public decimal? FinalPrice { get; set; }
     }
+
+    public class BookingStatusUpdateDto
+    {
+        public int BookingId { get; set; }
+        public int HelperId { get; set; } // Needed for permission check
+        public string Status { get; set; } = null!; // InProgress, Completed
+        public DateTime? ActualStartTime { get; set; }
+        public DateTime? ActualEndTime { get; set; }
+    }
 }

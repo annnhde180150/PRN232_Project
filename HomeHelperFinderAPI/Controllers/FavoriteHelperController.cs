@@ -7,7 +7,7 @@ namespace HomeHelperFinderAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class FavoriteHelperController : ControllerBase
 {
     private readonly IFavoriteHelperService _favoriteHelperService;

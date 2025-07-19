@@ -6,6 +6,7 @@ using Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Repositories;
+using System;
 
 namespace Services.Implements;
 
@@ -26,7 +27,18 @@ public class FavoriteHelperService : IFavoriteHelperService
     {
         var existing = await _favoriteRepo.GetByUserAndHelperAsync(dto.UserId, dto.HelperId);
         if (existing != null) return _mapper.Map<FavoriteHelperDetailsDto>(existing);
-        var entity = new FavoriteHelper { UserId = dto.UserId, HelperId = dto.HelperId };
+
+        // Fetch related entities
+        var user = await _unitOfWork.Users.GetByIdAsync(dto.UserId);
+        var helper = await _unitOfWork.Helpers.GetByIdAsync(dto.HelperId);
+
+        var entity = new FavoriteHelper {
+            UserId = dto.UserId,
+            HelperId = dto.HelperId,
+            User = user!,
+            Helper = helper!,
+            DateAdded = DateTime.UtcNow
+        };
         await _favoriteRepo.AddAsync(entity);
         await _unitOfWork.CompleteAsync();
         return _mapper.Map<FavoriteHelperDetailsDto>(entity);
