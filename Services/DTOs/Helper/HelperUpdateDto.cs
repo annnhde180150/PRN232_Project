@@ -26,6 +26,8 @@ public class HelperUpdateDto
 
     public bool? IsActive { get; set; }
 
+    public bool? IsEmailVerified { get; set; }
+
 
     public List<HelperSkillCreateDto>? Skills { get; set; }
     public List<HelperWorkAreaCreateDto>? WorkAreas { get; set; }

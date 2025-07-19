@@ -95,5 +95,8 @@ public class UserProfile : Profile
             .ForMember(dest => dest.ServiceRequests, opt => opt.Ignore())
             .ForMember(dest => dest.SupportTickets, opt => opt.Ignore())
             .ForMember(dest => dest.UserAddresses, opt => opt.Ignore());
+
+        CreateMap<UserDetailsDto, UserUpdateDto>();
+        CreateMap<UserRegisterDto, UserCreateDto>();
     }
 }

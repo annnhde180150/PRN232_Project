@@ -11,4 +11,5 @@ public interface IUserService : IBaseService<UserDetailsDto, UserCreateDto, User
     Task<UserDetailsDto?> ValidateUserCredentialsAsync(string email, string password);
     Task UpdateLastLoginDateAsync(int userId);
     Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);
+    Task<UserDetailsDto?> GetUserByEmailAsync(string email);
 }

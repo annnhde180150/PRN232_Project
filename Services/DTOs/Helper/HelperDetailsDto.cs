@@ -18,6 +18,7 @@ public class HelperDetailsDto : IAppUser
     public int? ApprovedByAdminId { get; set; }
     public DateTime? ApprovalDate { get; set; }
     public bool? IsActive { get; set; }
+    public bool? IsEmailVerified { get; set; }
     public decimal? TotalHoursWorked { get; set; }
     public decimal? AverageRating { get; set; }
     public DateTime? LastLoginDate { get; set; }

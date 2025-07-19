@@ -30,6 +30,8 @@ public class Helper
 
     public bool? IsActive { get; set; }
 
+    public bool? IsEmailVerified { get; set; } = false;
+
     public decimal? TotalHoursWorked { get; set; }
 
     public decimal? AverageRating { get; set; }

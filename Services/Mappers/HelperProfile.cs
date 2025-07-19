@@ -126,6 +126,8 @@ public class HelperProfile : Profile
             .ForMember(dest => dest.SupportTickets, opt => opt.Ignore())
             .ForMember(dest => dest.WithdrawalRequests, opt => opt.Ignore());
 
+        CreateMap<HelperDetailsDto, HelperUpdateDto>();
+
         CreateMap<HelperWallet, HelperViewIncomeDto>()
             .ForMember(dest => dest.HelperId, opt => opt.MapFrom(src => src.HelperId))
             .ForMember(dest => dest.WalletId, opt => opt.MapFrom(src => src.WalletId))
@@ -244,5 +246,7 @@ public class HelperProfile : Profile
             .ForMember(dest => dest.TotalDocuments, opt => opt.Ignore()) // Calculated in service
             .ForMember(dest => dest.VerifiedDocuments, opt => opt.Ignore()) // Calculated in service
             .ForMember(dest => dest.PendingDocuments, opt => opt.Ignore()); // Calculated in service
+
+        CreateMap<HelperRegisterDto, HelperCreateDto>();
     }
 }
