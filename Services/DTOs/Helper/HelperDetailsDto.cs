@@ -23,4 +23,7 @@ public class HelperDetailsDto : IAppUser
     public DateTime? LastLoginDate { get; set; }
     public string Role => "Helper";
 
+    public List<HelperSkillDto>? Skills { get; set; }
+    public List<HelperWorkAreaDto>? WorkAreas { get; set; }
+    public List<HelperDocumentDto>? Documents { get; set; }
 }

@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 
 namespace Repositories.Interfaces;
 
-public interface IHelperSkillRepository
+public interface IHelperSkillRepository : IBaseRepository<HelperSkill>
 {
-    Task AddAsync(HelperSkill entity);
-    Task AddRangeAsync(IEnumerable<HelperSkill> entities);
+    
 } 
