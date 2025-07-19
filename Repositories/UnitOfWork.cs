@@ -26,7 +26,9 @@ public class UnitOfWork : IUnitOfWork
         HelperSkills = new HelperSkillRepository(_context);
         HelperWorkAreas = new HelperWorkAreaRepository(_context);
         HelperDocuments = new HelperDocumentRepository(_context);
+        FavoriteHelpers = new FavoriteHelperRepository(context);
 
+        ReviewReports = new ReviewReportRepository(_context);
     }
 
     public IAdminRepository Admins { get; }
@@ -39,6 +41,8 @@ public class UnitOfWork : IUnitOfWork
     public IPaymentRepository Payments { get; }
     public IReviewRepository Reviews { get; }
     public IServiceRepository Services { get; }
+    public IFavoriteHelperRepository FavoriteHelpers { get; }
+    public IReviewReportRepository ReviewReports { get; }
 
     public IServiceRequestRepository ServiceRequest { get; }
 

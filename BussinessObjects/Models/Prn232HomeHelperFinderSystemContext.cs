@@ -59,6 +59,8 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
 
     public virtual DbSet<WithdrawalRequest> WithdrawalRequests { get; set; }
 
+    public virtual DbSet<ReviewReport> ReviewReports { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var builder = new ConfigurationBuilder()
@@ -449,6 +451,23 @@ public partial class Prn232HomeHelperFinderSystemContext : DbContext
 
             entity.Navigation(r => r.User).AutoInclude();
             entity.Navigation(r => r.Helper).AutoInclude();
+        });
+
+        modelBuilder.Entity<ReviewReport>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Reason).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.ReportedAt).HasDefaultValueSql("(getdate())");
+
+            entity.HasOne(e => e.Review)
+                .WithMany()
+                .HasForeignKey(e => e.ReviewId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Helper)
+                .WithMany()
+                .HasForeignKey(e => e.HelperId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Service>(entity =>
