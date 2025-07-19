@@ -19,6 +19,8 @@ public interface IUnitOfWork
     IHelperSkillRepository HelperSkills { get; }
     IHelperWorkAreaRepository HelperWorkAreas { get; }
     IHelperDocumentRepository HelperDocuments { get; }
+    IFavoriteHelperRepository FavoriteHelpers { get; }
+    IReviewReportRepository ReviewReports { get; }
 
     Task<int> CompleteAsync();
 }

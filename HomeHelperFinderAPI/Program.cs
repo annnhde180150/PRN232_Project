@@ -40,6 +40,7 @@ builder.Services.AddScoped<IOtpVerificationRepository, OtpVerificationRepository
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IFavoriteHelperRepository, FavoriteHelperRepository>();
 
 // Service registrations
 builder.Services.AddScoped<IAdminService, AdminService>();
@@ -58,6 +59,7 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IFavoriteHelperService, FavoriteHelperService>();
 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
 
 
