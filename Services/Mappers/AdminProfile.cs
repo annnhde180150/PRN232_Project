@@ -37,6 +37,9 @@ namespace Services.Mappers
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
                 .ForMember(dest => dest.Role, opt => opt.MapFrom(src => src.Role))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive));
+
+            CreateMap<AdminDetailsDto, AdminUpdateDto>();
+            CreateMap<AdminRegisterDto, AdminCreateDto>();
         }
     }
 }

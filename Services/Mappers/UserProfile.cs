@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BussinessObjects.Models;
 using Services.DTOs.User;
+using Services.DTOs.FavoriteHelper;
 
 namespace Services.Mappers;
 
@@ -95,5 +96,10 @@ public class UserProfile : Profile
             .ForMember(dest => dest.ServiceRequests, opt => opt.Ignore())
             .ForMember(dest => dest.SupportTickets, opt => opt.Ignore())
             .ForMember(dest => dest.UserAddresses, opt => opt.Ignore());
+
+        CreateMap<UserDetailsDto, UserUpdateDto>();
+        CreateMap<UserRegisterDto, UserCreateDto>();
+        CreateMap<FavoriteHelper, FavoriteHelperDetailsDto>();
+        CreateMap<FavoriteHelperCreateDto, FavoriteHelper>();
     }
 }

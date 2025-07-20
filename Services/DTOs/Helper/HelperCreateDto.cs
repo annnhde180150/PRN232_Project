@@ -32,6 +32,8 @@ public class HelperCreateDto
 
     public bool? IsActive { get; set; } = false;
 
+    public bool? IsEmailVerified { get; set; } = false;
+
     public List<HelperSkillCreateDto>? Skills { get; set; }
     public List<HelperWorkAreaCreateDto>? WorkAreas { get; set; }
     public List<HelperDocumentCreateDto>? Documents { get; set; }

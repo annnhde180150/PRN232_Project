@@ -201,5 +201,26 @@ namespace HomeHelperFinderAPI.Controllers
             var result = await _bookingService.updateBookingStatus(updateBookingStatusDto.BookingId, updateBookingStatusDto.Action);
             return Ok(result);
         }
+        [HttpPut("{id}/status")]
+        public async Task<ActionResult> UpdateBookingStatus(int id, [FromBody] BookingStatusUpdateDto dto)
+        {
+            if (id != dto.BookingId)
+                return BadRequest("Booking ID mismatch");
+
+            var booking = await _bookingService.GetByIdAsync(id);
+            if (booking == null)
+                return NotFound("Booking not found");
+
+            if (booking.HelperId != dto.HelperId)
+                return Forbid("You are not the assigned helper for this booking");
+
+            if (dto.Status != "InProgress" && dto.Status != "Completed")
+                return BadRequest("Invalid status");
+
+            var updated = await _bookingService.UpdateBookingStatusAsync(dto);
+            // TODO: Gửi SignalR tới user
+            return Ok(updated);
+        }
+
     }
 }

@@ -5,6 +5,7 @@ using Services.DTOs.Helper;
 using Services.DTOs.User;
 using Services.Interfaces;
 using AutoMapper;
+using Services.DTOs.OtpVerification;
 
 namespace HomeHelperFinderAPI.Controllers
 {
@@ -18,8 +19,9 @@ namespace HomeHelperFinderAPI.Controllers
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtService _jwtService;
         private readonly IMapper _mapper;
+        private readonly IOtpService _otpService;
 
-        public AuthenticationController(IUserService userService, IHelperService helperService, IAdminService adminService, IPasswordHasher passwordHasher, IJwtService jwtService, IMapper mapper)
+        public AuthenticationController(IUserService userService, IHelperService helperService, IAdminService adminService, IPasswordHasher passwordHasher, IJwtService jwtService, IMapper mapper, IOtpService otpService)
         {
             _userService = userService;
             _helperService = helperService;
@@ -27,6 +29,7 @@ namespace HomeHelperFinderAPI.Controllers
             _passwordHasher = passwordHasher;
             _jwtService = jwtService;
             _mapper = mapper;
+            _otpService = otpService;
         }
 
         #region Registration 
@@ -52,16 +55,12 @@ namespace HomeHelperFinderAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var userCreateDto = new UserCreateDto
-                {
-                    PhoneNumber = model.PhoneNumber,
-                    Email = model.Email,
-                    PasswordHash = _passwordHasher.HashPassword(model.Password),
-                    FullName = model.FullName
-                };
+                var userCreateDto = _mapper.Map<UserCreateDto>(model);
+                userCreateDto.PasswordHash = _passwordHasher.HashPassword(model.Password);
 
                 var result = await _userService.CreateAsync(userCreateDto);
-                return Ok(result);
+                await _otpService.GenerateAndSendOtpAsync(model.Email);
+                return Ok(new { message = "Registration successful. Please check your email for the OTP to verify your account.", user = result });
             }
             catch (Exception)
             {
@@ -95,7 +94,8 @@ namespace HomeHelperFinderAPI.Controllers
                 helperCreateDto.PasswordHash = _passwordHasher.HashPassword(model.Password);
 
                 var result = await _helperService.CreateAsync(helperCreateDto);
-                return Ok(result);
+                await _otpService.GenerateAndSendOtpAsync(model.Email);
+                return Ok(new { message = "Registration successful. Please check your email for the OTP to verify your account.", helper = result });
             }
             catch (Exception)
             {
@@ -125,17 +125,12 @@ namespace HomeHelperFinderAPI.Controllers
                     return BadRequest(ModelState);
                 }
 
-                var adminCreateDto = new AdminCreateDto
-                {
-                    Username = model.Username,
-                    Email = model.Email,
-                    PasswordHash = _passwordHasher.HashPassword(model.Password),
-                    FullName = model.FullName,
-                    Role = model.Role
-                };
+                var adminCreateDto = _mapper.Map<AdminCreateDto>(model);
+                adminCreateDto.PasswordHash = _passwordHasher.HashPassword(model.Password);
 
                 var result = await _adminService.CreateAsync(adminCreateDto);
-                return Ok(result);
+                await _otpService.GenerateAndSendOtpAsync(model.Email);
+                return Ok(new { message = "Registration successful. Please check your email for the OTP to verify your account.", admin = result });
             }
             catch (Exception)
             {
@@ -158,6 +153,10 @@ namespace HomeHelperFinderAPI.Controllers
             if (user == null)
             {
                 return Unauthorized(new { message = "Invalid email or password" });
+            }
+            if (user.IsActive != true)
+            {
+                return Unauthorized(new { message = "Account not active. Please verify your email." });
             }
 
             await _userService.UpdateLastLoginDateAsync(user.Id);
@@ -184,6 +183,14 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 return Unauthorized(new { message = "Invalid email or password" });
             }
+            if (helper.IsEmailVerified != true)
+            {
+                return Unauthorized(new { message = "Email not verified. Please check your email for the OTP." });
+            }
+            if (helper.IsActive != true)
+            {
+                return Unauthorized(new { message = "Account not active. Awaiting admin approval." });
+            }
 
             await _helperService.UpdateLastLoginDateAsync(helper.Id);
             var token = _jwtService.GenerateJwtToken(helper);
@@ -209,6 +216,10 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 return Unauthorized(new { message = "Invalid username or password" });
             }
+            if (admin.IsActive != true)
+            {
+                return Unauthorized(new { message = "Admin account not active. Please verify your email." });
+            }
 
             await _adminService.UpdateLastLoginDateAsync(admin.Id);
             var token = _jwtService.GenerateJwtToken(admin);
@@ -221,6 +232,45 @@ namespace HomeHelperFinderAPI.Controllers
             });
         }
         #endregion
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] OtpVerificationRequestDto request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.OtpCode))
+                return BadRequest(new { message = "Email and OTP code are required." });
+            var result = await _otpService.VerifyOtpAsync(request.Email, request.OtpCode);
+            if (!result)
+                return BadRequest(new { message = "Invalid or expired OTP." });
+
+            // Determine user type and update status accordingly
+            var user = await _userService.GetUserByEmailAsync(request.Email);
+            if (user != null)
+            {
+                user.IsActive = true;
+                var updateDto = _mapper.Map<UserUpdateDto>(user);
+                await _userService.UpdateAsync(user.Id, updateDto);
+                return Ok(new { message = "OTP verified successfully. Your account is now active." });
+            }
+            var helper = await _helperService.GetHelperByEmailAsync(request.Email);
+            if (helper != null)
+            {
+                helper.IsEmailVerified = true;
+                var updateDto = _mapper.Map<HelperUpdateDto>(helper);
+                await _helperService.UpdateAsync(helper.Id, updateDto);
+                return Ok(new { message = "OTP verified successfully. Your email is now verified. Awaiting admin approval." });
+            }
+            var admin = await _adminService.GetAdminByEmailAsync(request.Email);
+            if (admin != null)
+            {
+                admin.IsActive = true;
+                var updateDto = _mapper.Map<AdminUpdateDto>(admin);
+                await _adminService.UpdateAsync(admin.Id, updateDto);
+                return Ok(new { message = "OTP verified successfully. Your admin account is now active." });
+            }
+            return Ok(new { message = "OTP verified, but no matching account found." });
+        }
+
+  
 
         [HttpPost("logout")]
         public IActionResult Logout()

@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 
 namespace Repositories.Interfaces;
 
-public interface IHelperDocumentRepository
+public interface IHelperDocumentRepository : IBaseRepository<HelperDocument>
 {
-    Task AddAsync(HelperDocument entity);
-    Task AddRangeAsync(IEnumerable<HelperDocument> entities);
+ 
 } 

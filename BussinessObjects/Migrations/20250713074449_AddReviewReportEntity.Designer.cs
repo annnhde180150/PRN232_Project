@@ -4,6 +4,7 @@ using BussinessObjects.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BussinessObjects.Migrations
 {
     [DbContext(typeof(Prn232HomeHelperFinderSystemContext))]
-    partial class Prn232HomeHelperFinderSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20250713074449_AddReviewReportEntity")]
+    partial class AddReviewReportEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -376,9 +379,6 @@ namespace BussinessObjects.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
-
-                    b.Property<bool?>("IsEmailVerified")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastLoginDate")
                         .HasColumnType("datetime2");
@@ -1300,8 +1300,8 @@ namespace BussinessObjects.Migrations
                     b.HasOne("BussinessObjects.Models.Service", "Service")
                         .WithMany("Bookings")
                         .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK__Bookings__Servic__74AE54BC");
 
                     b.HasOne("BussinessObjects.Models.UserAddress", null)
                         .WithMany("Bookings")
@@ -1310,8 +1310,8 @@ namespace BussinessObjects.Migrations
                     b.HasOne("BussinessObjects.Models.User", "User")
                         .WithMany("Bookings")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK__Bookings__UserID__72C60C4A");
 
                     b.Navigation("Helper");
 
@@ -1795,6 +1795,8 @@ namespace BussinessObjects.Migrations
 
             modelBuilder.Entity("BussinessObjects.Models.UserAddress", b =>
                 {
+                    b.Navigation("Bookings");
+
                     b.Navigation("ServiceRequests");
 
                     b.Navigation("Users");

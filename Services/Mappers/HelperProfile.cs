@@ -25,7 +25,10 @@ public class HelperProfile : Profile
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
             .ForMember(dest => dest.TotalHoursWorked, opt => opt.MapFrom(src => src.TotalHoursWorked))
             .ForMember(dest => dest.AverageRating, opt => opt.MapFrom(src => src.AverageRating))
-            .ForMember(dest => dest.LastLoginDate, opt => opt.MapFrom(src => src.LastLoginDate));
+            .ForMember(dest => dest.LastLoginDate, opt => opt.MapFrom(src => src.LastLoginDate))
+            .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.HelperSkills))
+            .ForMember(dest => dest.WorkAreas, opt => opt.MapFrom(src => src.HelperWorkAreas))
+            .ForMember(dest => dest.Documents, opt => opt.MapFrom(src => src.HelperDocuments));
 
         CreateMap<HelperDetailsDto, Helper>()
             .ForMember(dest => dest.HelperId, opt => opt.MapFrom(src => src.Id))
@@ -122,6 +125,8 @@ public class HelperProfile : Profile
             .ForMember(dest => dest.Reviews, opt => opt.Ignore())
             .ForMember(dest => dest.SupportTickets, opt => opt.Ignore())
             .ForMember(dest => dest.WithdrawalRequests, opt => opt.Ignore());
+
+        CreateMap<HelperDetailsDto, HelperUpdateDto>();
 
         CreateMap<HelperWallet, HelperViewIncomeDto>()
             .ForMember(dest => dest.HelperId, opt => opt.MapFrom(src => src.HelperId))
@@ -241,5 +246,7 @@ public class HelperProfile : Profile
             .ForMember(dest => dest.TotalDocuments, opt => opt.Ignore()) // Calculated in service
             .ForMember(dest => dest.VerifiedDocuments, opt => opt.Ignore()) // Calculated in service
             .ForMember(dest => dest.PendingDocuments, opt => opt.Ignore()); // Calculated in service
+
+        CreateMap<HelperRegisterDto, HelperCreateDto>();
     }
 }
