@@ -106,7 +106,7 @@ namespace Services.Implements
             {
                 Success = false,
                 Message = "Invalid action"
-            }
+            };
         }
                 
         public async Task<BookingDetailDto?> UpdateBookingStatusAsync(BookingStatusUpdateDto dto)
