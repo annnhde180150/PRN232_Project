@@ -277,5 +277,29 @@ namespace HomeHelperFinderAPI.Controllers
             }
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> searchHelper (int serviceId , string? page , string? pageSize)
+        {
+            try
+            {
+                _logger.LogInformation($"Searching for helpers for service ID: {serviceId}");
+                if (serviceId <= 0)
+                {
+                    return BadRequest("Invalid service ID");
+                }
+                var helpers = await _helperService.GetHelpersByServiceAsync(serviceId, page, pageSize);
+                if (helpers == null || !helpers.Any())
+                {
+                    return NotFound($"No helpers found for service ID {serviceId}");
+                }
+                return Ok(helpers);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error searching for helpers for service ID {serviceId}: {ex.Message}");
+                return StatusCode(500, "An error occurred while searching for helpers");
+            }
+
+        }
     }
 } 

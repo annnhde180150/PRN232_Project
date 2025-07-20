@@ -456,4 +456,30 @@ public class HelperService : IHelperService
         _logger.LogInformation($"Helper application {helperId} status changed from {oldStatus} to {decision.Status} by admin {adminId}");
         return true;
     }
+    public async Task<IEnumerable<SearchHelperDto>> GetHelpersByServiceAsync(int serviceId, string? page, string? pageSize)
+    {
+        _logger.LogInformation($"Getting helpers for service ID: {serviceId}");
+        var helpers = await _unitOfWork.Helpers.GetQueryable(h => h.HelperSkills)
+            .Where(h => h.HelperSkills.Any(s => s.ServiceId == serviceId))
+            .ToListAsync();
+        var searchHelpers = new List<SearchHelperDto>();
+        var service = await _unitOfWork.Services.GetByIdAsync(serviceId);
+        foreach (var helper in helpers)
+        {
+            var helperWorkAreas = await _unitOfWork.HelperWorkAreas.GetAllAsync(h => h.HelperId == helper.HelperId);
+            var searchHelper = new SearchHelperDto
+            {
+                helperId = helper.HelperId,
+                helperName = helper.FullName,
+                basePrice = service.BasePrice,
+                rating = helper.AverageRating ?? 0,
+                bio = helper.Bio,
+                serviceName = service.ServiceName,
+                HelperWorkAreas = helperWorkAreas.ToList(),
+                availableStatus = helper.AvailableStatus.ToString(),
+            };
+            searchHelpers.Add(searchHelper);
+        }
+        return searchHelpers;
+    }
 }

@@ -29,4 +29,5 @@ public interface IHelperService : IBaseService<HelperDetailsDto, HelperCreateDto
         int pageSize = 20);
     Task<HelperApplicationDetailsDto?> GetHelperApplicationByIdAsync(int helperId);
     Task<bool> ProcessHelperApplicationDecisionAsync(int helperId, HelperApplicationDecisionDto decision, int adminId);
+    Task<IEnumerable<SearchHelperDto>> GetHelpersByServiceAsync(int serviceId,string? page, string? pageSize);
 }
