@@ -90,7 +90,7 @@ namespace Services.Implements
             }
         }
 
-        public async Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int helperId, string action)
+        public async Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int bookingId, string action)
         {
             var serviceRepo = _unitOfWork.ServiceRequest;
             var request = await serviceRepo.GetByIdAsync(requestId);
@@ -108,6 +108,15 @@ namespace Services.Implements
                 ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Accepted;
                 request.Status = status.ToString();
                 serviceRepo.Update(request);
+                // Update the boooking status to InProgress
+                var booking = await _unitOfWork.Bookings.GetByIdAsync(bookingId);
+                if (booking == null)
+                {
+                    _logger.LogWarning("Booking with id {BookingId} not found for acceptance.", bookingId);
+                    return new ServiceRequestActionResultDto { Success = false, Message = "Booking not found" };
+                }
+                booking.Status = Booking.AvailableStatus.InProgress.ToString();
+                _unitOfWork.Bookings.Update(booking);
                 await _unitOfWork.CompleteAsync();
                 return new ServiceRequestActionResultDto { Success = true, Message = "Request accepted successfully" };
             }
@@ -116,6 +125,18 @@ namespace Services.Implements
                 ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Cancelled;
                 request.Status = status.ToString();
                 serviceRepo.Update(request);
+                // Update the booking status to Cancelled
+                var booking = await _unitOfWork.Bookings.GetByIdAsync(bookingId);
+                if (booking == null)
+                {
+                    _logger.LogWarning("Booking with id {BookingId} not found for cancellation.", bookingId);
+                    return new ServiceRequestActionResultDto { Success = false, Message = "Booking not found" };
+                }
+                booking.Status = Booking.AvailableStatus.Cancelled.ToString();
+                //booking.CancellationReason = "Request cancelled by user";
+                //booking.CancelledBy = "User"; 
+                booking.CancellationTime = DateTime.UtcNow;
+                _unitOfWork.Bookings.Update(booking);
                 await _unitOfWork.CompleteAsync();
                 return new ServiceRequestActionResultDto { Success = true, Message = "Request cancelled successfully" };
             }

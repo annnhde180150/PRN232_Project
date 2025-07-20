@@ -12,7 +12,6 @@ namespace Services.Interfaces
     {
         public Task<BookingDetailDto?> GetUserLatestBooking(int userId);
         Task<IEnumerable<GetAllBookingDto>> getAllbookingByHelperId(int helperId);
-        Task<ServiceRequestActionResultDto> updateBookingStatus(int bookingId, string action);
         Task<BookingDetailDto?> UpdateBookingStatusAsync(BookingStatusUpdateDto dto);
     }
 }

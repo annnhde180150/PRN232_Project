@@ -182,25 +182,11 @@ namespace HomeHelperFinderAPI.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid helper ID");
             }
             var bookings = await _bookingService.getAllbookingByHelperId(helperId);
-            if (bookings == null || !bookings.Any())
-            {
-                return StatusCode(StatusCodes.Status404NotFound, "No bookings found for this helper");
-            }
 
             return Ok(bookings);
 
         }
 
-        [HttpPut("UpdateBookingstatus")]
-        public async Task<IActionResult> updateBookingStatus([FromBody] UpdateBookingStatusDto updateBookingStatusDto)
-        {
-            if (updateBookingStatusDto.BookingId <= 0 || string.IsNullOrEmpty(updateBookingStatusDto.Action))
-            {
-                return BadRequest("Invalid booking update request data.");
-            }
-            var result = await _bookingService.updateBookingStatus(updateBookingStatusDto.BookingId, updateBookingStatusDto.Action);
-            return Ok(result);
-        }
         [HttpPut("{id}/status")]
         public async Task<ActionResult> UpdateBookingStatus(int id, [FromBody] BookingStatusUpdateDto dto)
         {

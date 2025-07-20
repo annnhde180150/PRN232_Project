@@ -15,7 +15,7 @@ namespace Services.Interfaces
         public Task<ServiceRequest> GetLatestRequestByUserId(int userId);
         public Task SoftDeleteRequest(int requestId);
         public Task<bool> IsValidatedCreateRequest(ServiceRequest request);
-        Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int helperId, string action);
+        Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int bookingId, string action);
         Task<IEnumerable<GetAllServiceRequestDto>> GetAllServiceRequestByHelperId(int helperId);
         public bool IsValidStatus(string status);
         // Admin methods

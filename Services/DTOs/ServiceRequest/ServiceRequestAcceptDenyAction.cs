@@ -9,7 +9,7 @@ namespace Services.DTOs.ServiceRequest
     public class ServiceRequestActionDto
     {
         public int RequestId { get; set; }
-        public int HelperId { get; set; }
+        public int BookingId { get; set; }
         public string Action { get; set; }
     }
 
