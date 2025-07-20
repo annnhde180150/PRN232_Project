@@ -1,0 +1,12 @@
+  
+services:
+  web:  # Define a service named 'web'
+    container_name: helper-finder
+    image: helper-finder # Replace with your image name
+    build:
+      context: .  # Build context (current directory)
+      dockerfile: ./Dockerfile  # Specify the Dockerfile to use  
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "80:8080"
