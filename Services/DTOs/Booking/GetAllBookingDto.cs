@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services.DTOs.ServiceRequest
+namespace Services.DTOs.Booking
 {
-    public class GetAllServiceRequestDto
+    public class GetAllBookingDto
     {
+        public int BookingId { get; set; }
+
         public int RequestId { get; set; }
 
         public int UserId { get; set; }
@@ -16,15 +18,11 @@ namespace Services.DTOs.ServiceRequest
 
         public int AddressId { get; set; }
 
-        public DateTime RequestedStartTime { get; set; }
-
-        public decimal? RequestedDurationHours { get; set; }
-
-        public string? SpecialNotes { get; set; }
-
         public string? Status { get; set; }
 
-        public DateTime? RequestCreationTime { get; set; }
+        public DateTime ScheduledStartTime { get; set; }
+
+        public DateTime ScheduledEndTime { get; set; }
 
         /// Location coordinates for real-time tracking and mapping purposes
         public decimal? Latitude { get; set; }
@@ -38,7 +36,7 @@ namespace Services.DTOs.ServiceRequest
 
         public string? FullAddress { get; set; }
         public string? FullName { get; set; }
-        public decimal? BasePrice { get; set; }
+        public decimal EstimatedPrice { get; set; }
         public string ServiceName { get; set; } = null!;
     }
 }

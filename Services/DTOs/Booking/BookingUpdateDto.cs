@@ -40,4 +40,9 @@ namespace Services.DTOs.Booking
 
         public decimal? FinalPrice { get; set; }
     }
+    public class UpdateBookingStatusDto
+    {
+        public int BookingId { get; set; }
+        public string Action { get; set; }
+    }
 }

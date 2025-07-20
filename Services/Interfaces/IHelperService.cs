@@ -2,6 +2,7 @@ using BussinessObjects.Models;
 using Services.DTOs.Helper;
 using Services.DTOs.User;
 using Services.DTOs.Admin;
+using Services.DTOs.Booking;
 
 namespace Services.Interfaces;
 

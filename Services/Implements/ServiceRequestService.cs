@@ -90,39 +90,36 @@ namespace Services.Implements
             }
         }
 
-        public async Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int helperId, string action,string? specialNote)
+        public async Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int helperId, string action)
         {
-            //var serviceRepo = _unitOfWork.ServiceRequest;
-            //var request = await serviceRepo.GetByIdAsync(requestId);
-            //if (request == null)
-            //{
-            //    _logger.LogWarning("Service request with id {RequestId} not found for response.", requestId);
-            //    return new ServiceRequestActionResultDto { Success = false, Message = "Request not found" };
-            //}
-            //if (request.Status != "Pending")
-            //{
-            //    return new ServiceRequestActionResultDto { Success = false, Message = "Request is no longer pending" };
-            //}
-            //if (action == "Accept")
-            //{
-            //    ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.InProgress;
-            //    request.Status = status.ToString();
-            //    request.SpecialNotes = specialNote;
-            //    serviceRepo.Update(request);
-            //    await _unitOfWork.CompleteAsync();
-            //    return new ServiceRequestActionResultDto { Success = true, Message = "Request accepted successfully" };
-            //}
-            //if (action == "Cancel")
-            //{
-            //    ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Cancelled;
-            //    request.Status = status.ToString();
-            //    request.SpecialNotes = specialNote;
-            //    serviceRepo.Update(request);
-            //    await _unitOfWork.CompleteAsync();
-            //    return new ServiceRequestActionResultDto { Success = true, Message = "Request cancelled successfully" };
-            //}
-            //return new ServiceRequestActionResultDto { Success = false, Message = "Invalid action" };
-            return null;
+            var serviceRepo = _unitOfWork.ServiceRequest;
+            var request = await serviceRepo.GetByIdAsync(requestId);
+            if (request == null)
+            {
+                _logger.LogWarning("Service request with id {RequestId} not found for response.", requestId);
+                return new ServiceRequestActionResultDto { Success = false, Message = "Request not found" };
+            }
+            if (request.Status != "Pending")
+            {
+                return new ServiceRequestActionResultDto { Success = false, Message = "Request is no longer pending" };
+            }
+            if (action == "Accept")
+            {
+                ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Accepted;
+                request.Status = status.ToString();
+                serviceRepo.Update(request);
+                await _unitOfWork.CompleteAsync();
+                return new ServiceRequestActionResultDto { Success = true, Message = "Request accepted successfully" };
+            }
+            if (action == "Cancel")
+            {
+                ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Cancelled;
+                request.Status = status.ToString();
+                serviceRepo.Update(request);
+                await _unitOfWork.CompleteAsync();
+                return new ServiceRequestActionResultDto { Success = true, Message = "Request cancelled successfully" };
+            }
+            return new ServiceRequestActionResultDto { Success = false, Message = "Invalid action" };
         }
 
         public bool IsValidStatus(string status)
@@ -299,7 +296,8 @@ namespace Services.Implements
                     Longitude = r.Longitude,
                     UserId = r.UserId,
                     BasePrice = r.Service.BasePrice,
-                    RequestedStartTime = r.RequestedStartTime
+                    RequestedStartTime = r.RequestedStartTime,
+                    ServiceName = r.Service.ServiceName
                 }).ToList();
             return requestsByHelper;
         }
