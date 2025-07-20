@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{4B9BFFF5-B
 		SignalR_README.md = SignalR_README.md
 		Docs\AdminServiceRequestAPI.md = Docs\AdminServiceRequestAPI.md
 		Docs\AdminHelperApplicationAPI.md = Docs\AdminHelperApplicationAPI.md
+		Docs\Business_Reports_API_Documentation.md = Docs\Business_Reports_API_Documentation.md
 	EndProjectSection
 EndProject
 Global
