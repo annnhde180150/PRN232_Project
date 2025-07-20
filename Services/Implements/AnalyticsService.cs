@@ -428,6 +428,185 @@ public class AnalyticsService : IAnalyticsService
         return Encoding.UTF8.GetBytes(csv.ToString());
     }
 
+    #region Customer-specific Analytics
+
+    public async Task<BookingAnalyticsDto> GetCustomerBookingAnalyticsAsync(int userId, string period = "month")
+    {
+        var dateRange = GetDateRangeForPeriod(period);
+        var userBookings = await _unitOfWork.Bookings.GetBookingsByUserIdAsync(userId);
+        var periodBookings = userBookings.Where(b => b.BookingCreationTime >= dateRange.Start && b.BookingCreationTime <= dateRange.End);
+
+        var totalBookings = periodBookings.Count();
+        var completedBookings = periodBookings.Count(b => b.Status == "Completed");
+        var cancelledBookings = periodBookings.Count(b => b.Status == "Cancelled");
+
+        var totalBookingValue = periodBookings
+            .Where(b => b.FinalPrice.HasValue)
+            .Sum(b => b.FinalPrice.Value);
+
+        // Popular services for this user
+        var servicePopularity = periodBookings
+            .GroupBy(b => b.Service)
+            .Select(g =>
+            {
+                var serviceDto = _mapper.Map<ServicePopularityDto>(g.Key);
+                serviceDto.BookingsCount = g.Count();
+                serviceDto.TotalRevenue = g.Where(b => b.FinalPrice.HasValue && b.Status == "Completed").Sum(b => b.FinalPrice.Value);
+                serviceDto.MarketShare = totalBookings > 0 ? (decimal)g.Count() / totalBookings * 100 : 0;
+                return serviceDto;
+            }).OrderByDescending(s => s.BookingsCount).ToList();
+
+        // Booking trend for this user
+        var bookingTrend = new List<DailyBookingDto>();
+        for (var date = dateRange.Start.Date; date <= dateRange.End.Date; date = date.AddDays(1))
+        {
+            var dayBookings = periodBookings.Where(b => b.BookingCreationTime?.Date == date);
+            bookingTrend.Add(new DailyBookingDto
+            {
+                Date = date,
+                BookingsCount = dayBookings.Count(),
+                EarningsAmount = dayBookings.Where(b => b.FinalPrice.HasValue && b.Status == "Completed").Sum(b => b.FinalPrice.Value)
+            });
+        }
+
+        return new BookingAnalyticsDto
+        {
+            TotalBookings = totalBookings,
+            CompletedBookings = completedBookings,
+            CancelledBookings = cancelledBookings,
+            InProgressBookings = periodBookings.Count(b => b.Status == "InProgress"),
+            PendingBookings = periodBookings.Count(b => b.Status == "Pending"),
+            ConfirmedBookings = periodBookings.Count(b => b.Status == "Confirmed"),
+            AverageBookingValue = completedBookings > 0 ? totalBookingValue / completedBookings : 0,
+            TotalBookingValue = totalBookingValue,
+            CompletionRate = totalBookings > 0 ? (decimal)completedBookings / totalBookings * 100 : 0,
+            CancellationRate = totalBookings > 0 ? (decimal)cancelledBookings / totalBookings * 100 : 0,
+            PopularServices = servicePopularity,
+            BookingTrend = bookingTrend,
+            AnalyticsPeriodStart = dateRange.Start,
+            AnalyticsPeriodEnd = dateRange.End
+        };
+    }
+
+    public async Task<object> GetCustomerSpendingAnalyticsAsync(int userId, string period = "month")
+    {
+        var dateRange = GetDateRangeForPeriod(period);
+        var userPayments = await _unitOfWork.Payments.GetPaymentsByUserIdAsync(userId);
+        var periodPayments = userPayments.Where(p => p.PaymentDate >= dateRange.Start && p.PaymentDate <= dateRange.End);
+
+        var totalSpent = periodPayments.Where(p => p.PaymentStatus == "Completed" || p.PaymentStatus == "Success").Sum(p => p.Amount);
+        var totalTransactions = periodPayments.Count();
+        var successfulPayments = periodPayments.Count(p => p.PaymentStatus == "Completed" || p.PaymentStatus == "Success");
+
+        // Payment methods breakdown
+        var paymentMethods = periodPayments
+            .GroupBy(p => p.PaymentMethod)
+            .Select(g => new PaymentMethodDto
+            {
+                Method = g.Key,
+                TransactionCount = g.Count(),
+                TotalAmount = g.Sum(p => p.Amount),
+                Percentage = totalTransactions > 0 ? (decimal)g.Count() / totalTransactions * 100 : 0,
+                SuccessRate = g.Count() > 0 ? (decimal)g.Count(p => p.PaymentStatus == "Completed" || p.PaymentStatus == "Success") / g.Count() * 100 : 0
+            }).ToList();
+
+        // Monthly spending trend
+        var spendingTrend = new List<MonthlyRevenueDto>();
+        for (var date = dateRange.Start; date <= dateRange.End; date = date.AddMonths(1))
+        {
+            var monthPayments = periodPayments.Where(p =>
+                p.PaymentDate?.Year == date.Year &&
+                p.PaymentDate?.Month == date.Month &&
+                (p.PaymentStatus == "Completed" || p.PaymentStatus == "Success"));
+
+            spendingTrend.Add(new MonthlyRevenueDto
+            {
+                Year = date.Year,
+                Month = date.Month,
+                MonthName = date.ToString("MMMM"),
+                Revenue = monthPayments.Sum(p => p.Amount),
+                TransactionCount = monthPayments.Count(),
+                GrowthRate = 0 // Calculate growth rate if needed
+            });
+        }
+
+        return new
+        {
+            TotalSpent = totalSpent,
+            AverageSpendingPerBooking = totalTransactions > 0 ? totalSpent / totalTransactions : 0,
+            PaymentMethods = paymentMethods,
+            SpendingTrend = spendingTrend,
+            Period = new { Start = dateRange.Start, End = dateRange.End }
+        };
+    }
+
+    public async Task<List<HelperAnalyticsDto>> GetCustomerFavoriteHelpersAsync(int userId)
+    {
+        // First, get explicitly marked favorite helpers
+        var favoriteHelpers = await _unitOfWork.FavoriteHelpers.GetByUserIdAsync(userId);
+        var favoriteHelperIds = favoriteHelpers.Select(f => f.HelperId).ToList();
+
+        // If no explicit favorites, get frequently used helpers from bookings
+        if (!favoriteHelperIds.Any())
+        {
+            var userBookings = await _unitOfWork.Bookings.GetBookingsByUserIdAsync(userId);
+            favoriteHelperIds = userBookings
+                .GroupBy(b => b.HelperId)
+                .OrderByDescending(g => g.Count())
+                .Take(5)
+                .Select(g => g.Key)
+                .ToList();
+        }
+
+        var favoriteHelperAnalytics = new List<HelperAnalyticsDto>();
+        foreach (var helperId in favoriteHelperIds.Take(5))
+        {
+            var helperAnalytics = await GetHelperAnalyticsAsync(helperId, "month");
+            favoriteHelperAnalytics.Add(helperAnalytics);
+        }
+
+        return favoriteHelperAnalytics;
+    }
+
+    #endregion
+
+    #region Helper-specific Analytics
+
+    public async Task<object> GetHelperPerformanceAnalyticsAsync(int helperId, string period = "month")
+    {
+        var analytics = await GetHelperAnalyticsAsync(helperId, period);
+
+        return new
+        {
+            CompletionRate = analytics.CompletionRate,
+            AverageRating = analytics.AverageRating,
+            TotalReviews = analytics.TotalReviews,
+            TotalBookings = analytics.TotalBookings,
+            CompletedBookings = analytics.CompletedBookings,
+            CancelledBookings = analytics.CancelledBookings,
+            TotalHoursWorked = analytics.TotalHoursWorked,
+            ServiceBreakdown = analytics.ServiceBreakdown,
+            BookingTrend = analytics.BookingTrend,
+            Period = new { Start = analytics.AnalyticsPeriodStart, End = analytics.AnalyticsPeriodEnd }
+        };
+    }
+
+    public async Task<object> GetHelperScheduleAnalyticsAsync(int helperId, string period = "month")
+    {
+        var analytics = await GetHelperAnalyticsAsync(helperId, period);
+
+        return new
+        {
+            TotalHoursWorked = analytics.TotalHoursWorked,
+            AverageBookingValue = analytics.AverageBookingValue,
+            BookingTrend = analytics.BookingTrend,
+            EarningsTrend = analytics.EarningsTrend,
+            Period = new { Start = analytics.AnalyticsPeriodStart, End = analytics.AnalyticsPeriodEnd }
+        };
+    }
+
+    #endregion
+
     #region Private Helper Methods
 
     private decimal CalculateGrowthRate(double previous, double current)
