@@ -31,7 +31,7 @@ namespace Services.Implements
         }
 
         public async Task<IEnumerable<BookingDetailDto>> GetAllAsync() => await _baseService.GetAllAsync();
-        public async Task<BookingDetailDto> GetByIdAsync(int id) => await _baseService.GetByIdAsync(id);
+        public async Task<BookingDetailDto> GetByIdAsync(int id, bool asNoTracking) => await _baseService.GetByIdAsync(id, asNoTracking);
         public async Task<BookingDetailDto> CreateAsync(BookingCreateDto dto) => await _baseService.CreateAsync(dto);
         public async Task<BookingDetailDto> UpdateAsync(int id, BookingUpdateDto dto) => await _baseService.UpdateAsync(id, dto);
         public async Task<bool> ExistsAsync(int id) => await _baseService.ExistsAsync(id);

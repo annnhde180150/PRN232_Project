@@ -326,7 +326,8 @@ namespace Services.Implements
         public async Task<List<ServiceRequest>> getPendingRequests()
         {
             var requestRepo = _unitOfWork.ServiceRequest;
-            var result = (await requestRepo.GetAllAsync())
+            var list = (await requestRepo.GetAllAsync());
+            var result = list
                 .Where(r => r.Status == ServiceRequest.AvailableStatus.Pending.ToString())
                 .ToList();
             return result;
