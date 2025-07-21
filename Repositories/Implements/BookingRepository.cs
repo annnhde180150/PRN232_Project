@@ -25,6 +25,7 @@ public class BookingRepository : BaseRepository<Booking>, IBookingRepository
         return await _context.Bookings
             .Where(b => b.HelperId == helperId)
             .Include(b => b.Helper)
+            .Include(b => b.Request)
             .Include(b => b.Service)
             .Include(b => b.User)
             .ToListAsync();

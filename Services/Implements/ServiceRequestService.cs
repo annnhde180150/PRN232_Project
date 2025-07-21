@@ -90,39 +90,57 @@ namespace Services.Implements
             }
         }
 
-        public async Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int helperId, string action,string? specialNote)
+        public async Task<ServiceRequestActionResultDto> RespondToRequestAsync(int requestId, int bookingId, string action)
         {
-            //var serviceRepo = _unitOfWork.ServiceRequest;
-            //var request = await serviceRepo.GetByIdAsync(requestId);
-            //if (request == null)
-            //{
-            //    _logger.LogWarning("Service request with id {RequestId} not found for response.", requestId);
-            //    return new ServiceRequestActionResultDto { Success = false, Message = "Request not found" };
-            //}
-            //if (request.Status != "Pending")
-            //{
-            //    return new ServiceRequestActionResultDto { Success = false, Message = "Request is no longer pending" };
-            //}
-            //if (action == "Accept")
-            //{
-            //    ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.InProgress;
-            //    request.Status = status.ToString();
-            //    request.SpecialNotes = specialNote;
-            //    serviceRepo.Update(request);
-            //    await _unitOfWork.CompleteAsync();
-            //    return new ServiceRequestActionResultDto { Success = true, Message = "Request accepted successfully" };
-            //}
-            //if (action == "Cancel")
-            //{
-            //    ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Cancelled;
-            //    request.Status = status.ToString();
-            //    request.SpecialNotes = specialNote;
-            //    serviceRepo.Update(request);
-            //    await _unitOfWork.CompleteAsync();
-            //    return new ServiceRequestActionResultDto { Success = true, Message = "Request cancelled successfully" };
-            //}
-            //return new ServiceRequestActionResultDto { Success = false, Message = "Invalid action" };
-            return null;
+            var serviceRepo = _unitOfWork.ServiceRequest;
+            var request = await serviceRepo.GetByIdAsync(requestId);
+            if (request == null)
+            {
+                _logger.LogWarning("Service request with id {RequestId} not found for response.", requestId);
+                return new ServiceRequestActionResultDto { Success = false, Message = "Request not found" };
+            }
+            if (request.Status != "Pending")
+            {
+                return new ServiceRequestActionResultDto { Success = false, Message = "Request is no longer pending" };
+            }
+            if (action == "Accept")
+            {
+                ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Accepted;
+                request.Status = status.ToString();
+                serviceRepo.Update(request);
+                // Update the boooking status to InProgress
+                var booking = await _unitOfWork.Bookings.GetByIdAsync(bookingId);
+                if (booking == null)
+                {
+                    _logger.LogWarning("Booking with id {BookingId} not found for acceptance.", bookingId);
+                    return new ServiceRequestActionResultDto { Success = false, Message = "Booking not found" };
+                }
+                booking.Status = Booking.AvailableStatus.InProgress.ToString();
+                _unitOfWork.Bookings.Update(booking);
+                await _unitOfWork.CompleteAsync();
+                return new ServiceRequestActionResultDto { Success = true, Message = "Request accepted successfully" };
+            }
+            if (action == "Cancel")
+            {
+                ServiceRequest.AvailableStatus status = ServiceRequest.AvailableStatus.Cancelled;
+                request.Status = status.ToString();
+                serviceRepo.Update(request);
+                // Update the booking status to Cancelled
+                var booking = await _unitOfWork.Bookings.GetByIdAsync(bookingId);
+                if (booking == null)
+                {
+                    _logger.LogWarning("Booking with id {BookingId} not found for cancellation.", bookingId);
+                    return new ServiceRequestActionResultDto { Success = false, Message = "Booking not found" };
+                }
+                booking.Status = Booking.AvailableStatus.Cancelled.ToString();
+                //booking.CancellationReason = "Request cancelled by user";
+                //booking.CancelledBy = "User"; 
+                booking.CancellationTime = DateTime.UtcNow;
+                _unitOfWork.Bookings.Update(booking);
+                await _unitOfWork.CompleteAsync();
+                return new ServiceRequestActionResultDto { Success = true, Message = "Request cancelled successfully" };
+            }
+            return new ServiceRequestActionResultDto { Success = false, Message = "Invalid action" };
         }
 
         public bool IsValidStatus(string status)
@@ -277,67 +295,32 @@ namespace Services.Implements
                 _ => "pending"
             };
         }
-        public async Task<IEnumerable<HelperGetServiceRequestDto>> GetAllServiceRequestByHelperId(int helperId)
+        public async Task<IEnumerable<GetAllServiceRequestDto>> GetAllServiceRequestByHelperId(int helperId)
         {
-            var allBookings = await _unitOfWork.Bookings.GetAllAsync();
-            var helperBookings = allBookings
-                .Where(b => b.HelperId == helperId)
-                .ToList();
-
-            // 2. Lấy toàn bộ requestId từ booking
-            var requestIds = helperBookings.Select(b => b.RequestId).Distinct().ToList();
-
-            // 3. Lấy các ServiceRequest có RequestId trong danh sách và Status = "Pending"
-            var allRequests = await _unitOfWork.ServiceRequest.GetAllAsync();
-            var filteredRequests = allRequests
-                .Where(r => requestIds.Contains(r.RequestId) && r.Status == "Pending")
-                .ToList();
-
-            // 4. Lấy serviceId, userId, addressId
-            var serviceIds = filteredRequests.Select(r => r.ServiceId).Distinct().ToList();
-            var userIds = filteredRequests.Select(r => r.UserId).Distinct().ToList();
-            var addressIds = filteredRequests.Select(r => r.AddressId).Distinct().ToList();
-
-            // 5. Lấy Service, Address và User (để lấy Username)
-            var services = await _unitOfWork.Services.GetAllAsync();
-            var servicesDict = services.Where(s => serviceIds.Contains(s.ServiceId))
-                                       .ToDictionary(s => s.ServiceId);
-
-            var addresses = await _unitOfWork.addressRepository.GetAllAsync();
-            var addressesDict = addresses.Where(a => addressIds.Contains(a.AddressId))
-                                         .ToDictionary(a => a.AddressId);
-
-            var users = await _unitOfWork.Users.GetAllAsync();
-            var usersDict = users.Where(u => userIds.Contains(u.UserId))
-                                 .ToDictionary(u => u.UserId);
-
-            // 6. Map từng ServiceRequest sang DTO
-            var result = filteredRequests.Select(request =>
-            {
-                var booking = helperBookings.FirstOrDefault(b => b.RequestId == request.RequestId);
-                var address = addressesDict.ContainsKey(request.AddressId) ? addressesDict[request.AddressId] : null;
-                var service = servicesDict.ContainsKey(request.ServiceId) ? servicesDict[request.ServiceId] : null;
-                var user = usersDict.ContainsKey(request.UserId) ? usersDict[request.UserId] : null;
-
-                return new HelperGetServiceRequestDto
+            var serviceRequests = await _unitOfWork.ServiceRequest.GetAllServiceRequestByHelperId(helperId);
+            var requestsByHelper = serviceRequests
+                .Select(r => new GetAllServiceRequestDto
                 {
-                    RequestId = request.RequestId,
-                    Username = user?.FullName ?? "Unknown",
-                    ScheduledStartTime = booking?.ScheduledStartTime ?? request.RequestedStartTime,
-                    ScheduledEndTime = booking?.ScheduledEndTime ?? request.RequestedStartTime.AddHours((double)(request.RequestedDurationHours ?? 1)),
-                    SpecialNotes = request.SpecialNotes ?? string.Empty,
-                    ServiceName = service?.ServiceName ?? "Unknown",
-                    EstimatedPrice = booking?.EstimatedPrice ?? 0,
-                    Ward = address?.Ward ?? "",
-                    District = address?.District ?? "",
-                    City = address?.City ?? "",
-                    FullAddress = address?.FullAddress ?? "",
-                    Latitude = (double)(request.Latitude ?? 0),
-                    Longitude = (double)(request.Longitude ?? 0)
-                };
-            }).ToList();
-
-            return result;
+                    RequestId = r.RequestId,
+                    FullName = r.User.FullName,
+                    ServiceId = r.Service.ServiceId,
+                    AddressId = r.AddressId,
+                    Status = r.Status,
+                    RequestCreationTime = r.RequestCreationTime,
+                    SpecialNotes = r.SpecialNotes,
+                    RequestedDurationHours = r.RequestedDurationHours,
+                    Ward = r.Address.Ward,
+                    District = r.Address.District,
+                    City = r.Address.City,
+                    FullAddress = r.Address.FullAddress,
+                    Latitude = r.Latitude,
+                    Longitude = r.Longitude,
+                    UserId = r.UserId,
+                    BasePrice = r.Service.BasePrice,
+                    RequestedStartTime = r.RequestedStartTime,
+                    ServiceName = r.Service.ServiceName
+                }).ToList();
+            return requestsByHelper;
         }
 
         public async Task<List<ServiceRequest>> getPendingRequests()

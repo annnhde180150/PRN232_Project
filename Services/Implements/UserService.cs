@@ -40,7 +40,7 @@ public class UserService : IUserService
 
         var user = _mapper.Map<User>(dto);
         user.RegistrationDate = DateTime.UtcNow;
-        user.IsActive = true;
+        user.IsActive = false;
 
         await _unitOfWork.Users.AddAsync(user);
         await _unitOfWork.CompleteAsync();
@@ -152,5 +152,12 @@ public class UserService : IUserService
 
         _logger.LogInformation($"Password changed successfully for user ID: {userId}");
         return true;
+    }
+
+    public async Task<UserDetailsDto?> GetUserByEmailAsync(string email)
+    {
+        var user = await _unitOfWork.Users.GetUserByEmailAsync(email);
+        if (user == null) return null;
+        return _mapper.Map<UserDetailsDto>(user);
     }
 }

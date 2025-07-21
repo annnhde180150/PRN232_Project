@@ -10,21 +10,6 @@ namespace BussinessObjects.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK__Bookings__Addres__75A278F5",
-                table: "Bookings");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Bookings_AddressID",
-                table: "Bookings");
-
-            migrationBuilder.DropColumn(
-                name: "AddressID",
-                table: "Bookings");
-
-            migrationBuilder.DropColumn(
-                name: "SpecialNotes",
-                table: "Bookings");
         }
 
         /// <inheritdoc />

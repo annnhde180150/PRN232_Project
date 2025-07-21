@@ -13,11 +13,13 @@ namespace HomeHelperFinderAPI.Controllers
     {
         private readonly IHelperService _helperService;
         private readonly INotificationService _notificationService;
+        private readonly IServiceService _serviceService;
         private readonly ILogger<HelperController> _logger;  
-        public HelperController(IHelperService helperService, INotificationService notificationService, ILogger<HelperController> logger)
+        public HelperController(IHelperService helperService, INotificationService notificationService, IServiceService serviceService, ILogger<HelperController> logger)
         {
             _helperService = helperService;
             _notificationService = notificationService;
+            _serviceService = serviceService;
             _logger = logger;
         }
 
@@ -100,6 +102,49 @@ namespace HomeHelperFinderAPI.Controllers
                     return NotFound($"Helper with ID {helperId} not found");
                 }
 
+                // Validate skills if provided
+                if (updateDto.Skills != null)
+                {
+                    foreach (var skill in updateDto.Skills)
+                    {
+                        if (skill.ServiceId <= 0)
+                        {
+                            return BadRequest("Invalid service ID in skills");
+                        }
+                        
+                        // Validate that the service exists
+                        var service = await _serviceService.GetByIdAsync(skill.ServiceId);
+                        if (service == null)
+                        {
+                            return BadRequest($"Service with ID {skill.ServiceId} does not exist");
+                        }
+                    }
+                }
+
+                // Validate work areas if provided
+                if (updateDto.WorkAreas != null)
+                {
+                    foreach (var workArea in updateDto.WorkAreas)
+                    {
+                        if (string.IsNullOrEmpty(workArea.City) || string.IsNullOrEmpty(workArea.District))
+                        {
+                            return BadRequest("City and District are required for work areas");
+                        }
+                    }
+                }
+
+                // Validate documents if provided
+                if (updateDto.Documents != null)
+                {
+                    foreach (var document in updateDto.Documents)
+                    {
+                        if (string.IsNullOrEmpty(document.DocumentType) || string.IsNullOrEmpty(document.DocumentUrl))
+                        {
+                            return BadRequest("Document type and URL are required for documents");
+                        }
+                    }
+                }
+
                 var updatedHelper = await _helperService.UpdateAsync(helperId, updateDto);
 
                 // Send notification
@@ -131,7 +176,7 @@ namespace HomeHelperFinderAPI.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Error editing profile for helper {helperId}: {ex.Message}");
-                return StatusCode(500, "An error occurred while changing the password");
+                return StatusCode(500, "An error occurred while updating the profile");
             }
         }
 
@@ -149,12 +194,17 @@ namespace HomeHelperFinderAPI.Controllers
 
                 var helperProfile = await _helperService.GetByIdAsync(helperId);
 
+                if (helperProfile == null)
+                {
+                    return NotFound($"Helper profile with ID {helperId} not found");
+                }
+
                 return Ok(helperProfile);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error getting profile for helper {helperId}: {ex.Message}");
-                return StatusCode(500, "An error occurred while changing the password");
+                return StatusCode(500, "An error occurred while retrieving the profile");
             }
         }
 
@@ -234,5 +284,29 @@ namespace HomeHelperFinderAPI.Controllers
             return Ok(services);
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> searchHelper (int serviceId , string? page , string? pageSize)
+        {
+            try
+            {
+                _logger.LogInformation($"Searching for helpers for service ID: {serviceId}");
+                if (serviceId <= 0)
+                {
+                    return BadRequest("Invalid service ID");
+                }
+                var helpers = await _helperService.GetHelpersByServiceAsync(serviceId, page, pageSize);
+                if (helpers == null || !helpers.Any())
+                {
+                    return NotFound($"No helpers found for service ID {serviceId}");
+                }
+                return Ok(helpers);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error searching for helpers for service ID {serviceId}: {ex.Message}");
+                return StatusCode(500, "An error occurred while searching for helpers");
+            }
+
+        }
     }
 } 

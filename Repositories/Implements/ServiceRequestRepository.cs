@@ -68,5 +68,17 @@ namespace Repositories.Implements
 
             return (requests, totalCount);
         }
+        public async Task<IEnumerable<ServiceRequest>> GetAllServiceRequestByHelperId(int helperId)
+        {
+            var serviceRequest = await _context.ServiceRequests
+                .Include(sr => sr.User)
+                .Include(sr => sr.Service)
+                .Include(sr => sr.Address)
+                .Include(sr => sr.Helper)
+                .Where(sr => sr.HelperId == helperId && sr.Status == "Pending")
+                .AsNoTracking()
+                .ToListAsync();
+            return serviceRequest;
+        }
     }
 }

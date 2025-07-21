@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 
 namespace Repositories.Interfaces;
 
-public interface IHelperWorkAreaRepository
+public interface IHelperWorkAreaRepository :  IBaseRepository<HelperWorkArea>
 {
-    Task AddAsync(HelperWorkArea entity);
-    Task AddRangeAsync(IEnumerable<HelperWorkArea> entities);
+   
 } 

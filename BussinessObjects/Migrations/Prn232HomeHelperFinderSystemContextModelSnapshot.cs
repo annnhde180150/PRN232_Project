@@ -142,6 +142,9 @@ namespace BussinessObjects.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int?>("UserAddressAddressId")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int")
                         .HasColumnName("UserID");
@@ -154,6 +157,8 @@ namespace BussinessObjects.Migrations
                     b.HasIndex("RequestId");
 
                     b.HasIndex("ServiceId");
+
+                    b.HasIndex("UserAddressAddressId");
 
                     b.HasIndex("UserId");
 
@@ -371,6 +376,9 @@ namespace BussinessObjects.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
+
+                    b.Property<bool?>("IsEmailVerified")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("LastLoginDate")
                         .HasColumnType("datetime2");
@@ -797,6 +805,39 @@ namespace BussinessObjects.Migrations
                         .IsUnique();
 
                     b.ToTable("Reviews");
+                });
+
+            modelBuilder.Entity("BussinessObjects.Models.ReviewReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("HelperId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime>("ReportedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("(getdate())");
+
+                    b.Property<int>("ReviewId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HelperId");
+
+                    b.HasIndex("ReviewId");
+
+                    b.ToTable("ReviewReports");
                 });
 
             modelBuilder.Entity("BussinessObjects.Models.Service", b =>
@@ -1262,6 +1303,10 @@ namespace BussinessObjects.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BussinessObjects.Models.UserAddress", null)
+                        .WithMany("Bookings")
+                        .HasForeignKey("UserAddressAddressId");
+
                     b.HasOne("BussinessObjects.Models.User", "User")
                         .WithMany("Bookings")
                         .HasForeignKey("UserId")
@@ -1480,6 +1525,25 @@ namespace BussinessObjects.Migrations
                     b.Navigation("Helper");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("BussinessObjects.Models.ReviewReport", b =>
+                {
+                    b.HasOne("BussinessObjects.Models.Helper", "Helper")
+                        .WithMany()
+                        .HasForeignKey("HelperId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BussinessObjects.Models.Review", "Review")
+                        .WithMany()
+                        .HasForeignKey("ReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Helper");
+
+                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("BussinessObjects.Models.Service", b =>

@@ -168,7 +168,7 @@ namespace HomeHelperFinderAPI.Controllers
             if (updatedRequest.RequestId == null || updatedRequest.RequestId <= 0 || !(await _requestService.ExistsAsync(updatedRequest.RequestId)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             //update Request
-            var reusult = await _requestService.RespondToRequestAsync(updatedRequest.RequestId, updatedRequest.HelperId, updatedRequest.Action, updatedRequest.SpecialNotes);
+            var reusult = await _requestService.RespondToRequestAsync(updatedRequest.RequestId,updatedRequest.BookingId,updatedRequest.Action);
             return Ok(reusult);
         }
 

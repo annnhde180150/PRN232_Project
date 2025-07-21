@@ -1,4 +1,5 @@
 ﻿using Services.DTOs.Booking;
+using Services.DTOs.ServiceRequest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,7 @@ namespace Services.Interfaces
     {
         public Task<BookingDetailDto?> GetUserLatestBooking(int userId);
         public Task<bool> isBooked(int requestId);
+        Task<IEnumerable<GetAllBookingDto>> getAllbookingByHelperId(int helperId);
+        Task<BookingDetailDto?> UpdateBookingStatusAsync(BookingStatusUpdateDto dto);
     }
 }

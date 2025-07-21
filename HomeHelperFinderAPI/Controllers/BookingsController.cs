@@ -186,5 +186,39 @@ namespace HomeHelperFinderAPI.Controllers
             return Ok(_mapper.Map<BookingDetailDto>(updatedBooking));
         }
 
+        [HttpGet("GetBookingByHelperId/{helperId}")]
+        public async Task<ActionResult<IEnumerable<GetAllBookingDto>>> GetBookingsByHelperId(int helperId)
+        {
+            if (helperId <= 0 || !(await _helperService.ExistsAsync(helperId)))
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid helper ID");
+            }
+            var bookings = await _bookingService.getAllbookingByHelperId(helperId);
+
+            return Ok(bookings);
+
+        }
+
+        [HttpPut("{id}/status")]
+        public async Task<ActionResult> UpdateBookingStatus(int id, [FromBody] BookingStatusUpdateDto dto)
+        {
+            if (id != dto.BookingId)
+                return BadRequest("Booking ID mismatch");
+
+            var booking = await _bookingService.GetByIdAsync(id);
+            if (booking == null)
+                return NotFound("Booking not found");
+
+            if (booking.HelperId != dto.HelperId)
+                return Forbid("You are not the assigned helper for this booking");
+
+            if (dto.Status != "InProgress" && dto.Status != "Completed")
+                return BadRequest("Invalid status");
+
+            var updated = await _bookingService.UpdateBookingStatusAsync(dto);
+            // TODO: Gửi SignalR tới user
+            return Ok(updated);
+        }
+
     }
 }

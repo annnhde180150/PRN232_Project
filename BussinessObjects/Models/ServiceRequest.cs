@@ -27,6 +27,7 @@ public class ServiceRequest
 
     public decimal? Longitude { get; set; }
 
+    public int? HelperId { get; set; }
     public virtual UserAddress Address { get; set; } = null!;
 
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
@@ -40,4 +41,5 @@ public class ServiceRequest
             Accepted,
             Cancelled 
         }
+    public virtual Helper? Helper { get; set; }
 }

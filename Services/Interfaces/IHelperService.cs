@@ -2,6 +2,7 @@ using BussinessObjects.Models;
 using Services.DTOs.Helper;
 using Services.DTOs.User;
 using Services.DTOs.Admin;
+using Services.DTOs.Booking;
 
 namespace Services.Interfaces;
 
@@ -29,4 +30,5 @@ public interface IHelperService : IBaseService<HelperDetailsDto, HelperCreateDto
     Task<HelperApplicationDetailsDto?> GetHelperApplicationByIdAsync(int helperId);
     Task<bool> ProcessHelperApplicationDecisionAsync(int helperId, HelperApplicationDecisionDto decision, int adminId);
     Task<List<Service>> GetHelperAvailableService(int helperId);
+    Task<IEnumerable<SearchHelperDto>> GetHelpersByServiceAsync(int serviceId,string? page, string? pageSize);
 }

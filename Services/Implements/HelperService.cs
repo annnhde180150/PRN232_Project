@@ -36,7 +36,12 @@ public class HelperService : IHelperService
 
     public async Task<HelperDetailsDto> GetByIdAsync(int id, bool asNoTracking = false)
     {
-        var helper = await _unitOfWork.Helpers.GetByIdAsync(id);
+        var helper = await _unitOfWork.Helpers.GetQueryable(
+            h => h.HelperSkills,
+            h => h.HelperWorkAreas,
+            h => h.HelperDocuments
+        ).FirstOrDefaultAsync(h => h.HelperId == id);
+        
         return _mapper.Map<HelperDetailsDto>(helper);
     }
 
@@ -93,9 +98,80 @@ public class HelperService : IHelperService
         _mapper.Map(dto, existingHelper);
 
         _unitOfWork.Helpers.Update(existingHelper);
+
+        // Handle skills update
+        if (dto.Skills != null)
+        {
+            // Remove existing skills
+            var existingSkills = await _unitOfWork.HelperSkills.GetAllAsync();
+            var skillsToRemove = existingSkills.Where(s => s.HelperId == id);
+            foreach (var skill in skillsToRemove)
+            {
+                _unitOfWork.HelperSkills.Delete(skill);
+            }
+
+            // Add new skills
+            if (dto.Skills.Count > 0)
+            {
+                var skills = _mapper.Map<List<HelperSkill>>(dto.Skills);
+                foreach (var skill in skills)
+                {
+                    skill.HelperId = id;
+                }
+                await _unitOfWork.HelperSkills.AddRangeAsync(skills);
+            }
+        }
+
+        // Handle work areas update
+        if (dto.WorkAreas != null)
+        {
+            // Remove existing work areas
+            var existingWorkAreas = await _unitOfWork.HelperWorkAreas.GetAllAsync();
+            var workAreasToRemove = existingWorkAreas.Where(w => w.HelperId == id);
+            foreach (var workArea in workAreasToRemove)
+            {
+                _unitOfWork.HelperWorkAreas.Delete(workArea);
+            }
+
+            // Add new work areas
+            if (dto.WorkAreas.Count > 0)
+            {
+                var workAreas = _mapper.Map<List<HelperWorkArea>>(dto.WorkAreas);
+                foreach (var workArea in workAreas)
+                {
+                    workArea.HelperId = id;
+                }
+                await _unitOfWork.HelperWorkAreas.AddRangeAsync(workAreas);
+            }
+        }
+
+        // Handle documents update
+        if (dto.Documents != null)
+        {
+            // Remove existing documents
+            var existingDocuments = await _unitOfWork.HelperDocuments.GetAllAsync();
+            var documentsToRemove = existingDocuments.Where(d => d.HelperId == id);
+            foreach (var document in documentsToRemove)
+            {
+                _unitOfWork.HelperDocuments.Delete(document);
+            }
+
+            // Add new documents
+            if (dto.Documents.Count > 0)
+            {
+                var documents = _mapper.Map<List<HelperDocument>>(dto.Documents);
+                foreach (var document in documents)
+                {
+                    document.HelperId = id;
+                    document.UploadDate = DateTime.Now;
+                }
+                await _unitOfWork.HelperDocuments.AddRangeAsync(documents);
+            }
+        }
+
         await _unitOfWork.CompleteAsync();
 
-        return _mapper.Map<HelperDetailsDto>(existingHelper);
+        return await GetByIdAsync(id);
     }
     public async Task<HelperDetailsDto?> ValidateHelperCredentialsAsync(string email, string password)
     {
@@ -394,5 +470,32 @@ public class HelperService : IHelperService
         }
 
         return serviceList;
+    }
+    
+    public async Task<IEnumerable<SearchHelperDto>> GetHelpersByServiceAsync(int serviceId, string? page, string? pageSize)
+    {
+        _logger.LogInformation($"Getting helpers for service ID: {serviceId}");
+        var helpers = await _unitOfWork.Helpers.GetQueryable(h => h.HelperSkills)
+            .Where(h => h.HelperSkills.Any(s => s.ServiceId == serviceId))
+            .ToListAsync();
+        var searchHelpers = new List<SearchHelperDto>();
+        var service = await _unitOfWork.Services.GetByIdAsync(serviceId);
+        foreach (var helper in helpers)
+        {
+            var helperWorkAreas = await _unitOfWork.HelperWorkAreas.GetAllAsync(h => h.HelperId == helper.HelperId);
+            var searchHelper = new SearchHelperDto
+            {
+                helperId = helper.HelperId,
+                helperName = helper.FullName,
+                basePrice = service.BasePrice,
+                rating = helper.AverageRating ?? 0,
+                bio = helper.Bio,
+                serviceName = service.ServiceName,
+                HelperWorkAreas = helperWorkAreas.ToList(),
+                availableStatus = helper.AvailableStatus.ToString(),
+            };
+            searchHelpers.Add(searchHelper);
+        }
+        return searchHelpers;
     }
 }
