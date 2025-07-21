@@ -227,5 +227,12 @@ namespace HomeHelperFinderAPI.Controllers
             }
         }
 
+        [HttpGet("GetHelperServices/{id}")]
+        public async Task<ActionResult> GetHelperServiecs(int id)
+        {
+            var services = await _helperService.GetHelperAvailableService(id);
+            return Ok(services);
+        }
+
     }
 } 

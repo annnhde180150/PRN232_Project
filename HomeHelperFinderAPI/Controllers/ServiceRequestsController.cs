@@ -16,6 +16,13 @@ namespace HomeHelperFinderAPI.Controllers
     [ApiController]
     public class ServiceRequestsController(IServiceRequestService _requestService, IMapper _mapper, IUnitOfWork _unitOfWork, IHelperService _helperService, IUserAddressService _addressService, IBookingService _bookingService) : ControllerBase
     {
+        [HttpGet("GetRequest/{id}")]
+        public async Task<ActionResult> GetRequest(int id)
+        {
+            var result = await _requestService.GetByIdAsync(id);
+            return Ok(result);
+        }
+
         [HttpPost("CreateRequest")]
         //[Authorize]
         public async Task<ActionResult> CreateHelpRequest([FromBody] ServiceRequestCreateDto newRequest)
@@ -57,6 +64,8 @@ namespace HomeHelperFinderAPI.Controllers
         //[Authorize]
         public async Task<ActionResult> EditHelpRequest([FromBody] ServiceRequestUpdateDto updatedRequest)
         {
+            var currentRequest = await _requestService.GetByIdAsync(updatedRequest.ServiceId, true);
+
             if (!await _requestService.IsValidatedCreateRequest(_mapper.Map<ServiceRequest>(updatedRequest)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
@@ -68,16 +77,13 @@ namespace HomeHelperFinderAPI.Controllers
             if (updatedRequest.AddressId == null || !(await _addressService.ExistsAsync(updatedRequest.AddressId)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
-            //notify real time tracking (latitude and longtitude) if provided
-            //if (updatedRequest.Latitude != null || updatedRequest.Longitude != null)
-            //{
-            //    var location = new RealTimeLocationDto
-            //    {
-            //        RequestId = updatedRequest.RequestId,
-            //        Latitude = updatedRequest.Latitude,
-            //        Longitude = updatedRequest.Longitude
-            //    };
-            //}
+            //if booked must edit booking not request
+            if (await _bookingService.isBooked(updatedRequest.RequestId))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+
+            //must not change user
+            if (updatedRequest.UserId != currentRequest.UserId)
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //update Request
             Task updateTask = _requestService.UpdateAsync(updatedRequest.RequestId, updatedRequest);
@@ -86,37 +92,38 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update service request");
             }
+
             //return updated Request under DetailDto
-            var request = await _requestService.GetByIdAsync(updatedRequest.RequestId);
+            var request = await _requestService.GetByIdAsync(updatedRequest.RequestId, true);
             return Ok(_mapper.Map<ServiceRequestDetailDto>(request));
 
         }
 
-        [HttpDelete("DeleteRequest")]
+        [HttpDelete("DeleteRequest/{id}")]
         //[Authorize]
-        public async Task<ActionResult> DeleteHelpRequest([FromQuery] int requestId)
+        public async Task<ActionResult> DeleteHelpRequest(int id)
         {
             //check any constraint?
-            var booking = await _bookingService.GetByIdAsync(requestId);
+            var booking = await _bookingService.GetByIdAsync(id);
             if (booking != null && booking.Status != "Cancelled")
             {
                 return StatusCode(StatusCodes.Status400BadRequest, "Cannot delete request with active booking");
             }
 
             //check if existed request
-            if (requestId == null || requestId <= 0 || !(await _requestService.ExistsAsync(requestId)))
+            if (id == null || id <= 0 || !(await _requestService.ExistsAsync(id)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             //delete Request
-            Task deleteTask = _requestService.SoftDeleteRequest(requestId);
+            Task deleteTask = _requestService.SoftDeleteRequest(id);
             await deleteTask;
             if (!deleteTask.IsCompleted)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to delete service request");
             }
-            return Ok("Request deleted successfully");
+            return Ok("Delete Successfully");
         }
 
-        
+
 
         [HttpPost("UpdateTracking")]
         public async Task<ActionResult> UpdateLocation([FromBody] RealTimeLocationDto location)
@@ -161,12 +168,12 @@ namespace HomeHelperFinderAPI.Controllers
             if (updatedRequest.RequestId == null || updatedRequest.RequestId <= 0 || !(await _requestService.ExistsAsync(updatedRequest.RequestId)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             //update Request
-            var reusult = await _requestService.RespondToRequestAsync(updatedRequest.RequestId,updatedRequest.HelperId,updatedRequest.Action,updatedRequest.SpecialNotes);
+            var reusult = await _requestService.RespondToRequestAsync(updatedRequest.RequestId, updatedRequest.HelperId, updatedRequest.Action, updatedRequest.SpecialNotes);
             return Ok(reusult);
         }
 
         [HttpGet("GetServiceRequest/{helperId}")]
-        public async Task<IActionResult> GetServiceRequest(int helperId)
+        public async Task<ActionResult> GetServiceRequest(int helperId)
         {
             try
             {
@@ -181,6 +188,20 @@ namespace HomeHelperFinderAPI.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, "An error occurred while getting the service request");
+            }
+        }
+
+        [HttpGet("GetAvailableRequests")]
+        public async Task<ActionResult> GetAvailableRequests()
+        {
+            try
+            {
+                var pendingRequests = await _requestService.getPendingRequests();
+                return Ok(pendingRequests);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching available requests");
             }
         }
     }

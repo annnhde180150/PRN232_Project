@@ -34,7 +34,7 @@ public class HelperService : IHelperService
         return _mapper.Map<IEnumerable<HelperDetailsDto>>(helpers);
     }
 
-    public async Task<HelperDetailsDto> GetByIdAsync(int id)
+    public async Task<HelperDetailsDto> GetByIdAsync(int id, bool asNoTracking = false)
     {
         var helper = await _unitOfWork.Helpers.GetByIdAsync(id);
         return _mapper.Map<HelperDetailsDto>(helper);
@@ -379,5 +379,20 @@ public class HelperService : IHelperService
 
         _logger.LogInformation($"Helper application {helperId} status changed from {oldStatus} to {decision.Status} by admin {adminId}");
         return true;
+    }
+
+    public async Task<List<Service>> GetHelperAvailableService(int helperId)
+    {
+        var helperRepo = _unitOfWork.Helpers;
+        var helper = await helperRepo.GetQueryable(h => h.HelperSkills).Where(h => h.HelperId == helperId).FirstOrDefaultAsync();
+        var serviceRepo = _unitOfWork.Services;
+        var serviceList = new List<Service>();
+        foreach(var skill in helper.HelperSkills)
+        {
+            var service = await serviceRepo.GetByIdAsync(skill.ServiceId);
+            serviceList.Add(service);
+        }
+
+        return serviceList;
     }
 }

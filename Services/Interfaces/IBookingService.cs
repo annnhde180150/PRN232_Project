@@ -10,5 +10,6 @@ namespace Services.Interfaces
     public interface IBookingService : IBaseService<BookingDetailDto, BookingCreateDto, BookingUpdateDto>
     {
         public Task<BookingDetailDto?> GetUserLatestBooking(int userId);
+        public Task<bool> isBooked(int requestId);
     }
 }

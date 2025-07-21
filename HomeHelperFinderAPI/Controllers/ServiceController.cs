@@ -21,5 +21,12 @@ namespace HomeHelperFinderAPI.Controllers
             var services = await _serviceService.GetActiveServicesAsync();
             return Ok(services);
         }
+
+        [HttpGet("GetService/{id}")]
+        public async Task<ActionResult> GetService(int id)
+        {
+            var service = await _serviceService.GetByIdAsync(id);
+            return Ok(service);
+        }
     }
 }

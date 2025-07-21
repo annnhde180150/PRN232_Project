@@ -35,7 +35,7 @@ public class NotificationService : INotificationService
     }
 
 
-    public async Task<NotificationDetailsDto> GetByIdAsync(int id)
+    public async Task<NotificationDetailsDto> GetByIdAsync(int id, bool asNoTracking = false)
     {
         var notification = await _unitOfWork.Notifications.GetByIdAsync(id);
         if (notification == null) throw new ArgumentException($"Notification with ID {id} not found");

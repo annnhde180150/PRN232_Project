@@ -50,7 +50,7 @@ namespace Services
 
         public async Task<bool> ExistsAsync(int id)
         {
-            return (await baseRepository.GetByIdAsync(id)) != null;
+            return (await baseRepository.GetByIdAsync(id, true)) != null;
         }
 
         public async Task<IEnumerable<TDetailDto>> GetAllAsync()
@@ -59,9 +59,9 @@ namespace Services
             return mapper.Map<IEnumerable<TDetailDto>>(entities);
         }
 
-        public async Task<TDetailDto> GetByIdAsync(int id)
+        public async Task<TDetailDto> GetByIdAsync(int id, bool asNoTracking = false)
         {
-            var entity = await baseRepository.GetByIdAsync(id);
+            var entity = await baseRepository.GetByIdAsync(id, asNoTracking);
             return mapper.Map<TDetailDto>(entity);
         }
 

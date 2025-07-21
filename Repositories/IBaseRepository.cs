@@ -6,13 +6,13 @@ public interface IBaseRepository<T> where T : class
 {
     IQueryable<T> GetQueryable(params Expression<Func<T, object>>[] includes);
 
-    Task<T?> GetByIdAsync(int id);
+    Task<T?> GetByIdAsync(int id, bool asNoTracking = false);
 
     Task<IEnumerable<T>> GetAllAsync();
 
     Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate);
 
-    Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate);
+    Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate, bool AsNoTracking = false);
 
     Task AddAsync(T entity);
 

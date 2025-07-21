@@ -21,13 +21,18 @@ public class BaseRepository<T>(Prn232HomeHelperFinderSystemContext context) : IB
     }
     //Users.GetQueryable(u => u.UserRoles, u => u.UserSkills);
 
-    public virtual async Task<T?> GetByIdAsync(int id)
+    public virtual async Task<T?> GetByIdAsync(int id, bool asNoTracking = false)
     {
-        return await _dbSet.FindAsync(id);
+        var result = await _dbSet.FindAsync(id);
+        if (asNoTracking)
+            _dbSet.Entry(result).State = EntityState.Detached;
+        return result;
     }
 
-    public async Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate)
+    public async Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate, bool asNoTracking = false)
     {
+        if(asNoTracking)
+            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(predicate);
         return await _dbSet.FirstOrDefaultAsync(predicate);
     }
 

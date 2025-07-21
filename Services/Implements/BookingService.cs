@@ -21,5 +21,11 @@ namespace Services.Implements
                 .OrderByDescending(b => b.BookingCreationTime)
                 .FirstOrDefault();
         }
+
+        public async Task<bool> isBooked(int requestId)
+        {
+            var booking = _unitOfWork.Bookings;
+            return (await booking.FindFirstAsync(b => b.RequestId == requestId, true)) != null;
+        }
     }
 }

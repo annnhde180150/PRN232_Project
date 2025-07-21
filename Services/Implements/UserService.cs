@@ -28,7 +28,7 @@ public class UserService : IUserService
         return _mapper.Map<IEnumerable<UserDetailsDto>>(users);
     }
 
-    public async Task<UserDetailsDto> GetByIdAsync(int id)
+    public async Task<UserDetailsDto> GetByIdAsync(int id, bool asNoTracking = false)
     {
         var user = await _unitOfWork.Users.GetByIdAsync(id);
         return _mapper.Map<UserDetailsDto>(user);

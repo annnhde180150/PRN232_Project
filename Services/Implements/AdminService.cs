@@ -28,7 +28,7 @@ public class AdminService : IAdminService
         return _mapper.Map<IEnumerable<AdminDetailsDto>>(admins);
     }
 
-    public async Task<AdminDetailsDto> GetByIdAsync(int id)
+    public async Task<AdminDetailsDto> GetByIdAsync(int id, bool asNoTracking = false)
     {
         var admin = await _unitOfWork.Admins.GetByIdAsync(id);
         return _mapper.Map<AdminDetailsDto>(admin);

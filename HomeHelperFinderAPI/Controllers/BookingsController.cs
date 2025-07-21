@@ -17,16 +17,28 @@ namespace HomeHelperFinderAPI.Controllers
         [HttpPost("CreateBooking")]
         public async Task<ActionResult> CreateBooking([FromBody] BookingCreateDto newBooking)
         {
+            var currentBooking = (await _bookingService.GetAllAsync()).Where(b => b.RequestId == newBooking.RequestId).FirstOrDefault();
+            var request = await _requestService.GetByIdAsync(newBooking.RequestId.Value);
             // validate request
+            if (currentBooking != null && currentBooking.Status != Booking.AvailableStatus.Cancelled.ToString())
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             if (newBooking == null)
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             if (!await _requestService.ExistsAsync(newBooking.RequestId.Value))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             if (!await _helperService.ExistsAsync(newBooking.HelperId))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+            if(request.Status == ServiceRequest.AvailableStatus.Cancelled.ToString())
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+
+
+            newBooking.BookingCreationTime = DateTime.Now;
+            
 
             //create new Booking
             Task createTask = _bookingService.CreateAsync(newBooking);
+
+
             await createTask;
             if (!createTask.IsCompleted)
             {

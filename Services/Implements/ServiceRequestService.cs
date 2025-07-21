@@ -76,7 +76,7 @@ namespace Services.Implements
                     _logger.LogWarning("Service request with id {RequestId} not found for soft delete.", requestId);
                     throw new TaskCanceledException($"Service request with id {requestId} not found.");
                 }
-                serviceRequest.Status = "Cancelled"; // Assuming "Cancelled" is the status for soft deletion
+                serviceRequest.Status = ServiceRequest.AvailableStatus.Cancelled.ToString(); // Assuming "Cancelled" is the status for soft deletion
                 serviceRepo.Update(serviceRequest);
             }
             catch (Exception ex)
@@ -337,6 +337,15 @@ namespace Services.Implements
                 };
             }).ToList();
 
+            return result;
+        }
+
+        public async Task<List<ServiceRequest>> getPendingRequests()
+        {
+            var requestRepo = _unitOfWork.ServiceRequest;
+            var result = (await requestRepo.GetAllAsync())
+                .Where(r => r.Status == ServiceRequest.AvailableStatus.Pending.ToString())
+                .ToList();
             return result;
         }
     }
