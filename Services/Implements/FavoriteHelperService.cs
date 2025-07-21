@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Repositories;
 using System;
+using System.Linq;
+using Services.DTOs.Helper;
 
 namespace Services.Implements;
 
@@ -47,7 +49,22 @@ public class FavoriteHelperService : IFavoriteHelperService
     public async Task<IEnumerable<FavoriteHelperDetailsDto>> GetFavoritesByUserAsync(int userId)
     {
         var list = await _favoriteRepo.GetByUserIdAsync(userId);
-        return _mapper.Map<IEnumerable<FavoriteHelperDetailsDto>>(list);
+        var dtos = _mapper.Map<IEnumerable<FavoriteHelperDetailsDto>>(list).ToList();
+        for (int i = 0; i < dtos.Count(); i++)
+        {
+            var entity = list.ElementAt(i);
+            if (entity.Helper != null)
+            {
+                dtos[i].HelperInfo = new HelperInfoDto
+                {
+                    HelperId = entity.Helper.HelperId,
+                    FullName = entity.Helper.FullName,
+                    Email = entity.Helper.Email,
+                    ProfilePictureUrl = entity.Helper.ProfilePictureUrl
+                };
+            }
+        }
+        return dtos;
     }
 
     public async Task<bool> DeleteFavoriteAsync(FavoriteHelperDeleteDto dto)
