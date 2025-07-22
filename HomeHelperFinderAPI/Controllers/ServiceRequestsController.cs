@@ -104,10 +104,11 @@ namespace HomeHelperFinderAPI.Controllers
         public async Task<ActionResult> DeleteHelpRequest(int id)
         {
             //check any constraint?
-            var booking = await _bookingService.GetByIdAsync(id);
-            if (booking != null && booking.Status != "Cancelled")
+
+            var request = await _requestService.GetByIdAsync(id);
+            if (request == null || request.Status != ServiceRequest.AvailableStatus.Pending.ToString())
             {
-                return StatusCode(StatusCodes.Status400BadRequest, "Cannot delete request with active booking");
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             }
 
             //check if existed request
