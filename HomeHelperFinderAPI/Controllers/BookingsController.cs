@@ -21,11 +21,11 @@ namespace HomeHelperFinderAPI.Controllers
             var service = await _serviceService.GetByIdAsync(currentRequest.ServiceId);
 
             //validation
-            if(await _bookingService.isBooked(acceptance.RequestId))
+            if (await _bookingService.isBooked(acceptance.RequestId))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
-            if(currentRequest == null)
+            if (currentRequest == null)
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
-            if(!await _helperService.ExistsAsync(acceptance.HelperId))
+            if (!await _helperService.ExistsAsync(acceptance.HelperId))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             if (currentRequest.Status != ServiceRequest.AvailableStatus.Pending.ToString())
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
@@ -44,18 +44,18 @@ namespace HomeHelperFinderAPI.Controllers
                 ServiceId = currentRequest.ServiceId,
                 ScheduledStartTime = currentRequest.RequestedStartTime,
                 ScheduledEndTime = currentRequest.RequestedStartTime.AddHours((double)currentRequest.RequestedDurationHours),
-                Status = Booking.AvailableStatus.Pending.ToString(),
+                Status = Booking.AvailableStatus.Accepted.ToString(),
                 BookingCreationTime = DateTime.Now,
-                EstimatedPrice = currentRequest.RequestedDurationHours*service.BasePrice
+                EstimatedPrice = currentRequest.RequestedDurationHours * service.BasePrice
             };
 
-            
+
 
             currentRequest.Status = ServiceRequest.AvailableStatus.Accepted.ToString();
             var request = _mapper.Map<ServiceRequest>(currentRequest);
 
             await _bookingService.CreateAsync(newBooking);
-            await _requestService.UpdateAsync(request.RequestId,_mapper.Map<ServiceRequestUpdateDto>(request));
+            await _requestService.UpdateAsync(request.RequestId, _mapper.Map<ServiceRequestUpdateDto>(request));
             var latestBooking = await _bookingService.GetUserLatestBooking(newBooking.UserId);
 
             var newPayment = new PaymentCreateDto
@@ -91,7 +91,7 @@ namespace HomeHelperFinderAPI.Controllers
 
 
         //    newBooking.BookingCreationTime = DateTime.Now;
-            
+
 
         //    //create new Booking
         //    Task createTask = _bookingService.CreateAsync(newBooking);
@@ -176,7 +176,7 @@ namespace HomeHelperFinderAPI.Controllers
                 PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString(),
                 PaymentMethod = "None"
             });
-            return Ok(_mapper.Map<ServiceRequestDetailDto>(latestRequest));
+            return Ok(bookingResult);
         }
 
         [HttpPut("EditBookedRequest")]
@@ -184,27 +184,25 @@ namespace HomeHelperFinderAPI.Controllers
         public async Task<ActionResult> UpdateBookedRequest([FromBody] BookingUpdateDto updateBooking)
         {
             // valid request?
-            if (await _requestService.ExistsAsync(updateBooking.RequestId.Value))
+            if (!await _requestService.ExistsAsync(updateBooking.RequestId.Value))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             // check if booking exists
             if (updateBooking.BookingId == null || updateBooking.BookingId <= 0 || !(await _bookingService.ExistsAsync(updateBooking.BookingId)))
-            {
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
-            }
 
             // check if user is the owner of the booking
             var booking = await _bookingService.GetByIdAsync(updateBooking.BookingId);
             if (booking == null || booking.UserId != updateBooking.UserId)
-            {
                 return StatusCode(StatusCodes.Status403Forbidden, "You are not authorized to update this booking");
-            }
+
+            //time must not greater than 8
+            if ((updateBooking.ScheduledEndTime - updateBooking.ScheduledStartTime) > TimeSpan.FromHours(8))
+                return StatusCode(StatusCodes.Status403Forbidden, "Invalid request");
 
             // check if helper is available at the new time
-            //if (updateBooking.HelperId != booking.HelperId && !(await _helperService.(updateBooking.HelperId, updateBooking.ScheduledStartTime, updateBooking.ScheduledEndTime)))
-            //{
-            //    return StatusCode(StatusCodes.Status400BadRequest, "Helper is not available at the requested time");
-            //}
+            if (updateBooking.HelperId != booking.HelperId && !(await _helperService.isAvailalble(updateBooking.HelperId, updateBooking.ScheduledStartTime, updateBooking.ScheduledEndTime)))
+                return StatusCode(StatusCodes.Status400BadRequest, "Helper is not available at the requested time");
 
 
             //if cancelled, is all cancelled info filled?
@@ -219,7 +217,7 @@ namespace HomeHelperFinderAPI.Controllers
 
             // set new Final Price
             var basePrice = (await _serviceService.GetByIdAsync(updateBooking.ServiceId)).BasePrice;
-            updateBooking.EstimatedPrice = basePrice * (decimal)(updateBooking.ScheduledEndTime - updateBooking.ScheduledStartTime).TotalHours;
+            updateBooking.EstimatedPrice = basePrice * Math.Ceiling((decimal)(updateBooking.ScheduledEndTime - updateBooking.ScheduledStartTime).TotalHours);
             if (updateBooking.ActualEndTime == null || updateBooking.ActualStartTime == null)
             {
                 updateBooking.FinalPrice = updateBooking.EstimatedPrice;
@@ -237,13 +235,18 @@ namespace HomeHelperFinderAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update booking");
             }
 
+            var payment = await _paymentService.GetPayment(updateBooking.UserId, updateBooking.BookingId);
+            payment.Amount = (decimal)updateBooking.EstimatedPrice;
+
+            //cannot update payment
+
             //return updated booking
             var updatedBooking = await _bookingService.GetByIdAsync(updateBooking.BookingId);
             if (updatedBooking == null)
             {
                 return StatusCode(StatusCodes.Status404NotFound, "Booking not found");
             }
-            return Ok(_mapper.Map<BookingDetailDto>(updatedBooking));
+            return Ok(updatedBooking);
         }
 
         [HttpGet("GetBookingByHelperId/{helperId}")]
@@ -287,5 +290,54 @@ namespace HomeHelperFinderAPI.Controllers
             return Ok(booking);
         }
 
+        [HttpPost("CancelBooking")]
+        public async Task<ActionResult> CancelBooking([FromBody] BookingCancelDto cancellation)
+        {
+            if (cancellation == null)
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+            if (cancellation.BookingId == null || !await _bookingService.ExistsAsync(cancellation.BookingId))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+            if (cancellation.CancellationReason == null || cancellation.CancelledBy == null)
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+
+            var currentBooking = _mapper.Map<Booking>(await _bookingService.GetByIdAsync(cancellation.BookingId));
+
+
+            if (currentBooking.FreeCancellationDeadline != null && DateTime.Now > currentBooking.FreeCancellationDeadline)
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+
+            currentBooking.CancellationReason = cancellation.CancellationReason;
+            currentBooking.CancelledBy = cancellation.CancelledBy;
+            currentBooking.Status = Booking.AvailableStatus.Cancelled.ToString();
+
+            var currentRequest = _mapper.Map<ServiceRequest>(await _requestService.GetByIdAsync(currentBooking.RequestId.Value));
+            currentRequest.Status = ServiceRequest.AvailableStatus.Cancelled.ToString();
+
+            await _bookingService.UpdateAsync(cancellation.BookingId, _mapper.Map<BookingUpdateDto>(currentBooking));
+            await _requestService.UpdateAsync(currentRequest.RequestId, _mapper.Map<ServiceRequestUpdateDto>(currentRequest));
+
+            return Ok("Booking cancelled successfully");
+        }
+
+        [HttpGet("GetUserPendingBooking/{id}")]
+        public async Task<ActionResult> getPendingBookingByUserId(int id)
+        {
+            var bookings = await _bookingService.GetPendingBookingByUserId(id);
+            return Ok(bookings);
+        }
+
+        [HttpGet("GetUserSchedule/{id}")]
+        public async Task<ActionResult> GetUserSchedule(int id)
+        {
+            var bookings = await _bookingService.GetUserSchedule(id);
+            return Ok(bookings);
+        }
+
+        [HttpGet("GetHelperSchedule/{id}")]
+        public async Task<ActionResult> GetHelperSchedule(int id)
+        {
+            var bookings = await _bookingService.GetHelperSchedule(id);
+            return Ok(bookings);
+        }
     }
 }

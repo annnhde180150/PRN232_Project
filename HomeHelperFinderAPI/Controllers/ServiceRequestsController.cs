@@ -204,5 +204,19 @@ namespace HomeHelperFinderAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching available requests");
             }
         }
+
+        [HttpGet("GetUserUnbookedRequest/{id}")]
+        public async Task<ActionResult> GetUnBookedRequest(int id)
+        {
+            try
+            {
+                var pendingRequests = await _requestService.getUserPendingRequests(id);
+                return Ok(pendingRequests);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching available requests");
+            }
+        }
     }
 }

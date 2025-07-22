@@ -38,7 +38,7 @@ namespace Services.Mappers
                 .ForMember(dest => dest.CancellationReason, opt => opt.Ignore())
                 .ForMember(dest => dest.CancelledBy, opt => opt.Ignore())
                 .ForMember(dest => dest.CancellationTime, opt => opt.Ignore())
-                .ForMember(dest => dest.FreeCancellationDeadline, opt => opt.Ignore())
+                .ForMember(dest => dest.FreeCancellationDeadline, opt => opt.MapFrom(src => src.ScheduledStartTime.AddHours(-12)))
                 .ForMember(dest => dest.FinalPrice, opt => opt.Ignore())
                 .ForMember(dest => dest.RequestId, opt => opt.MapFrom(src => src.RequestId.Value))
                 .ForAllMembers(opt =>
