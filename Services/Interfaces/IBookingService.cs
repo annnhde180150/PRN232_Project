@@ -14,5 +14,8 @@ namespace Services.Interfaces
         public Task<bool> isBooked(int requestId);
         Task<IEnumerable<GetAllBookingDto>> getAllbookingByHelperId(int helperId);
         Task<BookingDetailDto?> UpdateBookingStatusAsync(BookingStatusUpdateDto dto);
+        Task<List<BookingDetailDto>> GetPendingBookingByUserId(int userId);
+        Task<List<BookingDetailDto>> GetUserSchedule(int userId);
+        Task<List<BookingDetailDto>> GetHelperSchedule(int helperId);
     }
 }

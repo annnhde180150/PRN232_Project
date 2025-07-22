@@ -332,5 +332,15 @@ namespace Services.Implements
                 .ToList();
             return result;
         }
+
+        public async Task<List<ServiceRequest>> getUserPendingRequests(int id)
+        {
+            var requestRepo = _unitOfWork.ServiceRequest;
+            var list = (await requestRepo.GetAllAsync());
+            var result = list
+                .Where(r => r.UserId == id && r.Status == ServiceRequest.AvailableStatus.Pending.ToString())
+                .ToList();
+            return result;
+        }
     }
 }
