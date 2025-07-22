@@ -566,6 +566,7 @@ public class HelperService : IHelperService
             IsSuccess = true,
             Message = "Money added successfully"
         };
+    }
     public async Task<bool> isAvailalble(int helperId, DateTime startTime, DateTime endTime)
     {
         var bookingRepo = _unitOfWork.Bookings;
