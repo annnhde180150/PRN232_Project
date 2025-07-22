@@ -22,5 +22,6 @@ namespace Services.Interfaces
         Task<AdminServiceRequestListDto> GetServiceRequestsForAdminAsync(AdminServiceRequestFilterDto filter);
         Task<byte[]> ExportServiceRequestsToCsvAsync(AdminServiceRequestFilterDto filter);
         Task<List<ServiceRequest>> getPendingRequests();
+        Task<List<ServiceRequest>> getUserPendingRequests(int id);
     }
 }

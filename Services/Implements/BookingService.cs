@@ -142,5 +142,30 @@ namespace Services.Implements
                 BookingCreationTime = booking.BookingCreationTime
             };
         }
+
+        public async Task<List<BookingDetailDto>> GetPendingBookingByUserId(int userId)
+        {
+            var bookingRepo = _unitOfWork.Bookings;
+            var bookings = (await bookingRepo.GetAllAsync()).Where(b => b.UserId == userId && b.Status == Booking.AvailableStatus.Pending.ToString());
+            return _mapper.Map<List<BookingDetailDto>>(bookings);
+        }
+
+        public async Task<List<BookingDetailDto>> GetUserSchedule(int userId)
+        {
+            var bookingRepo = _unitOfWork.Bookings;
+            var bookings = (await bookingRepo.GetAllAsync())
+                .Where(b => b.UserId == userId && (b.Status != Booking.AvailableStatus.Pending.ToString() && b.Status != Booking.AvailableStatus.Cancelled.ToString()))
+                .OrderBy(b => b.ScheduledStartTime);
+            return _mapper.Map<List<BookingDetailDto>>(bookings);
+        }
+
+        public async Task<List<BookingDetailDto>> GetHelperSchedule(int helperId)
+        {
+            var bookingRepo = _unitOfWork.Bookings;
+            var bookings = (await bookingRepo.GetAllAsync())
+                .Where(b => b.HelperId == helperId && (b.Status != Booking.AvailableStatus.Pending.ToString() && b.Status != Booking.AvailableStatus.Cancelled.ToString()))
+                .OrderBy(b => b.ScheduledStartTime);
+            return _mapper.Map<List<BookingDetailDto>>(bookings);
+        }
     }
 }
