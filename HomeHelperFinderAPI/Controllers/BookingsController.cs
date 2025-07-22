@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Azure.Core;
 using BussinessObjects.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repositories;
 using Services.DTOs.Booking;
+using Services.DTOs.Notification;
 using Services.DTOs.Payment;
 using Services.DTOs.ServiceRequest;
 using Services.Interfaces;
@@ -12,7 +14,7 @@ namespace HomeHelperFinderAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookingsController(IServiceRequestService _requestService, IMapper _mapper, IUnitOfWork _unitOfWork, IHelperService _helperService, IUserAddressService _addressService, IBookingService _bookingService, IServiceService _serviceService, IPaymentService _paymentService, IUserService _userService) : ControllerBase
+    public class BookingsController(IServiceRequestService _requestService, IMapper _mapper, IUnitOfWork _unitOfWork, IHelperService _helperService, IUserAddressService _addressService, IBookingService _bookingService, IServiceService _serviceService, IPaymentService _paymentService, IUserService _userService, INotificationService _notiService) : ControllerBase
     {
         [HttpPost("AcceptRequest")]
         public async Task<ActionResult> AcceptRequest(BookingAcceptDto acceptance)
@@ -68,6 +70,14 @@ namespace HomeHelperFinderAPI.Controllers
             };
 
             _paymentService.CreatePayment(newPayment);
+            await _notiService.CreateAsync(new NotificationCreateDto()
+            {
+                RecipientUserId = request.UserId,
+                Title = "An Request has been accepted",
+                Message = "Your posted request has been accepted by a helper, please check booking schedule to see detail",
+                NotificationType = "BookingAccepted",
+                ReferenceId = acceptance.HelperId.ToString()
+            });
 
             return Ok(latestBooking);
         }
@@ -176,6 +186,16 @@ namespace HomeHelperFinderAPI.Controllers
                 PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString(),
                 PaymentMethod = "None"
             });
+
+            await _notiService.CreateAsync(new NotificationCreateDto()
+            {
+                RecipientUserId = helperId,
+                Title = "new Request",
+                Message = "You have a new Request, please check for detail",
+                NotificationType = "NewBooking",
+                ReferenceId = newRequest.UserId.ToString()
+            });
+
             return Ok(bookingResult);
         }
 
@@ -246,6 +266,16 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status404NotFound, "Booking not found");
             }
+
+            await _notiService.CreateAsync(new NotificationCreateDto()
+            {
+                RecipientUserId = updateBooking.HelperId,
+                Title = "An Booking has been updated",
+                Message = "An Booking of your has been updated, please check for detail",
+                NotificationType = "BookingUpdate",
+                ReferenceId = updateBooking.UserId.ToString()
+            });
+
             return Ok(updatedBooking);
         }
 
@@ -315,6 +345,15 @@ namespace HomeHelperFinderAPI.Controllers
 
             await _bookingService.UpdateAsync(cancellation.BookingId, _mapper.Map<BookingUpdateDto>(currentBooking));
             await _requestService.UpdateAsync(currentRequest.RequestId, _mapper.Map<ServiceRequestUpdateDto>(currentRequest));
+
+            await _notiService.CreateAsync(new NotificationCreateDto()
+            {
+                RecipientUserId = currentBooking.HelperId,
+                Title = "An Booking has been cancelled",
+                Message = "Your Booking has been cancelled, please check for more detail",
+                NotificationType = "BookingCancelled",
+                ReferenceId = currentBooking.UserId.ToString()
+            });
 
             return Ok("Booking cancelled successfully");
         }
