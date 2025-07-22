@@ -49,7 +49,7 @@ builder.Services.AddScoped<IHelperService, HelperService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IProfileManagementService, ProfileManagementService>();
-builder.Services.AddScoped<IConnectionManager, ConnectionManager>();
+builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
 builder.Services.AddScoped<IRealtimeNotificationService, SignalRNotificationService>();
 builder.Services.AddScoped<IServiceRequestService, ServiceRequestService>();
 builder.Services.AddScoped<IUserAddressService, UserAddressService>();

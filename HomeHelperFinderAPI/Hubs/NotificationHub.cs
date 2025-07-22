@@ -21,7 +21,7 @@ public class NotificationHub : Hub
     {
         try
         {
-            var userType = Context.User?.FindFirst("UserType")?.Value;
+            var userType = Context.User?.FindFirst(ClaimTypes.Role)?.Value;
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userType) || string.IsNullOrEmpty(userId))
@@ -62,7 +62,7 @@ public class NotificationHub : Hub
     {
         try
         {
-            var userType = Context.User?.FindFirst("UserType")?.Value;
+            var userType = Context.User?.FindFirst(ClaimTypes.Role)?.Value;
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (!string.IsNullOrEmpty(userId))
