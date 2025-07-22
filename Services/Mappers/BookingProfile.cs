@@ -40,6 +40,7 @@ namespace Services.Mappers
                 .ForMember(dest => dest.CancellationTime, opt => opt.Ignore())
                 .ForMember(dest => dest.FreeCancellationDeadline, opt => opt.Ignore())
                 .ForMember(dest => dest.FinalPrice, opt => opt.Ignore())
+                .ForMember(dest => dest.RequestId, opt => opt.MapFrom(src => src.RequestId.Value))
                 .ForAllMembers(opt =>
                 {
                     var type = opt.DestinationMember.GetMemberType();
@@ -48,6 +49,7 @@ namespace Services.Mappers
                         opt.Ignore();
                     }
                 });
+                
 
             CreateMap<BookingUpdateDto, Booking>()
                 .ForMember(dest => dest.BookingCreationTime, opt => opt.Ignore())
@@ -63,13 +65,15 @@ namespace Services.Mappers
 
         public static bool IsSimpleType(Type type)
         {
-            return type.IsPrimitive ||
-                   type == typeof(string) ||
-                   type == typeof(decimal) ||
-                   type == typeof(DateTime) ||  // Often included as "simple" for convenience
-                   type == typeof(DateTimeOffset) ||
-                   type == typeof(TimeSpan) ||
-                   type == typeof(Guid);
+            var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
+
+            return underlyingType.IsPrimitive ||
+                   underlyingType == typeof(string) ||
+                   underlyingType == typeof(decimal) ||
+                   underlyingType == typeof(DateTime) ||
+                   underlyingType == typeof(DateTimeOffset) ||
+                   underlyingType == typeof(TimeSpan) ||
+                   underlyingType == typeof(Guid);
         }
     }
 }

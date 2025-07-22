@@ -315,16 +315,6 @@ public class HelperService : IHelperService
         return true;
     }
 
-    public async Task<bool> isAvailalble(int helperId, DateTime startTime, DateTime endTime)
-    {
-        var booking = _unitOfWork.Bookings;
-        var bookings = (await booking.GetAllAsync())
-            .Where(b => b.HelperId == helperId
-                && (b.ScheduledStartTime < endTime && b.ScheduledStartTime > startTime)
-                && (b.ScheduledEndTime < endTime && b.ScheduledEndTime > startTime))
-            .ToList();
-        return bookings.Any();
-    }
 
     // Admin helper application methods
     public async Task<(IEnumerable<HelperApplicationListDto> applications, int totalCount)> GetHelperApplicationsAsync(
@@ -497,5 +487,19 @@ public class HelperService : IHelperService
             searchHelpers.Add(searchHelper);
         }
         return searchHelpers;
+    }
+
+    public async Task<bool> isAvailalble(int helperId, DateTime startTime, DateTime endTime)
+    {
+        var bookingRepo = _unitOfWork.Bookings;
+        var bookings = (await bookingRepo.GetAllAsync())
+            .Where(b => b.HelperId == helperId
+                && b.Status != Booking.AvailableStatus.Cancelled.ToString()
+                && b.ScheduledStartTime < endTime
+                && b.ScheduledEndTime > startTime)
+            .ToList();
+
+        var isBooked = bookings.Any();
+        return !isBooked;
     }
 }
