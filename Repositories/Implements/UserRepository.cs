@@ -42,4 +42,54 @@ public class UserRepository(Prn232HomeHelperFinderSystemContext context)
     {
         return !await _context.Users.AnyAsync(u => u.PhoneNumber == phoneNumber && u.UserId != exceptUserId);
     }
+
+    public async Task<(IEnumerable<User> users, int totalCount)> SearchUsersAsync(
+        string? searchTerm = null,
+        string? email = null,
+        bool? isActive = null,
+        int? excludeUserId = null,
+        int page = 1,
+        int pageSize = 20)
+    {
+        var query = _context.Users.AsQueryable();
+
+        // Apply filters
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var lowerSearchTerm = searchTerm.ToLower();
+            query = query.Where(u =>
+                (u.FullName != null && u.FullName.ToLower().Contains(lowerSearchTerm)) ||
+                (u.Email != null && u.Email.ToLower().Contains(lowerSearchTerm)) ||
+                (u.PhoneNumber != null && u.PhoneNumber.Contains(searchTerm)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            query = query.Where(u => u.Email != null && u.Email.ToLower().Contains(email.ToLower()));
+        }
+
+        if (isActive.HasValue)
+        {
+            query = query.Where(u => u.IsActive == isActive.Value);
+        }
+
+        if (excludeUserId.HasValue)
+        {
+            query = query.Where(u => u.UserId != excludeUserId.Value);
+        }
+
+        // Get total count before pagination
+        var totalCount = await query.CountAsync();
+
+        // Apply pagination and ordering
+        var users = await query
+            .OrderBy(u => u.FullName)
+            .ThenBy(u => u.Email)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ToListAsync();
+
+        return (users, totalCount);
+    }
 }

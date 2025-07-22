@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{4B9BFFF5-B
 		Docs\AdminServiceRequestAPI.md = Docs\AdminServiceRequestAPI.md
 		Docs\AdminHelperApplicationAPI.md = Docs\AdminHelperApplicationAPI.md
 		Docs\Business_Reports_API_Documentation.md = Docs\Business_Reports_API_Documentation.md
+		Docs\Chat_User_Search_API_Test_Examples.md = Docs\Chat_User_Search_API_Test_Examples.md
+		Docs\Chat_User_Search_Feature_README.md = Docs\Chat_User_Search_Feature_README.md
 	EndProjectSection
 EndProject
 Global

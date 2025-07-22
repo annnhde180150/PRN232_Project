@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.DTOs.Chat;
 using Services.Interfaces;
+using HomeHelperFinderAPI.Attributes;
 
 namespace HomeHelperFinderAPI.Controllers;
 
@@ -12,11 +13,15 @@ namespace HomeHelperFinderAPI.Controllers;
 public class ChatController : ControllerBase
 {
     private readonly IChatService _chatService;
+    private readonly IUserService _userService;
+    private readonly IHelperService _helperService;
     private readonly ILogger<ChatController> _logger;
 
-    public ChatController(IChatService chatService, ILogger<ChatController> logger)
+    public ChatController(IChatService chatService, IUserService userService, IHelperService helperService, ILogger<ChatController> logger)
     {
         _chatService = chatService;
+        _userService = userService;
+        _helperService = helperService;
         _logger = logger;
     }
 
@@ -193,4 +198,72 @@ public class ChatController : ControllerBase
             _ => throw new UnauthorizedAccessException("Invalid user type")
         };
     }
-} 
+
+    [HttpPost("search")]
+    [ApiResponseMessage("Tìm kiếm người dùng để chat thành công")]
+    public async Task<ActionResult<SearchUsersResponseDto>> SearchUsersForChat([FromBody] SearchUsersRequestDto request)
+    {
+        try
+        {
+            var (currentUserId, currentHelperId) = GetCurrentUserInfo();
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var response = new SearchUsersResponseDto
+            {
+                CurrentPage = request.PageNumber,
+                PageSize = request.PageSize
+            };
+
+            // Search users if requested
+            if (request.SearchType == "users" || request.SearchType == "all")
+            {
+                var (users, userCount) = await _userService.SearchUsersForChatAsync(
+                    request.SearchTerm,
+                    request.Email,
+                    request.IsActive,
+                    currentUserId, // Exclude current user if they are a user
+                    currentUserId,
+                    currentHelperId,
+                    request.PageNumber,
+                    request.PageSize);
+
+                response.Users = users.ToList();
+                response.TotalUsers = userCount;
+            }
+
+            // Search helpers if requested
+            if (request.SearchType == "helpers" || request.SearchType == "all")
+            {
+                var (helpers, helperCount) = await _helperService.SearchHelpersForChatAsync(
+                    request.SearchTerm,
+                    request.Email,
+                    request.IsActive,
+                    request.AvailabilityStatus,
+                    request.MinimumRating,
+                    currentHelperId, // Exclude current helper if they are a helper
+                    currentUserId,
+                    currentHelperId,
+                    request.PageNumber,
+                    request.PageSize);
+
+                response.Helpers = helpers.ToList();
+                response.TotalHelpers = helperCount;
+            }
+
+            // Calculate pagination info
+            var totalResults = response.TotalUsers + response.TotalHelpers;
+            response.TotalPages = (int)Math.Ceiling((double)totalResults / request.PageSize);
+            response.HasNextPage = request.PageNumber < response.TotalPages;
+            response.HasPreviousPage = request.PageNumber > 1;
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error searching users for chat");
+            return StatusCode(500, "An error occurred while searching for users");
+        }
+    }
+}

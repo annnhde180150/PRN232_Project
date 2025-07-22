@@ -14,4 +14,8 @@ public interface IChatRepository : IBaseRepository<Chat>
     Task MarkMessagesAsReadAsync(List<long> chatIds, int? currentUserId, int? currentHelperId);
     Task<Chat?> GetLatestMessageBetweenUsersAsync(int? userId, int? helperId, int? otherUserId, int? otherHelperId);
     Task<IEnumerable<Chat>> GetBookingChatAsync(int bookingId);
-} 
+
+    // Methods for search functionality
+    Task<bool> HasConversationBetweenUsersAsync(int? currentUserId, int? currentHelperId, int? targetUserId, int? targetHelperId);
+    Task<DateTime?> GetLastConversationDateAsync(int? currentUserId, int? currentHelperId, int? targetUserId, int? targetHelperId);
+}

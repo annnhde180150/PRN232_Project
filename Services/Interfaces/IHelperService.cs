@@ -1,8 +1,7 @@
 using BussinessObjects.Models;
 using Services.DTOs.Helper;
-using Services.DTOs.User;
 using Services.DTOs.Admin;
-using Services.DTOs.Booking;
+using Services.DTOs.Chat;
 
 namespace Services.Interfaces;
 
@@ -32,4 +31,17 @@ public interface IHelperService : IBaseService<HelperDetailsDto, HelperCreateDto
     Task<List<Service>> GetHelperAvailableService(int helperId);
     Task<IEnumerable<SearchHelperDto>> GetHelpersByServiceAsync(int serviceId,string? page, string? pageSize);
     Task<HelperAddMoneyToWalletResponseDto> AddMoneyToWalletAsync(HelperAddMoneyToWalletDto helperAddMoneyToWalletDto);
+
+    // Search methods for chat functionality
+    Task<(IEnumerable<HelperSearchDto> helpers, int totalCount)> SearchHelpersForChatAsync(
+        string? searchTerm = null,
+        string? email = null,
+        bool? isActive = null,
+        string? availabilityStatus = null,
+        decimal? minimumRating = null,
+        int? excludeHelperId = null,
+        int? currentUserId = null,
+        int? currentHelperId = null,
+        int page = 1,
+        int pageSize = 20);
 }

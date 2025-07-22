@@ -35,11 +35,11 @@ public class ServiceRequest
     public virtual Service Service { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
-        public enum AvailableStatus
-        {
-            Pending,
-            Accepted,
-            Cancelled 
-        }
+    public enum AvailableStatus
+    {
+        Pending,
+        Accepted,
+        Cancelled 
+    }
     public virtual Helper? Helper { get; set; }
 }

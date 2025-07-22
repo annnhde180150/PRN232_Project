@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Repositories;
 using Services.DTOs.Helper;
-using Services.DTOs.User;
 using Services.DTOs.Admin;
 using Services.DTOs.Notification;
+using Services.DTOs.Chat;
 using Services.Interfaces;
 
 namespace Services.Implements;
@@ -315,16 +315,6 @@ public class HelperService : IHelperService
         return true;
     }
 
-    public async Task<bool> isAvailalble(int helperId, DateTime startTime, DateTime endTime)
-    {
-        var booking = _unitOfWork.Bookings;
-        var bookings = (await booking.GetAllAsync())
-            .Where(b => b.HelperId == helperId
-                && (b.ScheduledStartTime < endTime && b.ScheduledStartTime > startTime)
-                && (b.ScheduledEndTime < endTime && b.ScheduledEndTime > startTime))
-            .ToList();
-        return bookings.Any();
-    }
 
     // Admin helper application methods
     public async Task<(IEnumerable<HelperApplicationListDto> applications, int totalCount)> GetHelperApplicationsAsync(
@@ -457,6 +447,50 @@ public class HelperService : IHelperService
         return true;
     }
 
+    public async Task<(IEnumerable<HelperSearchDto> helpers, int totalCount)> SearchHelpersForChatAsync(
+        string? searchTerm = null,
+        string? email = null,
+        bool? isActive = null,
+        string? availabilityStatus = null,
+        decimal? minimumRating = null,
+        int? excludeHelperId = null,
+        int? currentUserId = null,
+        int? currentHelperId = null,
+        int page = 1,
+        int pageSize = 20)
+    {
+        _logger.LogInformation($"Searching helpers for chat - SearchTerm: {searchTerm}, Email: {email}, IsActive: {isActive}");
+
+        // Get helpers from repository
+        var (helpers, totalCount) = await _unitOfWork.Helpers.SearchHelpersAsync(
+            searchTerm, email, isActive, availabilityStatus, minimumRating, excludeHelperId, page, pageSize);
+
+        // Map to search DTOs
+        var helperSearchDtos = new List<HelperSearchDto>();
+
+        foreach (var helper in helpers)
+        {
+            var helperDto = _mapper.Map<HelperSearchDto>(helper);
+
+            // Check if there's an existing conversation
+            if (currentUserId.HasValue || currentHelperId.HasValue)
+            {
+                helperDto.HasExistingConversation = await _unitOfWork.Chats.HasConversationBetweenUsersAsync(
+                    currentUserId, currentHelperId, null, helper.HelperId);
+
+                if (helperDto.HasExistingConversation)
+                {
+                    helperDto.LastConversationDate = await _unitOfWork.Chats.GetLastConversationDateAsync(
+                        currentUserId, currentHelperId, null, helper.HelperId);
+                }
+            }
+
+            helperSearchDtos.Add(helperDto);
+        }
+
+        return (helperSearchDtos, totalCount);
+    }
+
     public async Task<List<Service>> GetHelperAvailableService(int helperId)
     {
         var helperRepo = _unitOfWork.Helpers;
@@ -532,5 +566,17 @@ public class HelperService : IHelperService
             IsSuccess = true,
             Message = "Money added successfully"
         };
+    public async Task<bool> isAvailalble(int helperId, DateTime startTime, DateTime endTime)
+    {
+        var bookingRepo = _unitOfWork.Bookings;
+        var bookings = (await bookingRepo.GetAllAsync())
+            .Where(b => b.HelperId == helperId
+                && b.Status != Booking.AvailableStatus.Cancelled.ToString()
+                && b.ScheduledStartTime < endTime
+                && b.ScheduledEndTime > startTime)
+            .ToList();
+
+        var isBooked = bookings.Any();
+        return !isBooked;
     }
 }

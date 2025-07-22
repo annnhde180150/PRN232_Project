@@ -55,9 +55,10 @@ public class Booking
     public virtual ICollection<WalletTransaction> WalletTransactions { get; set; } = new List<WalletTransaction>();
     public enum AvailableStatus
     {
-        Pending = 0,
-        InProgress = 1,
-        Completed = 2,
-        Cancelled = 3
+        Pending,
+        Accepted,
+        InProgress,
+        Completed,
+        Cancelled
     }
 }

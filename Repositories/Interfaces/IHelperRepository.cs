@@ -18,4 +18,15 @@ public interface IHelperRepository : IBaseRepository<Helper>
         int page = 1,
         int pageSize = 20);
     Task<Helper?> GetHelperApplicationByIdAsync(int helperId);
+
+    // Search methods for chat functionality
+    Task<(IEnumerable<Helper> helpers, int totalCount)> SearchHelpersAsync(
+        string? searchTerm = null,
+        string? email = null,
+        bool? isActive = null,
+        string? availabilityStatus = null,
+        decimal? minimumRating = null,
+        int? excludeHelperId = null,
+        int page = 1,
+        int pageSize = 20);
 }
