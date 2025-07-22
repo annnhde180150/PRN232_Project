@@ -16,7 +16,7 @@ using Services.Mappers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile), typeof(ChatProfile), typeof(ChatSearchProfile), typeof(UserProfile), typeof(HelperProfile), typeof(ReportProfile), typeof(ServiceRequestProfile), typeof(UserAddressProfile), typeof(AdminProfile));
+builder.Services.AddAutoMapper(typeof(Program), typeof(NotificationProfile), typeof(ChatProfile), typeof(ChatSearchProfile), typeof(UserProfile), typeof(HelperProfile), typeof(ReportProfile), typeof(ServiceRequestProfile), typeof(UserAddressProfile), typeof(AdminProfile), typeof(ReviewProfile));
 
 builder.Services.AddDbContext<Prn232HomeHelperFinderSystemContext>(options =>
 {
@@ -49,7 +49,7 @@ builder.Services.AddScoped<IHelperService, HelperService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<IProfileManagementService, ProfileManagementService>();
-builder.Services.AddScoped<IConnectionManager, ConnectionManager>();
+builder.Services.AddSingleton<IConnectionManager, ConnectionManager>();
 builder.Services.AddScoped<IRealtimeNotificationService, SignalRNotificationService>();
 builder.Services.AddScoped<IServiceRequestService, ServiceRequestService>();
 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
@@ -61,6 +61,9 @@ builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IFavoriteHelperService, FavoriteHelperService>();
 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
+builder.Services.AddScoped<IReviewReportService, ReviewReportService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+
 
 
 builder.Services.AddAuthentication(options =>
