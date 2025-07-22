@@ -250,4 +250,82 @@ public class ChatRepository : BaseRepository<Chat>, IChatRepository
             .OrderBy(c => c.Timestamp)
             .ToListAsync();
     }
-} 
+
+    public async Task<bool> HasConversationBetweenUsersAsync(int? currentUserId, int? currentHelperId, int? targetUserId, int? targetHelperId)
+    {
+        var query = _context.Chats.AsQueryable();
+
+        // Filter for conversation between current user and target
+        if (currentUserId.HasValue && targetHelperId.HasValue)
+        {
+            query = query.Where(c =>
+                (c.SenderUserId == currentUserId && c.ReceiverHelperId == targetHelperId) ||
+                (c.SenderHelperId == targetHelperId && c.ReceiverUserId == currentUserId));
+        }
+        else if (currentHelperId.HasValue && targetUserId.HasValue)
+        {
+            query = query.Where(c =>
+                (c.SenderHelperId == currentHelperId && c.ReceiverUserId == targetUserId) ||
+                (c.SenderUserId == targetUserId && c.ReceiverHelperId == currentHelperId));
+        }
+        else if (currentUserId.HasValue && targetUserId.HasValue)
+        {
+            query = query.Where(c =>
+                (c.SenderUserId == currentUserId && c.ReceiverUserId == targetUserId) ||
+                (c.SenderUserId == targetUserId && c.ReceiverUserId == currentUserId));
+        }
+        else if (currentHelperId.HasValue && targetHelperId.HasValue)
+        {
+            query = query.Where(c =>
+                (c.SenderHelperId == currentHelperId && c.ReceiverHelperId == targetHelperId) ||
+                (c.SenderHelperId == targetHelperId && c.ReceiverHelperId == currentHelperId));
+        }
+        else
+        {
+            return false;
+        }
+
+        return await query.AnyAsync();
+    }
+
+    public async Task<DateTime?> GetLastConversationDateAsync(int? currentUserId, int? currentHelperId, int? targetUserId, int? targetHelperId)
+    {
+        var query = _context.Chats.AsQueryable();
+
+        // Filter for conversation between current user and target
+        if (currentUserId.HasValue && targetHelperId.HasValue)
+        {
+            query = query.Where(c =>
+                (c.SenderUserId == currentUserId && c.ReceiverHelperId == targetHelperId) ||
+                (c.SenderHelperId == targetHelperId && c.ReceiverUserId == currentUserId));
+        }
+        else if (currentHelperId.HasValue && targetUserId.HasValue)
+        {
+            query = query.Where(c =>
+                (c.SenderHelperId == currentHelperId && c.ReceiverUserId == targetUserId) ||
+                (c.SenderUserId == targetUserId && c.ReceiverHelperId == currentHelperId));
+        }
+        else if (currentUserId.HasValue && targetUserId.HasValue)
+        {
+            query = query.Where(c =>
+                (c.SenderUserId == currentUserId && c.ReceiverUserId == targetUserId) ||
+                (c.SenderUserId == targetUserId && c.ReceiverUserId == currentUserId));
+        }
+        else if (currentHelperId.HasValue && targetHelperId.HasValue)
+        {
+            query = query.Where(c =>
+                (c.SenderHelperId == currentHelperId && c.ReceiverHelperId == targetHelperId) ||
+                (c.SenderHelperId == targetHelperId && c.ReceiverHelperId == currentHelperId));
+        }
+        else
+        {
+            return null;
+        }
+
+        var latestMessage = await query
+            .OrderByDescending(c => c.Timestamp)
+            .FirstOrDefaultAsync();
+
+        return latestMessage?.Timestamp;
+    }
+}

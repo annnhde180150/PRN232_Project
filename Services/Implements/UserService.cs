@@ -3,6 +3,7 @@ using BussinessObjects.Models;
 using Microsoft.Extensions.Logging;
 using Repositories;
 using Services.DTOs.User;
+using Services.DTOs.Chat;
 using Services.Interfaces;
 
 namespace Services.Implements;
@@ -159,5 +160,47 @@ public class UserService : IUserService
         var user = await _unitOfWork.Users.GetUserByEmailAsync(email);
         if (user == null) return null;
         return _mapper.Map<UserDetailsDto>(user);
+    }
+
+    public async Task<(IEnumerable<UserSearchDto> users, int totalCount)> SearchUsersForChatAsync(
+        string? searchTerm = null,
+        string? email = null,
+        bool? isActive = null,
+        int? excludeUserId = null,
+        int? currentUserId = null,
+        int? currentHelperId = null,
+        int page = 1,
+        int pageSize = 20)
+    {
+        _logger.LogInformation($"Searching users for chat - SearchTerm: {searchTerm}, Email: {email}, IsActive: {isActive}");
+
+        // Get users from repository
+        var (users, totalCount) = await _unitOfWork.Users.SearchUsersAsync(
+            searchTerm, email, isActive, excludeUserId, page, pageSize);
+
+        // Map to search DTOs
+        var userSearchDtos = new List<UserSearchDto>();
+
+        foreach (var user in users)
+        {
+            var userDto = _mapper.Map<UserSearchDto>(user);
+
+            // Check if there's an existing conversation
+            if (currentUserId.HasValue || currentHelperId.HasValue)
+            {
+                userDto.HasExistingConversation = await _unitOfWork.Chats.HasConversationBetweenUsersAsync(
+                    currentUserId, currentHelperId, user.UserId, null);
+
+                if (userDto.HasExistingConversation)
+                {
+                    userDto.LastConversationDate = await _unitOfWork.Chats.GetLastConversationDateAsync(
+                        currentUserId, currentHelperId, user.UserId, null);
+                }
+            }
+
+            userSearchDtos.Add(userDto);
+        }
+
+        return (userSearchDtos, totalCount);
     }
 }
