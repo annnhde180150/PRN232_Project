@@ -18,7 +18,10 @@ public class FavoriteHelperRepository : BaseRepository<FavoriteHelper>, IFavorit
 
     public async Task<IEnumerable<FavoriteHelper>> GetByUserIdAsync(int userId)
     {
-        return await _context.FavoriteHelpers.Where(f => f.UserId == userId).ToListAsync();
+        return await _context.FavoriteHelpers
+            .Include(f => f.Helper)
+            .Where(f => f.UserId == userId)
+            .ToListAsync();
     }
 
     public async Task<bool> DeleteByUserAndHelperAsync(int userId, int helperId)
