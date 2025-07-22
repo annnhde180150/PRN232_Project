@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using BussinessObjects.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Repositories;
 using Services.Interfaces;
@@ -10,14 +11,14 @@ public class ConnectionManager : IConnectionManager
 {
     private readonly ConcurrentDictionary<string, string> _connectionUsers;
     private readonly ILogger<ConnectionManager> _logger;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ConcurrentDictionary<string, List<string>> _userConnections;
 
-    public ConnectionManager(IUnitOfWork unitOfWork, ILogger<ConnectionManager> logger)
+    public ConnectionManager(IServiceProvider serviceProvider, ILogger<ConnectionManager> logger)
     {
         _userConnections = new ConcurrentDictionary<string, List<string>>();
         _connectionUsers = new ConcurrentDictionary<string, string>();
-        _unitOfWork = unitOfWork;
+        _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
@@ -36,18 +37,23 @@ public class ConnectionManager : IConnectionManager
 
             _connectionUsers.TryAdd(connectionId, userId);
 
-            // Persist to database
-            var connection = new Connection
+            // Persist to database using a new scope
+            using (var scope = _serviceProvider.CreateScope())
             {
-                UserId = userId,
-                UserType = userType,
-                ConnectionId = connectionId,
-                ConnectedAt = DateTime.UtcNow,
-                IsActive = true
-            };
+                var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                var connection = new Connection
+                {
+                    UserId = userId,
+                    UserType = userType,
+                    ConnectionId = connectionId,
+                    ConnectedAt = DateTime.UtcNow,
+                    IsActive = true
+                };
 
-            await _unitOfWork.Connections.AddAsync(connection);
-            await _unitOfWork.CompleteAsync();
+                await unitOfWork.Connections.AddAsync(connection);
+                await unitOfWork.CompleteAsync();
+            }
+
 
             _logger.LogInformation($"Connection {connectionId} added for {userType} {userId}");
         }
@@ -71,15 +77,20 @@ public class ConnectionManager : IConnectionManager
 
             _connectionUsers.TryRemove(connectionId, out _);
 
-            // Update database
-            var connection = await _unitOfWork.Connections.GetByConnectionIdAsync(connectionId);
-            if (connection != null)
+            // Update database using a new scope
+            using (var scope = _serviceProvider.CreateScope())
             {
-                connection.DisconnectedAt = DateTime.UtcNow;
-                connection.IsActive = false;
-                _unitOfWork.Connections.Update(connection);
-                await _unitOfWork.CompleteAsync();
+                var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                var connection = await unitOfWork.Connections.GetByConnectionIdAsync(connectionId);
+                if (connection != null)
+                {
+                    connection.DisconnectedAt = DateTime.UtcNow;
+                    connection.IsActive = false;
+                    unitOfWork.Connections.Update(connection);
+                    await unitOfWork.CompleteAsync();
+                }
             }
+
 
             _logger.LogInformation($"Connection {connectionId} removed for user {userId}");
         }
@@ -140,21 +151,25 @@ public class ConnectionManager : IConnectionManager
         {
             if (_userConnections.TryRemove(userId, out var connections))
             {
-                foreach (var connectionId in connections)
+                foreach (var connectionId in connections) _connectionUsers.TryRemove(connectionId, out _);
+
+                // Update database using a new scope
+                using (var scope = _serviceProvider.CreateScope())
                 {
-                    _connectionUsers.TryRemove(connectionId, out _);
-
-                    // Update database
-                    var connection = await _unitOfWork.Connections.GetByConnectionIdAsync(connectionId);
-                    if (connection != null)
+                    var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                    foreach (var connectionId in connections)
                     {
-                        connection.DisconnectedAt = DateTime.UtcNow;
-                        connection.IsActive = false;
-                        _unitOfWork.Connections.Update(connection);
+                        var connection = await unitOfWork.Connections.GetByConnectionIdAsync(connectionId);
+                        if (connection != null)
+                        {
+                            connection.DisconnectedAt = DateTime.UtcNow;
+                            connection.IsActive = false;
+                            unitOfWork.Connections.Update(connection);
+                        }
                     }
-                }
 
-                await _unitOfWork.CompleteAsync();
+                    await unitOfWork.CompleteAsync();
+                }
             }
 
             _logger.LogInformation($"All connections removed for user {userId}");
