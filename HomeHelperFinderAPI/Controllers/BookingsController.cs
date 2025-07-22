@@ -14,59 +14,111 @@ namespace HomeHelperFinderAPI.Controllers
     [ApiController]
     public class BookingsController(IServiceRequestService _requestService, IMapper _mapper, IUnitOfWork _unitOfWork, IHelperService _helperService, IUserAddressService _addressService, IBookingService _bookingService, IServiceService _serviceService, IPaymentService _paymentService) : ControllerBase
     {
-        [HttpPost("CreateBooking")]
-        public async Task<ActionResult> CreateBooking([FromBody] BookingCreateDto newBooking)
+        [HttpPost("AcceptRequest")]
+        public async Task<ActionResult> AcceptRequest(BookingAcceptDto acceptance)
         {
-            var currentBooking = (await _bookingService.GetAllAsync()).Where(b => b.RequestId == newBooking.RequestId).FirstOrDefault();
-            var request = await _requestService.GetByIdAsync(newBooking.RequestId.Value);
-            // validate request
-            if (currentBooking != null && currentBooking.Status != Booking.AvailableStatus.Cancelled.ToString())
+            var currentRequest = await _requestService.GetByIdAsync(acceptance.RequestId);
+            var service = await _serviceService.GetByIdAsync(currentRequest.ServiceId);
+
+            //validation
+            if(await _bookingService.isBooked(acceptance.RequestId))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
-            if (newBooking == null)
+            if(currentRequest == null)
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
-            if (!await _requestService.ExistsAsync(newBooking.RequestId.Value))
+            if(!await _helperService.ExistsAsync(acceptance.HelperId))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
-            if (!await _helperService.ExistsAsync(newBooking.HelperId))
+            if (currentRequest.Status != ServiceRequest.AvailableStatus.Pending.ToString())
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
-            if(request.Status == ServiceRequest.AvailableStatus.Cancelled.ToString())
+            if (!await _helperService.isAvailalble(
+                    acceptance.HelperId,
+                    currentRequest.RequestedStartTime,
+                    currentRequest.RequestedStartTime.AddHours((double)currentRequest.RequestedDurationHours.Value)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
 
-            newBooking.BookingCreationTime = DateTime.Now;
+            var newBooking = new BookingCreateDto()
+            {
+                RequestId = acceptance.RequestId,
+                UserId = currentRequest.UserId,
+                HelperId = acceptance.HelperId,
+                ServiceId = currentRequest.ServiceId,
+                ScheduledStartTime = currentRequest.RequestedStartTime,
+                ScheduledEndTime = currentRequest.RequestedStartTime.AddHours((double)currentRequest.RequestedDurationHours),
+                Status = Booking.AvailableStatus.Pending.ToString(),
+                BookingCreationTime = DateTime.Now,
+                EstimatedPrice = currentRequest.RequestedDurationHours*service.BasePrice
+            };
+
             
 
-            //create new Booking
-            Task createTask = _bookingService.CreateAsync(newBooking);
+            currentRequest.Status = ServiceRequest.AvailableStatus.Accepted.ToString();
+            var request = _mapper.Map<ServiceRequest>(currentRequest);
 
-
-            await createTask;
-            if (!createTask.IsCompleted)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to create booking");
-            }
-
-            var basePrice = (await _serviceService.GetByIdAsync(newBooking.ServiceId)).BasePrice;
-            newBooking.EstimatedPrice = basePrice * (decimal)(newBooking.ScheduledEndTime - newBooking.ScheduledStartTime).TotalHours;
-
-            //return new Booking under DetailDto
+            await _bookingService.CreateAsync(newBooking);
+            await _requestService.UpdateAsync(request.RequestId,_mapper.Map<ServiceRequestUpdateDto>(request));
             var latestBooking = await _bookingService.GetUserLatestBooking(newBooking.UserId);
-            var payment = new Payment
+
+            var newPayment = new PaymentCreateDto
             {
+                UserId = currentRequest.UserId,
                 BookingId = latestBooking.BookingId,
-                Amount = latestBooking.FinalPrice ?? 0,
-                PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString(),
-            };
-            await _paymentService.CreatePayment(new PaymentCreateDto
-            {
-                BookingId = latestBooking.BookingId,
-                UserId = latestBooking.UserId,
-                Amount = latestBooking.EstimatedPrice ?? 0,
+                Amount = newBooking.EstimatedPrice ?? 0,
                 PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString(),
                 PaymentMethod = "None"
-            });
-            return Ok(_mapper.Map<BookingDetailDto>(latestBooking));
+            };
 
+            _paymentService.CreatePayment(newPayment);
+
+            return Ok(latestBooking);
         }
+
+        //[HttpPost("CreateBooking")]
+        //public async Task<ActionResult> CreateBooking([FromBody] BookingCreateDto newBooking)
+        //{
+        //    var currentBooking = (await _bookingService.GetAllAsync()).Where(b => b.RequestId == newBooking.RequestId).FirstOrDefault();
+        //    var request = await _requestService.GetByIdAsync(newBooking.RequestId.Value);
+        //    // validate request
+        //    if (currentBooking != null && currentBooking.Status != Booking.AvailableStatus.Cancelled.ToString())
+        //        return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+        //    if (newBooking == null)
+        //        return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+        //    if (!await _requestService.ExistsAsync(newBooking.RequestId.Value))
+        //        return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+        //    if (!await _helperService.ExistsAsync(newBooking.HelperId))
+        //        return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+        //    if(request.Status == ServiceRequest.AvailableStatus.Cancelled.ToString())
+        //        return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+
+
+        //    newBooking.BookingCreationTime = DateTime.Now;
+            
+
+        //    //create new Booking
+        //    Task createTask = _bookingService.CreateAsync(newBooking);
+
+
+        //    await createTask;
+        //    if (!createTask.IsCompleted)
+        //    {
+        //        return StatusCode(StatusCodes.Status500InternalServerError, "Failed to create booking");
+        //    }
+
+        //    var basePrice = (await _serviceService.GetByIdAsync(newBooking.ServiceId)).BasePrice;
+        //    newBooking.EstimatedPrice = basePrice * (decimal)(newBooking.ScheduledEndTime - newBooking.ScheduledStartTime).TotalHours;
+
+        //    //return new Booking under DetailDto
+        //    var latestBooking = await _bookingService.GetUserLatestBooking(newBooking.UserId);
+        //    await _paymentService.CreatePayment(new PaymentCreateDto
+        //    {
+        //        BookingId = latestBooking.BookingId,
+        //        UserId = latestBooking.UserId,
+        //        Amount = latestBooking.EstimatedPrice ?? 0,
+        //        PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString(),
+        //        PaymentMethod = "None"
+        //    });
+        //    return Ok(_mapper.Map<BookingDetailDto>(latestBooking));
+
+        //}
 
         [HttpPost("BookHelper/{helperId}")]
         //[Authorize]
@@ -78,6 +130,12 @@ namespace HomeHelperFinderAPI.Controllers
             //validate helper id and check if helper is available at time
             if (helperId == null || !(await _helperService.ExistsAsync(helperId)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+            if (!await _helperService.isAvailalble(
+                    helperId,
+                    newRequest.RequestedStartTime,
+                    newRequest.RequestedStartTime.AddHours((double)newRequest.RequestedDurationHours.Value)))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+
 
             //notify 
 
@@ -108,13 +166,15 @@ namespace HomeHelperFinderAPI.Controllers
             newBooking.EstimatedPrice = basePrice * (decimal)(newBooking.ScheduledEndTime - newBooking.ScheduledStartTime).TotalHours;
 
             // insert the new booking
-            var bookingResult = await _bookingService.CreateAsync(newBooking);
+            await _bookingService.CreateAsync(newBooking);
+            var bookingResult = await _bookingService.GetUserLatestBooking(newBooking.UserId);
             await _paymentService.CreatePayment(new PaymentCreateDto
             {
                 BookingId = bookingResult.BookingId,
                 UserId = bookingResult.UserId,
                 Amount = bookingResult.EstimatedPrice ?? 0,
-                PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString()
+                PaymentStatus = Payment.PaymentStatusEnum.Pending.ToString(),
+                PaymentMethod = "None"
             });
             return Ok(_mapper.Map<ServiceRequestDetailDto>(latestRequest));
         }
@@ -218,6 +278,13 @@ namespace HomeHelperFinderAPI.Controllers
             var updated = await _bookingService.UpdateBookingStatusAsync(dto);
             // TODO: Gửi SignalR tới user
             return Ok(updated);
+        }
+
+        [HttpGet("getBooking/{id}")]
+        public async Task<ActionResult> GetBooking(int id)
+        {
+            var booking = await _bookingService.GetByIdAsync(id);
+            return Ok(booking);
         }
 
     }
