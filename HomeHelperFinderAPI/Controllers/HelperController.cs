@@ -308,5 +308,34 @@ namespace HomeHelperFinderAPI.Controllers
             }
 
         }
+
+        [HttpPut("addMoneyToWallet")]
+        public async Task<IActionResult> addMoneyToWallet([FromBody] HelperAddMoneyToWalletDto helperAddMoneyToWalletDto)
+        {
+            try
+            {
+                _logger.LogInformation($"Adding money to wallet for helper ID: {helperAddMoneyToWalletDto.HelperId}");
+                if (helperAddMoneyToWalletDto == null || helperAddMoneyToWalletDto.HelperId <= 0 || helperAddMoneyToWalletDto.Amount <= 0)
+                {
+                    return BadRequest("Invalid input data");
+                }
+                var result = await _helperService.AddMoneyToWalletAsync(helperAddMoneyToWalletDto);
+                if (result.IsSuccess)
+                {
+                    _logger.LogInformation($"Successfully added money to wallet for helper ID: {helperAddMoneyToWalletDto.HelperId}");
+                    return Ok(result);
+                }
+                else
+                {
+                    _logger.LogWarning($"Failed to add money to wallet for helper ID: {helperAddMoneyToWalletDto.HelperId}");
+                    return BadRequest("Failed to add money to wallet.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error adding money to wallet for helper {helperAddMoneyToWalletDto.HelperId}: {ex.Message}");
+                return StatusCode(500, "An error occurred while adding money to the wallet");
+            }
+        }
     }
 } 

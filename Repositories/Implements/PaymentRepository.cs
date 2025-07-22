@@ -15,7 +15,7 @@ public class PaymentRepository : BaseRepository<Payment>, IPaymentRepository
         return await _context.Payments
             .Where(p => p.UserId == userId)
             .Include(p => p.User)
-            //.Include(p => p.Booking) //Đang có lỗi chồng chéo Include từ booking và User
+            .Include(p => p.Booking) 
             .ToListAsync();
     }
 

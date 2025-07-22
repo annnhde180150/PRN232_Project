@@ -15,6 +15,8 @@ namespace Services.DTOs.Payment
 
         public int UserId { get; set; }
 
+        public int HelperId { get; set; }  
+
         public decimal Amount { get; set; }
 
         public DateTime? PaymentDate { get; set; }

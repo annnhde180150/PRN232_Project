@@ -18,4 +18,15 @@ namespace Services.DTOs.Helper
 
         public string? CurrencyCode { get; set; }
     }
+    public class HelperAddMoneyToWalletDto
+    {
+        public int HelperId { get; set; }
+        public decimal Amount { get; set; }
+    }
+    public class HelperAddMoneyToWalletResponseDto
+    {    
+        public bool IsSuccess { get; set; }
+        public string Message { get; set; } = string.Empty;
+    }
+
 }

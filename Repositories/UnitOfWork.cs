@@ -27,8 +27,8 @@ public class UnitOfWork : IUnitOfWork
         HelperWorkAreas = new HelperWorkAreaRepository(_context);
         HelperDocuments = new HelperDocumentRepository(_context);
         FavoriteHelpers = new FavoriteHelperRepository(context);
-
         ReviewReports = new ReviewReportRepository(_context);
+        HelperWallets = new HelperWalletRepository(_context);
     }
 
     public IAdminRepository Admins { get; }
@@ -51,6 +51,7 @@ public class UnitOfWork : IUnitOfWork
     public IHelperSkillRepository HelperSkills { get; }
     public IHelperWorkAreaRepository HelperWorkAreas { get; }
     public IHelperDocumentRepository HelperDocuments { get; }
+    public IHelperWalletRepository HelperWallets { get; }
 
     public async Task<int> CompleteAsync()
     {

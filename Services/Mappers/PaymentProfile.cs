@@ -17,9 +17,9 @@ namespace Services.Mappers
                 .ForMember(dest => dest.BookingId, opt => opt.MapFrom(src => src.BookingId))
                 .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
                 .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
-                .ForMember(dest => dest.PaymentDate, opt => opt.MapFrom(src => src.PaymentDate));
+                .ForMember(dest => dest.PaymentDate, opt => opt.MapFrom(src => src.PaymentDate))
+                .ForMember(dest => dest.HelperId, opt => opt.MapFrom(src => src.Booking.HelperId));
 
-            
             CreateMap<Payment, PaymentCreateDto>();
 
             //=========================================================================================

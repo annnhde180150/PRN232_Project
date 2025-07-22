@@ -21,6 +21,7 @@ public interface IUnitOfWork
     IHelperDocumentRepository HelperDocuments { get; }
     IFavoriteHelperRepository FavoriteHelpers { get; }
     IReviewReportRepository ReviewReports { get; }
+    IHelperWalletRepository HelperWallets { get; }
 
     Task<int> CompleteAsync();
 }

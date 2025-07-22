@@ -31,4 +31,5 @@ public interface IHelperService : IBaseService<HelperDetailsDto, HelperCreateDto
     Task<bool> ProcessHelperApplicationDecisionAsync(int helperId, HelperApplicationDecisionDto decision, int adminId);
     Task<List<Service>> GetHelperAvailableService(int helperId);
     Task<IEnumerable<SearchHelperDto>> GetHelpersByServiceAsync(int serviceId,string? page, string? pageSize);
+    Task<HelperAddMoneyToWalletResponseDto> AddMoneyToWalletAsync(HelperAddMoneyToWalletDto helperAddMoneyToWalletDto);
 }

@@ -498,4 +498,39 @@ public class HelperService : IHelperService
         }
         return searchHelpers;
     }
+
+    public async Task<HelperAddMoneyToWalletResponseDto> AddMoneyToWalletAsync(HelperAddMoneyToWalletDto helperAddMoneyToWalletDto)
+    {
+
+        _logger.LogInformation($"Adding money to wallet for helper ID: {helperAddMoneyToWalletDto.HelperId}, Amount: {helperAddMoneyToWalletDto.Amount}");
+        var helper = await _unitOfWork.Helpers.GetQueryable(h => h.HelperWallet).FirstOrDefaultAsync(h => h.HelperId == helperAddMoneyToWalletDto.HelperId);
+        if (helper == null)
+        {
+            _logger.LogWarning($"Helper with ID {helperAddMoneyToWalletDto.HelperId} not found");
+            return new HelperAddMoneyToWalletResponseDto
+            {
+                IsSuccess = false,
+                Message = "Helper not found"
+            };
+        }
+        if (helper.HelperWallet == null)
+        {
+            _logger.LogWarning($"Helper wallet not found for ID {helperAddMoneyToWalletDto.HelperId}");
+            return new HelperAddMoneyToWalletResponseDto
+            {
+                IsSuccess = false,
+                Message = "Helper wallet not found"
+            };
+        }
+        var wallet = helper.HelperWallet;
+        wallet.Balance += helperAddMoneyToWalletDto.Amount;
+        _unitOfWork.HelperWallets.Update(wallet);
+        await _unitOfWork.CompleteAsync();
+        _logger.LogInformation($"Successfully added money to wallet for helper ID: {helperAddMoneyToWalletDto.HelperId}");
+        return new HelperAddMoneyToWalletResponseDto
+        {
+            IsSuccess = true,
+            Message = "Money added successfully"
+        };
+    }
 }
