@@ -2,6 +2,7 @@
 using AutoMapper.Internal;
 using BussinessObjects.Models;
 using Services.DTOs.Booking;
+using Services.DTOs.Review;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +15,14 @@ namespace Services.Mappers
     {
         public BookingProfile()
         {
+
             //Entity to Dto
             CreateMap<Booking, BookingDetailDto>();
             CreateMap<Booking, BookingCreateDto>();
             CreateMap<Booking, BookingUpdateDto>();
+            CreateMap<Booking, BookingServiceNameDto>()
+                .ForMember(dest => dest.BookingId, opt => opt.MapFrom(src => src.BookingId))
+                .ForMember(dest => dest.ServiceName, opt => opt.MapFrom(src => src.Service.ServiceName));
 
 
             //Dto to Entity

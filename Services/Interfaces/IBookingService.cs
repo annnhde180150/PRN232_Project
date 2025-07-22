@@ -1,4 +1,5 @@
 ﻿using Services.DTOs.Booking;
+using Services.DTOs.Review;
 using Services.DTOs.ServiceRequest;
 using System;
 using System.Collections.Generic;
@@ -17,5 +18,6 @@ namespace Services.Interfaces
         Task<List<BookingDetailDto>> GetPendingBookingByUserId(int userId);
         Task<List<BookingDetailDto>> GetUserSchedule(int userId);
         Task<List<BookingDetailDto>> GetHelperSchedule(int helperId);
+        Task<List<BookingServiceNameDto>> GetReviewServiceNames(int helperId);
     }
 }

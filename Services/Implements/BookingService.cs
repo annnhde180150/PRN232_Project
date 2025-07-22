@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using BussinessObjects.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Repositories;
 using Services.DTOs.Booking;
+using Services.DTOs.Review;
 using Services.DTOs.ServiceRequest;
 using Services.Interfaces;
 using System;
@@ -166,6 +168,15 @@ namespace Services.Implements
                 .Where(b => b.HelperId == helperId && (b.Status != Booking.AvailableStatus.Pending.ToString() && b.Status != Booking.AvailableStatus.Cancelled.ToString()))
                 .OrderBy(b => b.ScheduledStartTime);
             return _mapper.Map<List<BookingDetailDto>>(bookings);
+        }
+
+        public async Task<List<BookingServiceNameDto>> GetReviewServiceNames(int helperId)
+        {
+            var bookingRepo = _unitOfWork.Bookings;
+            var bookings = await (bookingRepo.GetQueryable(b => b.Service))
+                .Where(b => b.HelperId == helperId && b.Status == Booking.AvailableStatus.Completed.ToString())
+                .ToListAsync();
+            return _mapper.Map<List<BookingServiceNameDto>>(bookings);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace HomeHelperFinderAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BookingsController(IServiceRequestService _requestService, IMapper _mapper, IUnitOfWork _unitOfWork, IHelperService _helperService, IUserAddressService _addressService, IBookingService _bookingService, IServiceService _serviceService, IPaymentService _paymentService) : ControllerBase
+    public class BookingsController(IServiceRequestService _requestService, IMapper _mapper, IUnitOfWork _unitOfWork, IHelperService _helperService, IUserAddressService _addressService, IBookingService _bookingService, IServiceService _serviceService, IPaymentService _paymentService, IUserService _userService) : ControllerBase
     {
         [HttpPost("AcceptRequest")]
         public async Task<ActionResult> AcceptRequest(BookingAcceptDto acceptance)
@@ -322,6 +322,8 @@ namespace HomeHelperFinderAPI.Controllers
         [HttpGet("GetUserPendingBooking/{id}")]
         public async Task<ActionResult> getPendingBookingByUserId(int id)
         {
+            if (id <= 0 || !(await _userService.ExistsAsync(id)))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid user ID");
             var bookings = await _bookingService.GetPendingBookingByUserId(id);
             return Ok(bookings);
         }
@@ -329,6 +331,8 @@ namespace HomeHelperFinderAPI.Controllers
         [HttpGet("GetUserSchedule/{id}")]
         public async Task<ActionResult> GetUserSchedule(int id)
         {
+            if (id <= 0 || !(await _userService.ExistsAsync(id)))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid user ID");
             var bookings = await _bookingService.GetUserSchedule(id);
             return Ok(bookings);
         }
@@ -336,8 +340,19 @@ namespace HomeHelperFinderAPI.Controllers
         [HttpGet("GetHelperSchedule/{id}")]
         public async Task<ActionResult> GetHelperSchedule(int id)
         {
+            if (id <= 0 || !(await _helperService.ExistsAsync(id)))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid user ID");
             var bookings = await _bookingService.GetHelperSchedule(id);
             return Ok(bookings);
+        }
+
+        [HttpGet("GetHelperBookingServiceNames/{id}")]
+        public async Task<ActionResult> getServiceNames(int id)
+        {
+            if (id <= 0 || !(await _helperService.ExistsAsync(id)))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid user ID");
+            var serviceNames = await _bookingService.GetReviewServiceNames(id);
+            return Ok(serviceNames);
         }
     }
 }
