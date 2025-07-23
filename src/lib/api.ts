@@ -44,7 +44,7 @@ import {
 } from '../types/profile';
 
 // Base URL - you should set this in environment variables
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://localhost:7192';
+const BASE_URL = 'https://helper-finder.azurewebsites.net';
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -285,3 +285,26 @@ export const profileAPI = {
     return response.data;
   },
 };
+export async function searchHelpers(serviceId: number) {
+  const res = await fetch(`${BASE_URL}/api/Helper/search?serviceId=${serviceId}`);
+  if (!res.ok) throw new Error('Failed to fetch helpers');
+  return res.json();
+}
+
+export interface Service {
+  serviceId: number;
+  serviceName: string;
+  description: string;
+  iconUrl: string | null;
+  basePrice: number;
+  priceUnit: string;
+  isActive: boolean;
+  parentServiceId: number | null;
+}
+
+export async function getAllServices(): Promise<Service[]> {
+  const res = await fetch(`${BASE_URL}/api/Service/active`);
+  if (!res.ok) throw new Error('Failed to fetch services');
+  const data = await res.json();
+  return data.data as Service[];
+}

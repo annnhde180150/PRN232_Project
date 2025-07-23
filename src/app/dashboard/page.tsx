@@ -46,8 +46,10 @@ export default function DashboardPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Dịch Vụ Của Tôi</h2>
               <p className="text-gray-600">Chưa có dịch vụ nào được đặt.</p>
-              <button className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
-                Đặt Dịch Vụ Mới
+              <button className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                onClick={() => router.push('/search-helper')}
+              >
+                Tìm Người Giúp Việc
               </button>
             </div>
             <div className="bg-white rounded-lg shadow p-6">

@@ -243,4 +243,36 @@ export interface ReportApiResponse<T> {
 }
 
 // Period types for API requests
-export type ReportPeriod = 'day' | 'week' | 'month' | 'quarter' | 'year'; 
+export type ReportPeriod = 'day' | 'week' | 'month' | 'quarter' | 'year';
+
+export interface HelperWorkArea {
+  workAreaId: number;
+  helperId: number;
+  city: string;
+  district: string;
+  ward: string;
+  latitude: number;
+  longitude: number;
+  radiusKm: number;
+  helper: any;
+}
+
+export interface HelperSearchResult {
+  helperId: number;
+  helperName: string;
+  serviceName: string;
+  bio: string;
+  rating: number;
+  helperWorkAreas: HelperWorkArea[];
+  basePrice: number;
+  availableStatus: string;
+}
+
+export interface SearchHelperResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: HelperSearchResult[];
+  timestamp: string;
+  requestId: string;
+} 
