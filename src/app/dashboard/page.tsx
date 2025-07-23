@@ -53,6 +53,14 @@ export default function DashboardPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Lịch Sử Dịch Vụ</h2>
               <p className="text-gray-600">Chưa có lịch sử sử dụng dịch vụ.</p>
+              <div className="mt-4">
+                <button 
+                  onClick={() => router.push('/customer-reports')}
+                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  Xem Báo Cáo Chi Tiết
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -92,6 +100,14 @@ export default function DashboardPage() {
                   <p className="text-gray-600">Đánh giá trung bình</p>
                 </div>
               </div>
+              <div className="mt-4">
+                <button 
+                  onClick={() => router.push('/helper-reports')}
+                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  Xem Báo Cáo Chi Tiết
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -107,7 +123,10 @@ export default function DashboardPage() {
                 <button className="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors">
                   Duyệt Người Giúp Việc
                 </button>
-                <button className="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors">
+                <button 
+                  onClick={() => router.push('/admin-reports')}
+                  className="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors"
+                >
                   Báo Cáo Thống Kê
                 </button>
               </div>

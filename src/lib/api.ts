@@ -8,6 +8,20 @@ import {
   Helper, 
   Admin 
 } from '../types/auth';
+import {
+  BusinessOverview,
+  RevenueAnalytics,
+  ServicePerformance,
+  HelperRanking,
+  BookingAnalytics,
+  HelperEarnings,
+  HelperScheduleAnalytics,
+  CustomerBookings,
+  CustomerSpending,
+  FavoriteHelper,
+  ReportApiResponse,
+  ReportPeriod
+} from '../types/reports';
 
 // Base URL - you should set this in environment variables
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://localhost:7192';
@@ -102,4 +116,64 @@ export const authUtils = {
     const userData = authUtils.getUserData();
     return !!(token && userData.user);
   },
-}; 
+};
+
+// Report API functions
+export const reportAPI = {
+  // Admin Reports
+  getBusinessOverview: async (): Promise<ReportApiResponse<BusinessOverview>> => {
+    const response = await api.get('/api/Report/admin/business-overview');
+    return response.data;
+  },
+
+  getRevenueAnalytics: async (period: ReportPeriod = 'month'): Promise<ReportApiResponse<RevenueAnalytics>> => {
+    const response = await api.get(`/api/Report/admin/revenue-analytics?period=${period}`);
+    return response.data;
+  },
+
+  getServicePerformance: async (period: ReportPeriod = 'month'): Promise<ReportApiResponse<ServicePerformance[]>> => {
+    const response = await api.get(`/api/Report/admin/service-performance?period=${period}`);
+    return response.data;
+  },
+
+  getHelperRankings: async (count: number = 10, period: ReportPeriod = 'month'): Promise<ReportApiResponse<HelperRanking[]>> => {
+    const response = await api.get(`/api/Report/admin/helper-rankings?count=${count}&period=${period}`);
+    return response.data;
+  },
+
+  getBookingAnalytics: async (serviceId?: number, period: ReportPeriod = 'month'): Promise<ReportApiResponse<BookingAnalytics>> => {
+    const params = new URLSearchParams({ period });
+    if (serviceId) {
+      params.append('serviceId', serviceId.toString());
+    }
+    const response = await api.get(`/api/Report/admin/booking-analytics?${params.toString()}`);
+    return response.data;
+  },
+
+  // Helper Reports
+  getHelperEarnings: async (period: ReportPeriod = 'month'): Promise<ReportApiResponse<HelperEarnings>> => {
+    const response = await api.get(`/api/Report/helper/my-earnings?period=${period}`);
+    return response.data;
+  },
+
+  getHelperScheduleAnalytics: async (period: ReportPeriod = 'month'): Promise<ReportApiResponse<HelperScheduleAnalytics>> => {
+    const response = await api.get(`/api/Report/helper/my-schedule-analytics?period=${period}`);
+    return response.data;
+  },
+
+  // Customer Reports
+  getCustomerBookings: async (period: ReportPeriod = 'month'): Promise<ReportApiResponse<CustomerBookings>> => {
+    const response = await api.get(`/api/Report/customer/my-bookings?period=${period}`);
+    return response.data;
+  },
+
+  getCustomerSpending: async (period: ReportPeriod = 'month'): Promise<ReportApiResponse<CustomerSpending>> => {
+    const response = await api.get(`/api/Report/customer/my-spending?period=${period}`);
+    return response.data;
+  },
+
+  getFavoriteHelpers: async (): Promise<ReportApiResponse<FavoriteHelper[]>> => {
+    const response = await api.get('/api/Report/customer/favorite-helpers');
+    return response.data;
+  },
+};
