@@ -22,6 +22,26 @@ import {
   ReportApiResponse,
   ReportPeriod
 } from '../types/reports';
+import {
+  HelperApplication,
+  HelperApplicationDetail,
+  ApplicationsListResponse,
+  ApplicationDecisionRequest,
+  ApplicationDecisionResponse,
+  ApiResponse,
+  ApplicationStatus
+} from '../types/applications';
+import {
+  Profile,
+  BanUnbanRequest,
+  BulkBanUnbanRequest,
+  ProfileStatusResponse,
+  ProfileListResponse,
+  BanStatusResponse,
+  BanUnbanResponse,
+  BulkBanUnbanResponse,
+  ProfileType
+} from '../types/profile';
 
 // Base URL - you should set this in environment variables
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://localhost:7192';
@@ -174,6 +194,94 @@ export const reportAPI = {
 
   getFavoriteHelpers: async (): Promise<ReportApiResponse<FavoriteHelper[]>> => {
     const response = await api.get('/api/Report/customer/favorite-helpers');
+    return response.data;
+  },
+};
+
+// Applications API functions
+export const applicationsAPI = {
+  // Get list of helper applications with filtering and pagination
+  getApplications: async (
+    status?: ApplicationStatus,
+    page: number = 1,
+    pageSize: number = 20
+  ): Promise<ApiResponse<ApplicationsListResponse>> => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      pageSize: pageSize.toString(),
+    });
+    
+    if (status) {
+      params.append('status', status);
+    }
+    
+    const response = await api.get(`/api/admin/helpers/applications?${params.toString()}`);
+    return response.data;
+  },
+
+  // Get detailed information about a specific helper application
+  getApplicationDetail: async (helperId: number): Promise<ApiResponse<HelperApplicationDetail>> => {
+    const response = await api.get(`/api/admin/helpers/applications/${helperId}`);
+    return response.data;
+  },
+
+  // Make decision on helper application (approve, reject, request revision)
+  makeDecision: async (
+    helperId: number,
+    decision: ApplicationDecisionRequest
+  ): Promise<ApiResponse<ApplicationDecisionResponse>> => {
+    const response = await api.post(`/api/admin/helpers/applications/${helperId}/decision`, decision);
+    return response.data;
+  },
+};
+
+// Profile Management API functions
+export const profileAPI = {
+  // Ban a profile
+  banProfile: async (request: BanUnbanRequest): Promise<BanUnbanResponse> => {
+    const response = await api.post('/api/ProfileManagement/ban', request);
+    return response.data;
+  },
+
+  // Unban a profile
+  unbanProfile: async (request: BanUnbanRequest): Promise<BanUnbanResponse> => {
+    const response = await api.post('/api/ProfileManagement/unban', request);
+    return response.data;
+  },
+
+  // Get profile status by ID and type
+  getProfileStatus: async (profileId: number, profileType: string): Promise<ProfileStatusResponse> => {
+    const response = await api.get(`/api/ProfileManagement/status/${profileId}/${profileType}`);
+    return response.data;
+  },
+
+  // Get all banned profiles
+  getBannedProfiles: async (): Promise<ProfileListResponse> => {
+    const response = await api.get('/api/ProfileManagement/banned');
+    return response.data;
+  },
+
+  // Get all active profiles
+  getActiveProfiles: async (): Promise<ProfileListResponse> => {
+    const response = await api.get('/api/ProfileManagement/active');
+    return response.data;
+  },
+
+  // Check if a profile is banned
+  checkBanStatus: async (profileId: number, profileType: string): Promise<BanStatusResponse> => {
+    const response = await api.get(`/api/ProfileManagement/banned-status/${profileId}/${profileType}`);
+    return response.data;
+  },
+
+  // Bulk ban profiles
+  bulkBanProfiles: async (requests: BulkBanUnbanRequest[]): Promise<BulkBanUnbanResponse> => {
+    const response = await api.post('/api/ProfileManagement/bulk-ban', requests);
+    return response.data;
+  },
+
+  // Bulk unban profiles
+  bulkUnbanProfiles: async (requests: BulkBanUnbanRequest[]): Promise<BulkBanUnbanResponse> => {
+    const response = await api.post('/api/ProfileManagement/bulk-unban', requests);
     return response.data;
   },
 };

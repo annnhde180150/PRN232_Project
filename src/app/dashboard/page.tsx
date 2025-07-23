@@ -116,11 +116,17 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Quản Lý Hệ Thống</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button className="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors">
-                  Quản Lý Người Dùng
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <button 
+                  onClick={() => router.push('/profile-management')}
+                  className="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Quản Lý Hồ Sơ
                 </button>
-                <button className="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors">
+                <button 
+                  onClick={() => router.push('/helper-applications')}
+                  className="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors"
+                >
                   Duyệt Người Giúp Việc
                 </button>
                 <button 
@@ -128,6 +134,9 @@ export default function DashboardPage() {
                   className="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors"
                 >
                   Báo Cáo Thống Kê
+                </button>
+                <button className="bg-gray-600 text-white p-4 rounded-lg hover:bg-gray-700 transition-colors">
+                  Cài Đặt Hệ Thống
                 </button>
               </div>
             </div>
