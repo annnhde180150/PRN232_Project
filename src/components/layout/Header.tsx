@@ -4,10 +4,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
+import { useChat } from '../../contexts/ChatContext';
 import { NotificationBell } from '../notifications';
 
 export const Header: React.FC = () => {
   const { user, userType, logout } = useAuth();
+  const { unreadCount } = useChat();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -36,6 +38,7 @@ export const Header: React.FC = () => {
 
     const commonItems = [
       { href: '/dashboard', label: 'Dashboard', icon: '📊' },
+      { href: '/chat', label: 'Tin nhắn', icon: '💬' },
       { href: '/notifications', label: 'Thông báo', icon: '🔔' },
     ];
 
@@ -88,6 +91,11 @@ export const Header: React.FC = () => {
                 >
                   <span>{item.icon}</span>
                   <span>{item.label}</span>
+                  {item.href === '/chat' && unreadCount > 0 && (
+                    <span className="ml-2 inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-bold leading-none text-white bg-red-500">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </Link>
               ))}
             </nav>

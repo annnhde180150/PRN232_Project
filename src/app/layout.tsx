@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "../contexts/AuthContext";
 import { NotificationProvider } from "../contexts/NotificationContext";
+import { ChatProvider } from "../contexts/ChatContext";
 import { Header, Footer } from "../components/layout";
 import "./globals.css";
 
@@ -32,11 +33,13 @@ export default function RootLayout({
       >
         <AuthProvider>
           <NotificationProvider>
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
+            <ChatProvider>
+              <Header />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </ChatProvider>
           </NotificationProvider>
         </AuthProvider>
       </body>
