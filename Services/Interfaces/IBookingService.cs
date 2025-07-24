@@ -19,5 +19,7 @@ namespace Services.Interfaces
         Task<List<BookingDetailDto>> GetUserSchedule(int userId);
         Task<List<BookingDetailDto>> GetHelperSchedule(int helperId);
         Task<List<BookingServiceNameDto>> GetReviewServiceNames(int helperId);
+        Task<IEnumerable<GetAllBookingDto>> GetActiveBookingsByHelperId(int helperId);
+        Task<IEnumerable<GetAllBookingDto>> GetActiveBookingsByUserId(int userId);
     }
 }
