@@ -92,14 +92,7 @@ namespace Services.Implements
                 throw new ArgumentException("Invalid status");
 
             booking.Status = dto.Status;
-            if (dto.Status == "InProgress")
-            {
-                booking.ActualStartTime = dto.ActualStartTime ?? DateTime.UtcNow;
-            }
-            if (dto.Status == "Completed")
-            {
-                booking.ActualEndTime = dto.ActualEndTime ?? DateTime.UtcNow;
-            }
+            // Remove automatic setting of time fields
             _unitOfWork.Bookings.Update(booking);
             await _unitOfWork.CompleteAsync();
 
@@ -177,6 +170,72 @@ namespace Services.Implements
                 .Where(b => b.HelperId == helperId && b.Status == Booking.AvailableStatus.Completed.ToString())
                 .ToListAsync();
             return _mapper.Map<List<BookingServiceNameDto>>(bookings);
+        }
+
+        public async Task<IEnumerable<GetAllBookingDto>> GetActiveBookingsByHelperId(int helperId)
+        {
+            var bookings = await _unitOfWork.Bookings.GetBookingsByHelperIdAsync(helperId);
+            var activeStatuses = new[] { "Accepted", "InProgress", "Completed" };
+            var activeBookings = bookings.Where(b => activeStatuses.Contains(b.Status)).ToList();
+            var bookingList = new List<GetAllBookingDto>();
+            foreach (var booking in activeBookings)
+            {
+                if (booking.Request == null) continue;
+                var userAddress = await _unitOfWork.addressRepository.GetByIdAsync(booking.Request.AddressId);
+                var bookingDto = new GetAllBookingDto
+                {
+                    BookingId = booking.BookingId,
+                    RequestId = booking.RequestId ?? 0,
+                    UserId = booking.UserId,
+                    ServiceId = booking.ServiceId,
+                    ScheduledStartTime = booking.ScheduledStartTime,
+                    ScheduledEndTime = booking.ScheduledEndTime,
+                    EstimatedPrice = booking?.EstimatedPrice ?? 0,
+                    Status = booking.Status,
+                    AddressId = userAddress?.AddressId ?? 0,
+                    FullAddress = userAddress?.FullAddress,
+                    Ward = userAddress?.Ward,
+                    District = userAddress?.District ?? string.Empty,
+                    City = userAddress?.City ?? string.Empty,
+                    FullName = booking.User?.FullName ?? string.Empty,
+                    ServiceName = booking.Service?.ServiceName ?? string.Empty,
+                };
+                bookingList.Add(bookingDto);
+            }
+            return bookingList;
+        }
+
+        public async Task<IEnumerable<GetAllBookingDto>> GetActiveBookingsByUserId(int userId)
+        {
+            var bookings = await _unitOfWork.Bookings.GetBookingsByUserIdAsync(userId);
+            var activeStatuses = new[] { "Accepted", "InProgress", "Completed" };
+            var activeBookings = bookings.Where(b => activeStatuses.Contains(b.Status)).ToList();
+            var bookingList = new List<GetAllBookingDto>();
+            foreach (var booking in activeBookings)
+            {
+                if (booking.Request == null) continue;
+                var userAddress = await _unitOfWork.addressRepository.GetByIdAsync(booking.Request.AddressId);
+                var bookingDto = new GetAllBookingDto
+                {
+                    BookingId = booking.BookingId,
+                    RequestId = booking.RequestId ?? 0,
+                    UserId = booking.UserId,
+                    ServiceId = booking.ServiceId,
+                    ScheduledStartTime = booking.ScheduledStartTime,
+                    ScheduledEndTime = booking.ScheduledEndTime,
+                    EstimatedPrice = booking?.EstimatedPrice ?? 0,
+                    Status = booking.Status,
+                    AddressId = userAddress?.AddressId ?? 0,
+                    FullAddress = userAddress?.FullAddress,
+                    Ward = userAddress?.Ward,
+                    District = userAddress?.District ?? string.Empty,
+                    City = userAddress?.City ?? string.Empty,
+                    FullName = booking.User?.FullName ?? string.Empty,
+                    ServiceName = booking.Service?.ServiceName ?? string.Empty,
+                };
+                bookingList.Add(bookingDto);
+            }
+            return bookingList;
         }
     }
 }
