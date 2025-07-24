@@ -292,6 +292,28 @@ namespace HomeHelperFinderAPI.Controllers
 
         }
 
+        [HttpGet("ActiveByHelper/{helperId}")]
+        public async Task<ActionResult<IEnumerable<GetAllBookingDto>>> GetActiveBookingsByHelperId(int helperId)
+        {
+            if (helperId <= 0 || !(await _helperService.ExistsAsync(helperId)))
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid helper ID");
+            }
+            var bookings = await _bookingService.GetActiveBookingsByHelperId(helperId);
+            return Ok(bookings);
+        }
+
+        [HttpGet("ActiveByUser/{userId}")]
+        public async Task<ActionResult<IEnumerable<GetAllBookingDto>>> GetActiveBookingsByUserId(int userId)
+        {
+            if (userId <= 0)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid user ID");
+            }
+            var bookings = await _bookingService.GetActiveBookingsByUserId(userId);
+            return Ok(bookings);
+        }
+
         [HttpPut("{id}/status")]
         public async Task<ActionResult> UpdateBookingStatus(int id, [FromBody] BookingStatusUpdateDto dto)
         {
@@ -308,8 +330,8 @@ namespace HomeHelperFinderAPI.Controllers
             if (dto.Status != "InProgress" && dto.Status != "Completed")
                 return BadRequest("Invalid status");
 
+            // Remove automatic setting of time fields - let service handle this
             var updated = await _bookingService.UpdateBookingStatusAsync(dto);
-            // TODO: Gửi SignalR tới user
             return Ok(updated);
         }
 
