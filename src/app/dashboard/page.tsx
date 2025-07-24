@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { authAPI } from '../../lib/api';
 import { NotificationBell, NotificationDemo } from '../../components/notifications';
+import { PageContainer, Section } from '../../components/layout';
 
 export default function DashboardPage() {
   const { user, userType, isAuthenticated, logout, loading } = useAuth();
@@ -29,9 +30,9 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <PageContainer className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
+      </PageContainer>
     );
   }
 
@@ -164,79 +165,67 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
+    <div className="bg-gray-50 min-h-screen">
+      {/* Page Header */}
+      <Section background="white" padding="md" className="border-b border-gray-200">
+        <PageContainer>
+          <div className="flex justify-between items-center">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
               <p className="text-gray-600">Chào mừng, {user.fullName || (user as any).username}</p>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">{getRoleDisplayName()}</span>
-              {(userType === 'user' || userType === 'helper') && <NotificationBell />}
-              <button
-                onClick={() => router.push('/notifications')}
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-                title="Xem tất cả thông báo"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-              </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-              >
-                Đăng Xuất
-              </button>
+              <span className="text-sm text-gray-600 px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
+                {getRoleDisplayName()}
+              </span>
             </div>
           </div>
-        </div>
-      </header>
+        </PageContainer>
+      </Section>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* User Info Card */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Thông Tin Tài Khoản</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">Họ và tên</p>
-              <p className="font-medium">{user.fullName || (user as any).username}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Email</p>
-              <p className="font-medium">{user.email}</p>
-            </div>
-            {userType !== 'admin' && (
+      <Section padding="lg">
+        <PageContainer>
+          {/* User Info Card */}
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Thông Tin Tài Khoản</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Số điện thoại</p>
-                <p className="font-medium">{(user as any).phoneNumber}</p>
+                <p className="text-sm text-gray-600">Họ và tên</p>
+                <p className="font-medium">{user.fullName || (user as any).username}</p>
               </div>
-            )}
-            <div>
-              <p className="text-sm text-gray-600">Ngày tham gia</p>
-              <p className="font-medium">
-                {new Date(
-                  (user as any).registrationDate || (user as any).creationDate
-                ).toLocaleDateString('vi-VN')}
-              </p>
+              <div>
+                <p className="text-sm text-gray-600">Email</p>
+                <p className="font-medium">{user.email}</p>
+              </div>
+              {userType !== 'admin' && (
+                <div>
+                  <p className="text-sm text-gray-600">Số điện thoại</p>
+                  <p className="font-medium">{(user as any).phoneNumber}</p>
+                </div>
+              )}
+              <div>
+                <p className="text-sm text-gray-600">Ngày tham gia</p>
+                <p className="font-medium">
+                  {new Date(
+                    (user as any).registrationDate || (user as any).creationDate
+                  ).toLocaleDateString('vi-VN')}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Role-specific content */}
-        {getDashboardContent()}
+          {/* Role-specific content */}
+          {getDashboardContent()}
 
-        {/* Notification Demo - Only for user and helper */}
-        {(userType === 'user' || userType === 'helper') && (
-          <div className="mt-6">
-            <NotificationDemo />
-          </div>
-        )}
-      </main>
+          {/* Notification Demo - Only for user and helper */}
+          {(userType === 'user' || userType === 'helper') && (
+            <div className="mt-6">
+              <NotificationDemo />
+            </div>
+          )}
+        </PageContainer>
+      </Section>
     </div>
   );
 } 
