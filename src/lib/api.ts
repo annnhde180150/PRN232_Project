@@ -138,6 +138,9 @@ export const authUtils = {
   },
 };
 
+// Export notification API
+export { notificationAPI } from './notification-api';
+
 // Report API functions
 export const reportAPI = {
   // Admin Reports
