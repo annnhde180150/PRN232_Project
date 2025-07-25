@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '../../lib/api';
 import { RegisterUserRequest, RegisterHelperRequest } from '../../types/auth';
+import OtpVerifyModal from '../../components/OtpVerifyModal';
 
 export default function RegisterPage() {
   const [userType, setUserType] = useState<'user' | 'helper'>('user');
@@ -27,6 +28,9 @@ export default function RegisterPage() {
     dateOfBirth: '',
     gender: 'male',
   });
+
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
 
   const router = useRouter();
 
@@ -60,10 +64,9 @@ export default function RegisterPage() {
 
       if (response.success) {
         setSuccess(response.data.message);
-        // Redirect to login after 3 seconds
-        setTimeout(() => {
-          router.push('/login');
-        }, 3000);
+        setRegisteredEmail(userType === 'user' ? userForm.email : helperForm.email);
+        setShowOtpModal(true);
+        // Remove redirect to login
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
@@ -268,6 +271,13 @@ export default function RegisterPage() {
           </form>
         </div>
       </div>
+
+      {/* OTP Verify Modal */}
+      <OtpVerifyModal
+        open={showOtpModal}
+        onClose={() => setShowOtpModal(false)}
+        email={registeredEmail}
+      />
     </div>
   );
 } 
