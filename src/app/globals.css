@@ -12,12 +12,7 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* Removed system dark mode detection via prefers-color-scheme */
 
 body {
   background: var(--background);
@@ -27,4 +22,35 @@ body {
 
 input, textarea, select {
   color: #171717;
+}
+
+/* Dark mode override */
+.dark body {
+  background: #0a0a0a;
+  color: #ededed;
+}
+
+.dark input, .dark textarea, .dark select {
+  color: #ededed;
+  background: #232323;
+}
+
+.dark .bg-white {
+  background-color: #18181b !important;
+}
+
+.dark .text-gray-700 {
+  color: #ededed !important;
+}
+
+.dark .border-gray-200 {
+  border-color: #232323 !important;
+}
+
+.dark .hover\:bg-blue-50:hover {
+  background-color: #232323 !important;
+}
+
+.dark header.bg-white {
+  background-color: #fff !important;
 }

@@ -6,8 +6,14 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { useChat } from '../../contexts/ChatContext';
 import { NotificationBell } from '../notifications';
+import { FaMoon, FaSun } from 'react-icons/fa';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  darkMode: boolean;
+  setDarkMode: (val: boolean) => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
   const { user, userType, logout } = useAuth();
   const { unreadCount } = useChat();
   const router = useRouter();
@@ -75,7 +81,7 @@ export const Header: React.FC = () => {
           {/* Logo và tên ứng dụng */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <span className="text-xl font-bold text-blue-600">Find Helper</span>
+              <span className="text-xl font-bold text-blue-600 dark:text-blue-300">Homezy</span>
             </Link>
           </div>
 
@@ -86,7 +92,7 @@ export const Header: React.FC = () => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                  className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-black hover:text-blue-600 hover:bg-blue-50 transition-colors"
                 >
                   <span>{item.label}</span>
                   {item.href === '/chat' && unreadCount > 0 && (

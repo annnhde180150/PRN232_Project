@@ -131,7 +131,7 @@ export default function ChatPage() {
             )}
             
             <h1 className="text-xl font-semibold text-gray-900">
-              💬 Tin nhắn
+              Tin nhắn
             </h1>
             
             {/* Unread count badge */}

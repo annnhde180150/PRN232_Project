@@ -209,21 +209,21 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm text-gray-600">Họ và tên</p>
-                <p className="font-medium">{user.fullName || (user as any).username}</p>
+                <p className="font-medium text-black">{user.fullName || (user as any).username}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Email</p>
-                <p className="font-medium">{user.email}</p>
+                <p className="font-medium text-black">{user.email}</p>
               </div>
               {userType !== 'admin' && (
                 <div>
                   <p className="text-sm text-gray-600">Số điện thoại</p>
-                  <p className="font-medium">{(user as any).phoneNumber}</p>
+                  <p className="font-medium text-black">{(user as any).phoneNumber}</p>
                 </div>
               )}
               <div>
                 <p className="text-sm text-gray-600">Ngày tham gia</p>
-                <p className="font-medium">
+                <p className="font-medium text-black">
                   {new Date(
                     (user as any).registrationDate || (user as any).creationDate
                   ).toLocaleDateString('vi-VN')}
