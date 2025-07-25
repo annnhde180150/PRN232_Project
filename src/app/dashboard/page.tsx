@@ -92,6 +92,23 @@ export default function DashboardPage() {
                 </p>
               )}
             </div>
+
+            {/* Quick Actions Card - NEW */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">Thao Tác Nhanh</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button 
+                  onClick={() => router.push('/pending-bookings')}
+                  className="flex items-center justify-center space-x-2 bg-orange-600 text-white py-3 px-4 rounded-lg hover:bg-orange-700 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Order Chờ Duyệt</span>
+                </button>
+              </div>
+            </div>
+
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Thống Kê</h2>
               <div className="grid grid-cols-2 gap-4">
@@ -228,4 +245,4 @@ export default function DashboardPage() {
       </Section>
     </div>
   );
-} 
+}

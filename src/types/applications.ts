@@ -106,4 +106,35 @@ export const APPLICATION_STATUS_COLORS: Record<ApplicationStatus, string> = {
   approved: 'bg-green-100 text-green-800',
   rejected: 'bg-red-100 text-red-800',
   revision_requested: 'bg-blue-100 text-blue-800'
-}; 
+};
+
+export interface BookingRequest {
+  bookingId: number;
+  requestId: number;
+  userId: number;
+  serviceId: number;
+  addressId: number;
+  status: string;
+  scheduledStartTime: string;
+  scheduledEndTime: string;
+  latitude: number | null;
+  longitude: number | null;
+  ward: string;
+  district: string;
+  city: string;
+  fullAddress: string;
+  fullName: string;
+  estimatedPrice: number;
+  serviceName: string;
+}
+
+export interface UpdateBookingStatusRequest {
+  requestId: number;
+  bookingId: number;
+  action: 'Accept' | 'Cancel';
+}
+
+export interface UpdateBookingStatusResponse {
+  success: boolean;
+  message: string;
+} 

@@ -29,7 +29,10 @@ import {
   ApplicationDecisionRequest,
   ApplicationDecisionResponse,
   ApiResponse,
-  ApplicationStatus
+  ApplicationStatus,
+  BookingRequest,
+  UpdateBookingStatusRequest,
+  UpdateBookingStatusResponse
 } from '../types/applications';
 import {
   Profile,
@@ -236,6 +239,18 @@ export const applicationsAPI = {
     const response = await api.post(`/api/admin/helpers/applications/${helperId}/decision`, decision);
     return response.data;
   },
+};
+
+export const getHelperBookings = async (helperId: number): Promise<BookingRequest[]> => {
+  const response = await api.get(`/api/Bookings/GetBookingByHelperId/${helperId}`);
+  return response.data.data;
+};
+
+export const updateBookingStatus = async (
+  data: UpdateBookingStatusRequest
+): Promise<UpdateBookingStatusResponse> => {
+  const response = await api.put('/api/ServiceRequests/UpdateRequestStatus', data);
+  return response.data.data;
 };
 
 // Profile Management API functions
