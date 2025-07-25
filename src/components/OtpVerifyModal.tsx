@@ -98,7 +98,7 @@ export const OtpVerifyModal: React.FC<OtpVerifyModalProps> = ({ open, onClose, e
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-200/60 backdrop-blur">
       <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md flex flex-col gap-4 relative animate-fade-in">
         <button
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none"
@@ -153,7 +153,6 @@ export const OtpVerifyModal: React.FC<OtpVerifyModalProps> = ({ open, onClose, e
           <div className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-200 rounded-lg px-4 py-3 mt-2">
             <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
             <span>{message}</span>
-            <span className="ml-2 text-sm text-green-600">Đang chuyển hướng đến trang đăng nhập...</span>
           </div>
         )}
         {error && (
