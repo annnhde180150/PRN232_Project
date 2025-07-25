@@ -37,29 +37,29 @@ export const Header: React.FC = () => {
     if (!user) return [];
 
     const commonItems = [
-      { href: '/dashboard', label: 'Dashboard', icon: '📊' },
-      { href: '/chat', label: 'Tin nhắn', icon: '💬' },
-      { href: '/notifications', label: 'Thông báo', icon: '🔔' },
+      { href: '/dashboard', label: 'Dashboard' },
+      { href: '/chat', label: 'Tin nhắn' },
+      { href: '/notifications', label: 'Thông báo' },
     ];
 
     switch (userType) {
       case 'admin':
         return [
           ...commonItems,
-          { href: '/admin-reports', label: 'Báo cáo Admin', icon: '📈' },
-          { href: '/helper-applications', label: 'Đơn ứng tuyển', icon: '📋' },
-          { href: '/profile-management', label: 'Quản lý hồ sơ', icon: '👥' },
+          { href: '/admin-reports', label: 'Báo cáo Admin' },
+          { href: '/helper-applications', label: 'Đơn ứng tuyển' },
+          { href: '/profile-management', label: 'Quản lý hồ sơ' },
         ];
       case 'helper':
         return [
           ...commonItems,
-          { href: '/helper-reports', label: 'Báo cáo của tôi', icon: '📝' },
+          { href: '/helper-reports', label: 'Báo cáo của tôi' },
         ];
       case 'user':
         return [
           ...commonItems,
-          { href: '/search-helper', label: 'Tìm người giúp việc', icon: '🔍' },
-          { href: '/customer-reports', label: 'Báo cáo khách hàng', icon: '📊' },
+          { href: '/search-helper', label: 'Tìm người giúp việc' },
+          { href: '/customer-reports', label: 'Báo cáo khách hàng' },
         ];
       default:
         return commonItems;
@@ -75,7 +75,6 @@ export const Header: React.FC = () => {
           {/* Logo và tên ứng dụng */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="text-2xl">🏠</div>
               <span className="text-xl font-bold text-blue-600">Find Helper</span>
             </Link>
           </div>
@@ -89,7 +88,6 @@ export const Header: React.FC = () => {
                   href={item.href}
                   className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                 >
-                  <span>{item.icon}</span>
                   <span>{item.label}</span>
                   {item.href === '/chat' && unreadCount > 0 && (
                     <span className="ml-2 inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-bold leading-none text-white bg-red-500">
@@ -207,7 +205,6 @@ export const Header: React.FC = () => {
                   className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <span>{item.icon}</span>
                   <span>{item.label}</span>
                 </Link>
               ))}

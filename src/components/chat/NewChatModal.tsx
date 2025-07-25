@@ -34,7 +34,7 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({
         setSearchType('users');
       }
     }
-  }, [isOpen, userType, clearSearchResults]);
+  }, [isOpen, userType]);
 
   // Handle search
   const handleSearch = async () => {

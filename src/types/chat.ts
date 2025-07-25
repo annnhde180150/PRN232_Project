@@ -85,6 +85,10 @@ export interface SendMessageRequest {
   receiverHelperId?: number;
 }
 
+export interface MarkAsReadRequest {
+  chatIds: number[];
+}
+
 export interface ChatApiResponse<T> {
   success: boolean;
   statusCode: number;

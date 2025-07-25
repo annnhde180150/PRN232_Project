@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "serena": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--network",
+        "host",
+        "-v",
+        "D:/FPT_Uni/Semester8/PRN232/GroupProject/find-helper-fe",
+        "ghcr.io/oraios/serena:latest",
+        "serena-mcp-server",
+        "--transport",
+        "stdio"
+      ]
+    }
+  }
+}

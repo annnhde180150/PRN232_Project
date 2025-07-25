@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 import {
   ChatState,
   ChatMessage,
@@ -21,6 +21,7 @@ interface ChatContextType extends ChatState {
   // Message operations
   sendMessage: (content: string, receiverUserId?: number, receiverHelperId?: number, bookingId?: number) => Promise<void>;
   markMessagesAsRead: () => Promise<void>;
+  markSpecificMessagesAsRead: (chatIds: number[]) => Promise<void>;
   
   // Search functionality
   searchUsers: (request: SearchUsersRequest) => Promise<void>;
@@ -115,6 +116,22 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
           messages: response.data,
           loading: false
         }));
+
+        // Mark unread messages in this conversation as read
+        if (conversation.unreadCount > 0) {
+          const currentUserId = getCurrentUserId();
+          const currentHelperId = getCurrentHelperId();
+          
+          const unreadMessageIds = response.data
+            .filter(msg => !msg.isReadByReceiver && 
+              ((currentUserId && msg.receiverUserId === currentUserId) ||
+               (currentHelperId && msg.receiverHelperId === currentHelperId)))
+            .map(msg => msg.chatId);
+          
+          if (unreadMessageIds.length > 0) {
+            await markSpecificMessagesAsRead(unreadMessageIds);
+          }
+        }
       } else {
         throw new Error(response.message);
       }
@@ -173,10 +190,27 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   // Mark messages as read
   const markMessagesAsRead = async () => {
     try {
-      await chatAPI.markAsRead();
+      // Get unread messages to extract their IDs
+      const unreadResponse = await chatAPI.getUnreadMessages();
+      if (unreadResponse.success && unreadResponse.data.length > 0) {
+        const unreadChatIds = unreadResponse.data.map(message => message.chatId);
+        await chatAPI.markAsRead(unreadChatIds);
+      }
       await refreshUnreadCount();
     } catch (error) {
       console.error('Error marking messages as read:', error);
+    }
+  };
+
+  // Mark specific messages as read
+  const markSpecificMessagesAsRead = async (chatIds: number[]) => {
+    try {
+      if (chatIds.length > 0) {
+        await chatAPI.markAsRead(chatIds);
+        await refreshUnreadCount();
+      }
+    } catch (error) {
+      console.error('Error marking specific messages as read:', error);
     }
   };
 
@@ -211,9 +245,9 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   };
 
   // Clear search results
-  const clearSearchResults = () => {
+  const clearSearchResults = useCallback(() => {
     setChatState(prev => ({ ...prev, searchResults: [] }));
-  };
+  }, []);
 
   // Refresh unread count
   const refreshUnreadCount = async () => {
@@ -230,14 +264,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
   };
 
   // Clear error
-  const clearError = () => {
+  const clearError = useCallback(() => {
     setChatState(prev => ({ ...prev, error: null }));
-  };
+  }, []);
 
   // Set active conversation
-  const setActiveConversation = (conversation: Conversation | null) => {
+  const setActiveConversation = useCallback((conversation: Conversation | null) => {
     setChatState(prev => ({ ...prev, activeConversation: conversation }));
-  };
+  }, []);
 
   // Load initial data
   useEffect(() => {
@@ -265,6 +299,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     loadMessages,
     sendMessage,
     markMessagesAsRead,
+    markSpecificMessagesAsRead,
     searchUsers,
     clearSearchResults,
     refreshUnreadCount,

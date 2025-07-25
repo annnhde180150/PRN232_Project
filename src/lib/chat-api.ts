@@ -3,6 +3,7 @@ import {
   ChatMessage,
   Conversation,
   SendMessageRequest,
+  MarkAsReadRequest,
   SearchUsersRequest,
   SearchUsersResponse,
   ChatApiResponse
@@ -69,8 +70,9 @@ export const chatAPI = {
   },
 
   // Mark messages as read
-  markAsRead: async (): Promise<ChatApiResponse<{ message: string }>> => {
-    const response = await api.post('/api/Chat/mark-as-read');
+  markAsRead: async (chatIds: number[]): Promise<ChatApiResponse<{ message: string }>> => {
+    const requestBody: MarkAsReadRequest = { chatIds };
+    const response = await api.post('/api/Chat/mark-as-read', requestBody);
     return response.data;
   },
 
