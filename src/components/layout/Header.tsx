@@ -6,7 +6,32 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { useChat } from '../../contexts/ChatContext';
 import { NotificationBell } from '../notifications';
-import { FaMoon, FaSun } from 'react-icons/fa';
+import { Button } from '../ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Badge } from '../ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
+import { Separator } from '../ui/separator';
+import { 
+  Home, 
+  MessageCircle, 
+  Bell, 
+  Search, 
+  FileText, 
+  Users, 
+  Settings, 
+  LogOut, 
+  Menu,
+  UserCheck,
+  ShieldCheck
+} from 'lucide-react';
 
 interface HeaderProps {
   darkMode: boolean;
@@ -17,207 +42,228 @@ export const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
   const { user, userType, logout } = useAuth();
   const { unreadCount } = useChat();
   const router = useRouter();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     router.push('/login');
   };
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    };
+  type NavigationItem = {
+    href: string;
+    label: string;
+    icon: any;
+    badge?: number;
+  };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const getNavigationItems = () => {
+  const getNavigationItems = (): NavigationItem[] => {
     if (!user) return [];
 
-    const commonItems = [
-      { href: '/dashboard', label: 'Dashboard' },
-      { href: '/chat', label: 'Tin nhắn' },
-      { href: '/notifications', label: 'Thông báo' },
+    const baseItems: NavigationItem[] = [
+      { href: '/dashboard', label: 'Dashboard', icon: Home },
+      { href: '/chat', label: 'Tin nhắn', icon: MessageCircle, badge: unreadCount },
+      { href: '/notifications', label: 'Thông báo', icon: Bell },
     ];
 
-    switch (userType) {
-      case 'admin':
-        return [
-          ...commonItems,
-          { href: '/admin-reports', label: 'Báo cáo Admin' },
-          { href: '/helper-applications', label: 'Đơn ứng tuyển' },
-          { href: '/profile-management', label: 'Quản lý hồ sơ' },
-        ];
-      case 'helper':
-        return [
-          ...commonItems,
-          { href: '/helper-reports', label: 'Báo cáo của tôi' },
-        ];
-      case 'user':
-        return [
-          ...commonItems,
-          { href: '/search-helper', label: 'Tìm người giúp việc' },
-          { href: '/customer-reports', label: 'Báo cáo khách hàng' },
-        ];
-      default:
-        return commonItems;
-    }
+    const userTypeItems: Record<string, NavigationItem[]> = {
+      admin: [
+        { href: '/admin-reports', label: 'Báo cáo Admin', icon: FileText },
+        { href: '/helper-applications', label: 'Đơn ứng tuyển', icon: UserCheck },
+        { href: '/profile-management', label: 'Quản lý hồ sơ', icon: Users },
+      ],
+      helper: [
+        { href: '/helper-reports', label: 'Báo cáo của tôi', icon: FileText },
+      ],
+      user: [
+        { href: '/search-helper', label: 'Tìm người giúp việc', icon: Search },
+        { href: '/customer-reports', label: 'Báo cáo khách hàng', icon: FileText },
+      ]
+    };
+
+    return [...baseItems, ...(userTypeItems[userType as string] || [])];
   };
 
   const navigationItems = getNavigationItems();
 
+  const getUserRoleIcon = () => {
+    switch (userType) {
+      case 'admin': return <ShieldCheck className="w-3 h-3" />;
+      case 'helper': return <UserCheck className="w-3 h-3" />;
+      default: return null;
+    }
+  };
+
+  const getUserRoleColor = () => {
+    switch (userType) {
+      case 'admin': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      case 'helper': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'user': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+    }
+  };
+
   return (
-    <header className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo và tên ứng dụng */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
-              <span className="text-xl font-bold text-blue-600 dark:text-blue-300">Homezy</span>
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <Home className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <span className="text-xl font-bold text-primary">Homezy</span>
             </Link>
           </div>
 
           {/* Navigation Menu - Desktop */}
           {user && (
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden md:flex items-center space-x-1">
               {navigationItems.map((item) => (
-                <Link
+                <Button
                   key={item.href}
-                  href={item.href}
-                  className="flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium text-black hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                  variant="ghost"
+                  size="sm"
+                  asChild
+                  className="relative"
                 >
-                  <span>{item.label}</span>
-                  {item.href === '/chat' && unreadCount > 0 && (
-                    <span className="ml-2 inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-bold leading-none text-white bg-red-500">
-                      {unreadCount > 99 ? '99+' : unreadCount}
-                    </span>
-                  )}
-                </Link>
+                  <Link href={item.href} className="flex items-center gap-2">
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                    {item.badge && item.badge > 0 && (
+                      <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">
+                        {item.badge > 99 ? '99+' : item.badge}
+                      </Badge>
+                    )}
+                  </Link>
+                </Button>
               ))}
             </nav>
           )}
 
           {/* Right side - User menu hoặc Login */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             {user ? (
               <>
                 {/* Notification Bell */}
                 <NotificationBell />
                 
                 {/* User Menu */}
-                <div className="relative" ref={menuRef}>
-                  <button
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                  >
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
-                      {user.fullName?.charAt(0).toUpperCase() || 'U'}
-                    </div>
-                    <span className="hidden sm:block">{user.fullName}</span>
-                    <svg
-                      className={`w-4 h-4 transition-transform ${isMenuOpen ? 'rotate-180' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  {isMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
-                      <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100">
-                        <div className="font-medium">{user.fullName}</div>
-                        <div className="text-xs">{user.email}</div>
-                        <div className="text-xs capitalize bg-blue-100 text-blue-800 px-2 py-1 rounded mt-1 inline-block">
-                          {userType}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={(user as any).avatar} alt={user.fullName} />
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {user.fullName?.charAt(0).toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{user.fullName}</p>
+                        <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                        <div className="flex items-center gap-1 mt-1">
+                          <Badge className={`text-xs px-2 py-0.5 ${getUserRoleColor()}`}>
+                            <div className="flex items-center gap-1">
+                              {getUserRoleIcon()}
+                              <span className="capitalize">{userType}</span>
+                            </div>
+                          </Badge>
                         </div>
                       </div>
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Hồ sơ cá nhân
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="flex items-center">
+                        <Users className="mr-2 h-4 w-4" />
+                        <span>Hồ sơ cá nhân</span>
                       </Link>
-                      <Link
-                        href="/settings"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Cài đặt
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings" className="flex items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Cài đặt</span>
                       </Link>
-                      <button
-                        onClick={() => {
-                          setIsMenuOpen(false);
-                          handleLogout();
-                        }}
-                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                      >
-                        Đăng xuất
-                      </button>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={handleLogout}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Đăng xuất</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Mobile menu */}
+                <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="md:hidden"
+                    >
+                      <Menu className="h-5 w-5" />
+                      <span className="sr-only">Toggle menu</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                    <div className="flex flex-col space-y-4 mt-4">
+                      <div className="flex items-center space-x-2 pb-4">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={(user as any).avatar} alt={user.fullName} />
+                          <AvatarFallback className="bg-primary text-primary-foreground">
+                            {user.fullName?.charAt(0).toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">{user.fullName}</span>
+                          <span className="text-xs text-muted-foreground">{user.email}</span>
+                        </div>
+                      </div>
+                      <Separator />
+                      <nav className="flex flex-col space-y-2">
+                        {navigationItems.map((item) => (
+                          <Button
+                            key={item.href}
+                            variant="ghost"
+                            asChild
+                            className="justify-start"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <Link href={item.href} className="flex items-center gap-3">
+                              <item.icon className="w-4 h-4" />
+                              <span>{item.label}</span>
+                              {item.badge && item.badge > 0 && (
+                                <Badge variant="destructive" className="ml-auto">
+                                  {item.badge > 99 ? '99+' : item.badge}
+                                </Badge>
+                              )}
+                            </Link>
+                          </Button>
+                        ))}
+                      </nav>
                     </div>
-                  )}
-                </div>
+                  </SheetContent>
+                </Sheet>
               </>
             ) : (
               <div className="flex items-center space-x-2">
-                <Link
-                  href="/login"
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors"
-                >
-                  Đăng nhập
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Đăng ký
-                </Link>
+                <Button variant="ghost" asChild>
+                  <Link href="/login">Đăng nhập</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/register">Đăng ký</Link>
+                </Button>
               </div>
-            )}
-
-            {/* Mobile menu button */}
-            {user && (
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
             )}
           </div>
         </div>
-
-        {/* Mobile Navigation Menu */}
-        {user && isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
-            <nav className="space-y-2">
-              {navigationItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span>{item.label}</span>
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
       </div>
     </header>
   );
-}; 
+};

@@ -7,7 +7,7 @@ import { NotificationProvider } from "../contexts/NotificationContext";
 import { ChatProvider } from "../contexts/ChatContext";
 import { Header, Footer } from "../components/layout";
 import "./globals.css";
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from '@/components/ui/sonner';
 import React, { useEffect, useState } from "react";
 
 const geistSans = Geist({
@@ -51,7 +51,7 @@ export default function RootLayout({
                 {children}
               </main>
               <Footer />
-              <Toaster position="top-right" reverseOrder={false} />
+              <Toaster position="top-right" />
             </ChatProvider>
           </NotificationProvider>
         </AuthProvider>

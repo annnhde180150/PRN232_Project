@@ -4,6 +4,21 @@ import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { PageContainer, Section } from '../components/layout';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Separator } from '../components/ui/separator';
+import { 
+  Users, 
+  House, 
+  Settings, 
+  Star, 
+  CheckCircle, 
+  ArrowRight,
+  Shield,
+  Clock,
+  Award
+} from 'lucide-react';
 
 export default function Home() {
   const { isAuthenticated, loading } = useAuth();
@@ -17,43 +32,68 @@ export default function Home() {
 
   if (loading) {
     return (
-      <PageContainer className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </PageContainer>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Hero Section */}
-      <Section padding="xl" className="text-center">
-        <PageContainer>
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <Badge variant="outline" className="mb-6 px-4 py-2">
+            <Star className="w-4 h-4 mr-2" />
+            Nền tảng được tin tưởng hàng đầu Việt Nam
+          </Badge>
+          
+          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
             Tìm Người Giúp Việc
             <br />
-            <span className="text-indigo-600">Tin Cậy & Chuyên Nghiệp</span>
+            <span className="text-primary">Tin Cậy & Chuyên Nghiệp</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+          
+          <p className="text-xl text-muted-foreground mb-12 max-w-3xl mx-auto">
             Nền tảng kết nối khách hàng với người giúp việc nhà uy tín. 
             Đặt dịch vụ dễ dàng, thanh toán an toàn, chất lượng đảm bảo.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <a
-              href="/register"
-              className="bg-indigo-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-indigo-700 transition-colors shadow-lg"
-            >
-              Bắt Đầu Ngay
-            </a>
-            <a
-              href="/login"
-              className="border-2 border-indigo-600 text-indigo-600 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-indigo-50 transition-colors"
-            >
-              Đăng Nhập
-            </a>
+            <Button size="lg" asChild className="px-8 py-6 text-lg">
+              <a href="/register">
+                Bắt Đầu Ngay
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </a>
+            </Button>
+            <Button variant="outline" size="lg" asChild className="px-8 py-6 text-lg">
+              <a href="/login">
+                Đăng Nhập
+              </a>
+            </Button>
           </div>
-        </PageContainer>
-      </Section>
+
+          {/* Trust indicators */}
+          <div className="flex flex-wrap justify-center items-center gap-8 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-green-600" />
+              <span>Bảo mật cao</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+              <span>Đã xác minh</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-green-600" />
+              <span>Hỗ trợ 24/7</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Award className="w-4 h-4 text-green-600" />
+              <span>Chất lượng cao</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Features Section */}
       <Section background="white" padding="xl">
