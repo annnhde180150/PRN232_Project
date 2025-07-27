@@ -218,9 +218,9 @@ public class HelperProfile : Profile
             .ForMember(dest => dest.DocumentType, opt => opt.MapFrom(src => src.DocumentType))
             .ForMember(dest => dest.DocumentUrl, opt => opt.MapFrom(src => src.DocumentUrl))
             .ForMember(dest => dest.UploadDate, opt => opt.MapFrom(src => src.UploadDate))
-            .ForMember(dest => dest.VerificationStatus, opt => opt.MapFrom(src => src.VerificationStatus))
-            .ForMember(dest => dest.VerifiedByAdminId, opt => opt.MapFrom(src => src.VerifiedByAdminId))
-            .ForMember(dest => dest.VerificationDate, opt => opt.MapFrom(src => src.VerificationDate))
+            .ForMember(dest => dest.VerificationStatus, opt => opt.MapFrom(src => "Pending"))
+            .ForMember(dest => dest.VerifiedByAdminId, opt => opt.MapFrom(src => (int?)null))
+            .ForMember(dest => dest.VerificationDate, opt => opt.MapFrom(src => (DateTime?)null))
             .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
             .ForMember(dest => dest.Helper, opt => opt.Ignore())
             .ForMember(dest => dest.VerifiedByAdmin, opt => opt.Ignore());

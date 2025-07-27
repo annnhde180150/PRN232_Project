@@ -203,4 +203,27 @@ public class UserService : IUserService
 
         return (userSearchDtos, totalCount);
     }
+
+    public async Task<bool> ResetPasswordAsync(string email, string newPassword)
+    {
+        _logger.LogInformation($"Resetting password for user with email: {email}");
+
+        var user = await _unitOfWork.Users.GetUserByEmailAsync(email);
+        if (user == null)
+        {
+            _logger.LogWarning($"User with email {email} not found");
+            return false;
+        }
+
+        // Hash new password
+        var newPasswordHash = _passwordHasher.HashPassword(newPassword);
+        user.PasswordHash = newPasswordHash;
+
+        // Update user
+        _unitOfWork.Users.Update(user);
+        await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation($"Password reset successfully for user with email: {email}");
+        return true;
+    }
 }

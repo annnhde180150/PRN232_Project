@@ -153,4 +153,27 @@ public class AdminService : IAdminService
         _logger.LogInformation($"Password changed successfully for admin ID: {adminId}");
         return true;
     }
+
+    public async Task<bool> ResetPasswordAsync(string email, string newPassword)
+    {
+        _logger.LogInformation($"Resetting password for admin with email: {email}");
+
+        var admin = await _unitOfWork.Admins.GetAdminByEmailAsync(email);
+        if (admin == null)
+        {
+            _logger.LogWarning($"Admin with email {email} not found");
+            return false;
+        }
+
+        // Hash new password
+        var newPasswordHash = _passwordHasher.HashPassword(newPassword);
+        admin.PasswordHash = newPasswordHash;
+
+        // Update admin
+        _unitOfWork.Admins.Update(admin);
+        await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation($"Password reset successfully for admin with email: {email}");
+        return true;
+    }
 } 

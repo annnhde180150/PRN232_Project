@@ -57,7 +57,6 @@ public class HelperService : IHelperService
         await _unitOfWork.Helpers.AddAsync(helper);
         await _unitOfWork.CompleteAsync();
 
-        // Save related entities
         if (dto.Skills != null && dto.Skills.Count > 0)
         {
             var skills = _mapper.Map<List<HelperSkill>>(dto.Skills);
@@ -79,8 +78,15 @@ public class HelperService : IHelperService
             {
                 doc.HelperId = helper.HelperId;
                 doc.UploadDate = DateTime.Now;
+                doc.VerificationStatus = "Pending";
+                doc.VerifiedByAdminId = null;
+                doc.VerificationDate = null;
             }
             await _unitOfWork.HelperDocuments.AddRangeAsync(documents);
+        }
+        else
+        {
+            _logger.LogInformation($"No documents provided for helper {helper.HelperId}");
         }
         await _unitOfWork.CompleteAsync();
 
@@ -164,6 +170,9 @@ public class HelperService : IHelperService
                 {
                     document.HelperId = id;
                     document.UploadDate = DateTime.Now;
+                    document.VerificationStatus = "Pending";
+                    document.VerifiedByAdminId = null;
+                    document.VerificationDate = null;
                 }
                 await _unitOfWork.HelperDocuments.AddRangeAsync(documents);
             }
@@ -579,5 +588,28 @@ public class HelperService : IHelperService
 
         var isBooked = bookings.Any();
         return !isBooked;
+    }
+
+    public async Task<bool> ResetPasswordAsync(string email, string newPassword)
+    {
+        _logger.LogInformation($"Resetting password for helper with email: {email}");
+
+        var helper = await _unitOfWork.Helpers.GetHelperByEmailAsync(email);
+        if (helper == null)
+        {
+            _logger.LogWarning($"Helper with email {email} not found");
+            return false;
+        }
+
+        // Hash new password
+        var newPasswordHash = _passwordHasher.HashPassword(newPassword);
+        helper.PasswordHash = newPasswordHash;
+
+        // Update helper
+        _unitOfWork.Helpers.Update(helper);
+        await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation($"Password reset successfully for helper with email: {email}");
+        return true;
     }
 }

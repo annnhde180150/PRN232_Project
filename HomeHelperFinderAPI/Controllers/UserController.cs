@@ -13,13 +13,15 @@ namespace HomeHelperFinderAPI.Controllers
     {
         private readonly IUserService _userService;
         private readonly INotificationService _notificationService;
+        private readonly IOtpService _otpService;
         private readonly ILogger<UserController> _logger;
         private readonly IUserAddressService _addressService;
 
-        public UserController(IUserService userService, INotificationService notificationService, ILogger<UserController> logger, IUserAddressService addressService)
+        public UserController(IUserService userService, INotificationService notificationService, IOtpService otpService, ILogger<UserController> logger, IUserAddressService addressService)
         {
             _userService = userService;
             _notificationService = notificationService;
+            _otpService = otpService;
             _logger = logger;
             _addressService = addressService;
         }
@@ -116,6 +118,134 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 _logger.LogError($"Error getting profile for user {userId}: {ex.Message}");
                 return StatusCode(500, "An error occurred while changing the password");
+            }
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] UserForgotPasswordDto forgotPasswordDto)
+        {
+            try
+            {
+                _logger.LogInformation($"Processing forgot password request for user email: {forgotPasswordDto.Email}");
+
+                if (forgotPasswordDto == null)
+                {
+                    return BadRequest("Forgot password data cannot be null");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Invalid input data",
+                        Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                    });
+                }
+
+                // Check if user exists with this email
+                var user = await _userService.GetUserByEmailAsync(forgotPasswordDto.Email);
+                if (user == null)
+                {
+                    // Don't reveal if email exists or not for security
+                    _logger.LogWarning($"Forgot password request for non-existent user email: {forgotPasswordDto.Email}");
+                    return Ok(new
+                    {
+                        Success = true,
+                        Message = "If the email address exists in our system, you will receive a password reset OTP shortly."
+                    });
+                }
+
+                // Generate and send OTP
+                var otpCode = await _otpService.GenerateAndSendOtpAsync(forgotPasswordDto.Email);
+
+                _logger.LogInformation($"OTP sent successfully to user email {forgotPasswordDto.Email}");
+
+                return Ok(new
+                {
+                    Success = true,
+                    Message = "If the email address exists in our system, you will receive a password reset OTP shortly.",
+                    Email = forgotPasswordDto.Email
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error processing forgot password request for user email {forgotPasswordDto.Email}: {ex.Message}");
+                return StatusCode(500, "An error occurred while processing the forgot password request");
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] UserResetPasswordDto resetPasswordDto)
+        {
+            try
+            {
+                _logger.LogInformation($"Processing password reset for user email: {resetPasswordDto.Email}");
+
+                if (resetPasswordDto == null)
+                {
+                    return BadRequest("Reset password data cannot be null");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Invalid input data",
+                        Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                    });
+                }
+
+                // Check if user exists with this email
+                var user = await _userService.GetUserByEmailAsync(resetPasswordDto.Email);
+                if (user == null)
+                {
+                    return BadRequest("Invalid email address");
+                }
+
+                // Verify OTP first
+                var otpVerified = await _otpService.VerifyOtpAsync(resetPasswordDto.Email, resetPasswordDto.OtpCode);
+                if (!otpVerified)
+                {
+                    return BadRequest("Invalid or expired OTP code");
+                }
+
+                // Reset password
+                var passwordReset = await _userService.ResetPasswordAsync(resetPasswordDto.Email, resetPasswordDto.NewPassword);
+
+                if (passwordReset)
+                {
+                    // Send notification
+                    try
+                    {
+                        var notificationDto = new NotificationCreateDto
+                        {
+                            RecipientUserId = user.Id,
+                            Title = "Password Reset",
+                            Message = "Your password has been successfully reset. If you didn't make this change, please contact support immediately.",
+                            NotificationType = "PasswordReset",
+                            ReferenceId = user.Id.ToString()
+                        };
+
+                        await _notificationService.CreateAsync(notificationDto);
+                    }
+                    catch (Exception notificationEx)
+                    {
+                        _logger.LogWarning($"Failed to send user password reset notification to user {user.Id}: {notificationEx.Message}");
+                    }
+
+                    return Ok("Password reset successfully");
+                }
+                else
+                {
+                    return BadRequest("Failed to reset password");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error resetting password for user email {resetPasswordDto.Email}: {ex.Message}");
+                return StatusCode(500, "An error occurred while resetting the password");
             }
         }
 

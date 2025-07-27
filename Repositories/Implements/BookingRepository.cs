@@ -17,6 +17,7 @@ public class BookingRepository : BaseRepository<Booking>, IBookingRepository
             .Include(b => b.Helper)
             .Include(b => b.Service)
             .Include(b => b.User)
+            .Include(b => b.Request)
             .ToListAsync();
     }
 
