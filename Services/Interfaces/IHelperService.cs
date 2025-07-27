@@ -19,6 +19,7 @@ public interface IHelperService : IBaseService<HelperDetailsDto, HelperCreateDto
     Task<bool> SetHelperStatusBusyAsync(int helperId);
     Task<HelperViewIncomeDto> HelperViewIncomeAsync(int helperId);
     Task<bool> ChangePasswordAsync(int helperId, string currentPassword, string newPassword);
+    Task<bool> ResetPasswordAsync(string email, string newPassword);
     Task<bool> isAvailalble(int helperId, DateTime startTime, DateTime endTime);
 
     // Admin helper application methods

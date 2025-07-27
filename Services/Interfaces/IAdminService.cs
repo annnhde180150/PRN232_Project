@@ -16,5 +16,6 @@ namespace Services.Interfaces
         Task<AdminDetailsDto?> ValidateAdminCredentialsAsync(string email, string password);
         Task UpdateLastLoginDateAsync(int adminId);
         Task<bool> ChangePasswordAsync(int adminId, string currentPassword, string newPassword);
+        Task<bool> ResetPasswordAsync(string email, string newPassword);
     }
 }

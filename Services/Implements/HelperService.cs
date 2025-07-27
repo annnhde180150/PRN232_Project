@@ -589,4 +589,27 @@ public class HelperService : IHelperService
         var isBooked = bookings.Any();
         return !isBooked;
     }
+
+    public async Task<bool> ResetPasswordAsync(string email, string newPassword)
+    {
+        _logger.LogInformation($"Resetting password for helper with email: {email}");
+
+        var helper = await _unitOfWork.Helpers.GetHelperByEmailAsync(email);
+        if (helper == null)
+        {
+            _logger.LogWarning($"Helper with email {email} not found");
+            return false;
+        }
+
+        // Hash new password
+        var newPasswordHash = _passwordHasher.HashPassword(newPassword);
+        helper.PasswordHash = newPasswordHash;
+
+        // Update helper
+        _unitOfWork.Helpers.Update(helper);
+        await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation($"Password reset successfully for helper with email: {email}");
+        return true;
+    }
 }

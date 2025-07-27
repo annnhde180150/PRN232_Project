@@ -14,12 +14,14 @@ namespace HomeHelperFinderAPI.Controllers
         private readonly IHelperService _helperService;
         private readonly INotificationService _notificationService;
         private readonly IServiceService _serviceService;
+        private readonly IOtpService _otpService;
         private readonly ILogger<HelperController> _logger;  
-        public HelperController(IHelperService helperService, INotificationService notificationService, IServiceService serviceService, ILogger<HelperController> logger)
+        public HelperController(IHelperService helperService, INotificationService notificationService, IServiceService serviceService, IOtpService otpService, ILogger<HelperController> logger)
         {
             _helperService = helperService;
             _notificationService = notificationService;
             _serviceService = serviceService;
+            _otpService = otpService;
             _logger = logger;
         }
 
@@ -208,6 +210,134 @@ namespace HomeHelperFinderAPI.Controllers
             }
         }
 
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] HelperForgotPasswordDto forgotPasswordDto)
+        {
+            try
+            {
+                _logger.LogInformation($"Processing forgot password request for helper email: {forgotPasswordDto.Email}");
+
+                if (forgotPasswordDto == null)
+                {
+                    return BadRequest("Forgot password data cannot be null");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Invalid input data",
+                        Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                    });
+                }
+
+                // Check if helper exists with this email
+                var helper = await _helperService.GetHelperByEmailAsync(forgotPasswordDto.Email);
+                if (helper == null)
+                {
+                    // Don't reveal if email exists or not for security
+                    _logger.LogWarning($"Forgot password request for non-existent helper email: {forgotPasswordDto.Email}");
+                    return Ok(new
+                    {
+                        Success = true,
+                        Message = "If the email address exists in our system, you will receive a password reset OTP shortly."
+                    });
+                }
+
+                // Generate and send OTP
+                var otpCode = await _otpService.GenerateAndSendOtpAsync(forgotPasswordDto.Email);
+
+                _logger.LogInformation($"OTP sent successfully to helper email {forgotPasswordDto.Email}");
+
+                return Ok(new
+                {
+                    Success = true,
+                    Message = "If the email address exists in our system, you will receive a password reset OTP shortly.",
+                    Email = forgotPasswordDto.Email
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error processing forgot password request for helper email {forgotPasswordDto.Email}: {ex.Message}");
+                return StatusCode(500, "An error occurred while processing the forgot password request");
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] HelperResetPasswordDto resetPasswordDto)
+        {
+            try
+            {
+                _logger.LogInformation($"Processing password reset for helper email: {resetPasswordDto.Email}");
+
+                if (resetPasswordDto == null)
+                {
+                    return BadRequest("Reset password data cannot be null");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Invalid input data",
+                        Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                    });
+                }
+
+                // Check if helper exists with this email
+                var helper = await _helperService.GetHelperByEmailAsync(resetPasswordDto.Email);
+                if (helper == null)
+                {
+                    return BadRequest("Invalid email address");
+                }
+
+                // Verify OTP first
+                var otpVerified = await _otpService.VerifyOtpAsync(resetPasswordDto.Email, resetPasswordDto.OtpCode);
+                if (!otpVerified)
+                {
+                    return BadRequest("Invalid or expired OTP code");
+                }
+
+                // Reset password
+                var passwordReset = await _helperService.ResetPasswordAsync(resetPasswordDto.Email, resetPasswordDto.NewPassword);
+
+                if (passwordReset)
+                {
+                    // Send notification
+                    try
+                    {
+                        var notificationDto = new NotificationCreateDto
+                        {
+                            RecipientHelperId = helper.Id,
+                            Title = "Password Reset",
+                            Message = "Your password has been successfully reset. If you didn't make this change, please contact support immediately.",
+                            NotificationType = "PasswordReset",
+                            ReferenceId = helper.Id.ToString()
+                        };
+
+                        await _notificationService.CreateAsync(notificationDto);
+                    }
+                    catch (Exception notificationEx)
+                    {
+                        _logger.LogWarning($"Failed to send helper password reset notification to helper {helper.Id}: {notificationEx.Message}");
+                    }
+
+                    return Ok("Password reset successfully");
+                }
+                else
+                {
+                    return BadRequest("Failed to reset password");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error resetting password for helper email {resetPasswordDto.Email}: {ex.Message}");
+                return StatusCode(500, "An error occurred while resetting the password");
+            }
+        }
+
         [HttpPut("change-password/{helperId}")]
         public async Task<IActionResult> ChangePassword(int helperId, [FromBody] HelperChangePasswordDto changePasswordDto)
         {
@@ -219,10 +349,6 @@ namespace HomeHelperFinderAPI.Controllers
                 {
                     return BadRequest("Change password data cannot be null");
                 }
-                if (!await _helperService.ExistsAsync(helperId))
-                {
-                    return NotFound($"Helper with ID {helperId} not found");
-                }
 
                 if (!ModelState.IsValid)
                 {
@@ -232,6 +358,12 @@ namespace HomeHelperFinderAPI.Controllers
                         Message = "Invalid input data",
                         Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
                     });
+                }
+
+                // Check if helper exists
+                if (!await _helperService.ExistsAsync(helperId))
+                {
+                    return NotFound($"Helper with ID {helperId} not found");
                 }
 
                 // Change password

@@ -14,12 +14,14 @@ namespace HomeHelperFinderAPI.Controllers
     {
         private readonly IAdminService _adminService;
         private readonly INotificationService _notificationService;
+        private readonly IOtpService _otpService;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(IAdminService adminService, INotificationService notificationService, ILogger<AdminController> logger)
+        public AdminController(IAdminService adminService, INotificationService notificationService, IOtpService otpService, ILogger<AdminController> logger)
         {
             _adminService = adminService;
             _notificationService = notificationService;
+            _otpService = otpService;
             _logger = logger;
         }
 
@@ -98,6 +100,134 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 _logger.LogError($"Error getting profile for admin {adminId}: {ex.Message}");
                 return StatusCode(500, "An error occurred while retrieving the admin profile");
+            }
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] AdminForgotPasswordDto forgotPasswordDto)
+        {
+            try
+            {
+                _logger.LogInformation($"Processing forgot password request for admin email: {forgotPasswordDto.Email}");
+
+                if (forgotPasswordDto == null)
+                {
+                    return BadRequest("Forgot password data cannot be null");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Invalid input data",
+                        Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                    });
+                }
+
+                // Check if admin exists with this email
+                var admin = await _adminService.GetAdminByEmailAsync(forgotPasswordDto.Email);
+                if (admin == null)
+                {
+                    // Don't reveal if email exists or not for security
+                    _logger.LogWarning($"Forgot password request for non-existent admin email: {forgotPasswordDto.Email}");
+                    return Ok(new
+                    {
+                        Success = true,
+                        Message = "If the email address exists in our system, you will receive a password reset OTP shortly."
+                    });
+                }
+
+                // Generate and send OTP
+                var otpCode = await _otpService.GenerateAndSendOtpAsync(forgotPasswordDto.Email);
+
+                _logger.LogInformation($"OTP sent successfully to admin email {forgotPasswordDto.Email}");
+
+                return Ok(new
+                {
+                    Success = true,
+                    Message = "If the email address exists in our system, you will receive a password reset OTP shortly.",
+                    Email = forgotPasswordDto.Email
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error processing forgot password request for admin email {forgotPasswordDto.Email}: {ex.Message}");
+                return StatusCode(500, "An error occurred while processing the forgot password request");
+            }
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] AdminResetPasswordDto resetPasswordDto)
+        {
+            try
+            {
+                _logger.LogInformation($"Processing password reset for admin email: {resetPasswordDto.Email}");
+
+                if (resetPasswordDto == null)
+                {
+                    return BadRequest("Reset password data cannot be null");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Invalid input data",
+                        Errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)
+                    });
+                }
+
+                // Check if admin exists with this email
+                var admin = await _adminService.GetAdminByEmailAsync(resetPasswordDto.Email);
+                if (admin == null)
+                {
+                    return BadRequest("Invalid email address");
+                }
+
+                // Verify OTP first
+                var otpVerified = await _otpService.VerifyOtpAsync(resetPasswordDto.Email, resetPasswordDto.OtpCode);
+                if (!otpVerified)
+                {
+                    return BadRequest("Invalid or expired OTP code");
+                }
+
+                // Reset password
+                var passwordReset = await _adminService.ResetPasswordAsync(resetPasswordDto.Email, resetPasswordDto.NewPassword);
+
+                if (passwordReset)
+                {
+                    // Send notification
+                    try
+                    {
+                        var notificationDto = new NotificationCreateDto
+                        {
+                            RecipientUserId = admin.Id, 
+                            Title = "Admin Password Reset",
+                            Message = "Your admin password has been successfully reset. If you didn't make this change, please contact system administrator immediately.",
+                            NotificationType = "AdminPasswordReset",
+                            ReferenceId = admin.Id.ToString()
+                        };
+
+                        await _notificationService.CreateAsync(notificationDto);
+                    }
+                    catch (Exception notificationEx)
+                    {
+                        _logger.LogWarning($"Failed to send admin password reset notification to admin {admin.Id}: {notificationEx.Message}");
+                    }
+
+                    return Ok("Password reset successfully");
+                }
+                else
+                {
+                    return BadRequest("Failed to reset password");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error resetting password for admin email {resetPasswordDto.Email}: {ex.Message}");
+                return StatusCode(500, "An error occurred while resetting the password");
             }
         }
 
