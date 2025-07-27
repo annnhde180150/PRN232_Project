@@ -219,14 +219,14 @@ export const Header: React.FC<HeaderProps> = ({ className, showSearch = true }) 
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={(user as any).avatar} alt={user.fullName} />
+                        <AvatarImage src={(user as any).profilePictureUrl} alt={user.fullName} />
                         <AvatarFallback className="bg-primary text-primary-foreground">
                           {user.fullName?.charAt(0).toUpperCase() || 'U'}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-64" align="end" forceMount>
+                  <DropdownMenuContent className="w-64 bg-white" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
                         <p className="text-sm font-medium leading-none">{user.fullName}</p>
@@ -246,12 +246,6 @@ export const Header: React.FC<HeaderProps> = ({ className, showSearch = true }) 
                       <Link href="/edit-profile" className="flex items-center">
                         <Users className="mr-2 h-4 w-4" />
                         <span>Hồ sơ cá nhân</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/settings" className="flex items-center">
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Cài đặt</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -281,7 +275,7 @@ export const Header: React.FC<HeaderProps> = ({ className, showSearch = true }) 
                     <div className="flex flex-col space-y-4 mt-4">
                       <div className="flex items-center space-x-2 pb-4">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={(user as any).avatar} alt={user.fullName} />
+                          <AvatarImage src={(user as any).profilePictureUrl} alt={user.fullName} />
                           <AvatarFallback className="bg-primary text-primary-foreground">
                             {user.fullName?.charAt(0).toUpperCase() || 'U'}
                           </AvatarFallback>
