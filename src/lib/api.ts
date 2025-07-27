@@ -46,8 +46,8 @@ import {
   ProfileType
 } from '../types/profile';
 
-// Base URL - you should set this in environment variables
-const BASE_URL = 'https://helper-finder.azurewebsites.net';
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -64,6 +64,16 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // Authentication API functions
 export const authAPI = {

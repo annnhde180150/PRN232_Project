@@ -19,6 +19,28 @@ export interface RegisterHelperRequest {
   bio: string;
   dateOfBirth: string;
   gender: string;
+  skills: {
+    serviceId: number;
+    yearsOfExperience: number;
+    isPrimarySkill: boolean;
+  }[];
+  workAreas: {
+    city: string;
+    district: string;
+    ward: string;
+    latitude: number;
+    longitude: number;
+    radiusKm: number;
+  }[];
+  documents: {
+    documentType: 'CV' | 'ID';
+    documentUrl: string;
+    uploadDate: string;
+    verificationStatus: string;
+    verifiedByAdminId: number;
+    verificationDate: string;
+    notes: string;
+  }[];
 }
 
 export interface User {
