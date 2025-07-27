@@ -6,6 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { authAPI } from '../../lib/api';
 import { NotificationBell, NotificationDemo } from '../../components/notifications';
 import { PageContainer, Section } from '../../components/layout';
+import { CustomerDashboard } from '../../components/customer';
 
 export default function DashboardPage() {
   const { user, userType, isAuthenticated, logout, loading } = useAuth();
@@ -43,31 +44,7 @@ export default function DashboardPage() {
   const getDashboardContent = () => {
     switch (userType) {
       case 'user':
-        return (
-          <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Dịch Vụ Của Tôi</h2>
-              <p className="text-gray-600">Chưa có dịch vụ nào được đặt.</p>
-              <button className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-                onClick={() => router.push('/search-helper')}
-              >
-                Tìm Người Giúp Việc
-              </button>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Lịch Sử Dịch Vụ</h2>
-              <p className="text-gray-600">Chưa có lịch sử sử dụng dịch vụ.</p>
-              <div className="mt-4">
-                <button 
-                  onClick={() => router.push('/customer-reports')}
-                  className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
-                >
-                  Xem Báo Cáo Chi Tiết
-                </button>
-              </div>
-            </div>
-          </div>
-        );
+        return <CustomerDashboard />;
       case 'helper':
         const helper = user as any;
         return (
@@ -75,15 +52,14 @@ export default function DashboardPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Trạng Thái Tài Khoản</h2>
               <div className="flex items-center space-x-2">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  helper.approvalStatus === 'approved' 
-                    ? 'bg-green-100 text-green-800' 
-                    : helper.approvalStatus === 'pending'
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${helper.approvalStatus === 'approved'
+                  ? 'bg-green-100 text-green-800'
+                  : helper.approvalStatus === 'pending'
                     ? 'bg-yellow-100 text-yellow-800'
                     : 'bg-red-100 text-red-800'
-                }`}>
-                  {helper.approvalStatus === 'approved' ? 'Đã duyệt' : 
-                   helper.approvalStatus === 'pending' ? 'Chờ duyệt' : 'Từ chối'}
+                  }`}>
+                  {helper.approvalStatus === 'approved' ? 'Đã duyệt' :
+                    helper.approvalStatus === 'pending' ? 'Chờ duyệt' : 'Từ chối'}
                 </span>
               </div>
               {helper.approvalStatus === 'pending' && (
@@ -97,7 +73,7 @@ export default function DashboardPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Thao Tác Nhanh</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button 
+                <button
                   onClick={() => router.push('/pending-bookings')}
                   className="flex items-center justify-center space-x-2 bg-orange-600 text-white py-3 px-4 rounded-lg hover:bg-orange-700 transition-colors"
                 >
@@ -122,7 +98,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div className="mt-4">
-                <button 
+                <button
                   onClick={() => router.push('/helper-reports')}
                   className="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors"
                 >
@@ -138,19 +114,19 @@ export default function DashboardPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Quản Lý Hệ Thống</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <button 
+                <button
                   onClick={() => router.push('/profile-management')}
                   className="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Quản Lý Hồ Sơ
                 </button>
-                <button 
+                <button
                   onClick={() => router.push('/helper-applications')}
                   className="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors"
                 >
                   Duyệt Người Giúp Việc
                 </button>
-                <button 
+                <button
                   onClick={() => router.push('/admin-reports')}
                   className="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors"
                 >
@@ -180,6 +156,11 @@ export default function DashboardPage() {
         return '';
     }
   };
+
+  // For customers, use the new CustomerDashboard component
+  if (userType === 'user') {
+    return <CustomerDashboard />;
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -235,8 +216,8 @@ export default function DashboardPage() {
           {/* Role-specific content */}
           {getDashboardContent()}
 
-          {/* Notification Demo - Only for user and helper */}
-          {(userType === 'user' || userType === 'helper') && (
+          {/* Notification Demo - Only for helper */}
+          {userType === 'helper' && (
             <div className="mt-6">
               <NotificationDemo />
             </div>

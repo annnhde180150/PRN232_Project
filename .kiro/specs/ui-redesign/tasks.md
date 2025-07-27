@@ -23,7 +23,7 @@ Kế hoạch này chuyển đổi thiết kế UI thành các task code cụ th�
     - Write comprehensive unit tests cho tất cả button variants
     - _Yêu cầu: 1.1, 1.5_
 
-  - [ ] 2.2 Tạo Form Input components
+  - [x] 2.2 Tạo Form Input components
 
     - Implement TextInput với validation states
     - Tạo Select, Checkbox, Radio button components
@@ -31,7 +31,8 @@ Kế hoạch này chuyển đổi thiết kế UI thành các task code cụ th�
     - Write tests cho form validation và accessibility
     - _Yêu cầu: 1.1, 5.1, 5.2, 5.3_
 
-  - [ ] 2.3 Xây dựng Card component system
+  - [x] 2.3 Xây dựng Card component system
+
     - Implement base Card component với shadow và border radius
     - Tạo specialized cards: HelperCard, ServiceCard, OrderCard
     - Add hover states và interactive elements
@@ -48,7 +49,7 @@ Kế hoạch này chuyển đổi thiết kế UI thành các task code cụ th�
     - Write tests cho responsive behavior across devices
     - _Yêu cầu: 1.4, 6.1, 6.2_
 
-  - [ ] 3.2 Xây dựng Navigation components
+  - [x] 3.2 Xây dựng Navigation components
 
     - Implement Bottom Tab Navigation cho mobile
     - Tạo Header navigation với search và profile
@@ -63,9 +64,9 @@ Kế hoạch này chuyển đổi thiết kế UI thành các task code cụ th�
     - Write accessibility tests cho modal interactions
     - _Yêu cầu: 1.1, 5.2, 5.4_
 
-- [ ] 4. Xây dựng Customer Interface Components
+- [-] 4. Xây dựng Customer Interface Components
 
-  - [ ] 4.1 Implement Dashboard/Home screen layout
+  - [x] 4.1 Implement Dashboard/Home screen layout
 
     - Tạo Hero search section với location picker
     - Implement Quick Actions service buttons grid
