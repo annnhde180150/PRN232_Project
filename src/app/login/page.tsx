@@ -20,6 +20,39 @@ export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
 
+  // Color schemes for different user types
+  const colorSchemes = {
+    user: {
+      primary: 'indigo',
+      gradient: 'from-blue-50 to-indigo-100',
+      button: 'bg-indigo-600 hover:bg-indigo-700',
+      focus: 'focus:ring-indigo-500',
+      text: 'text-indigo-600',
+      link: 'text-indigo-600 hover:text-indigo-500',
+      active: 'bg-white text-indigo-600',
+    },
+    helper: {
+      primary: 'emerald',
+      gradient: 'from-emerald-50 to-green-100',
+      button: 'bg-emerald-600 hover:bg-emerald-700',
+      focus: 'focus:ring-emerald-500',
+      text: 'text-emerald-600',
+      link: 'text-emerald-600 hover:text-emerald-500',
+      active: 'bg-white text-emerald-600',
+    },
+    admin: {
+      primary: 'purple',
+      gradient: 'from-purple-50 to-violet-100',
+      button: 'bg-purple-600 hover:bg-purple-700',
+      focus: 'focus:ring-purple-500',
+      text: 'text-purple-600',
+      link: 'text-purple-600 hover:text-purple-500',
+      active: 'bg-white text-purple-600',
+    },
+  };
+
+  const currentColors = colorSchemes[userType];
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -65,12 +98,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
+    <div className={`min-h-screen bg-gradient-to-br ${currentColors.gradient} flex items-center justify-center px-4`}>
       <div className="max-w-md w-full space-y-8">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Header */}
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Đăng Nhập</h2>
+            <h2 className={`text-3xl font-bold text-gray-900 mb-2`}>Đăng Nhập</h2>
             <p className="text-gray-600">Chào mừng bạn trở lại!</p>
           </div>
 
@@ -88,7 +121,7 @@ export default function LoginPage() {
                   onClick={() => setUserType(type.key as 'user' | 'helper' | 'admin')}
                   className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors ${
                     userType === type.key
-                      ? 'bg-white text-indigo-600 shadow-sm'
+                      ? colorSchemes[type.key as 'user' | 'helper' | 'admin'].active
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -118,7 +151,7 @@ export default function LoginPage() {
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 ${currentColors.focus} focus:border-transparent transition-colors`}
                   placeholder="Nhập email của bạn"
                 />
               </div>
@@ -134,14 +167,14 @@ export default function LoginPage() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 ${currentColors.focus} focus:border-transparent transition-colors`}
                   placeholder="Nhập mật khẩu"
                 />
                 <div className="mt-2 text-right">
                   <button
                     type="button"
                     onClick={() => setShowForgotPassword(true)}
-                    className="text-sm text-indigo-600 hover:text-indigo-500 font-medium transition-colors"
+                    className={`text-sm ${currentColors.link} font-medium transition-colors`}
                   >
                     Quên mật khẩu?
                   </button>
@@ -152,7 +185,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-white ${currentColors.button} focus:outline-none focus:ring-2 focus:ring-offset-2 ${currentColors.focus} disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors`}
             >
               {loading ? (
                 <div className="flex items-center">
@@ -167,7 +200,7 @@ export default function LoginPage() {
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 Chưa có tài khoản?{' '}
-                <a href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+                <a href="/register" className={`font-medium ${currentColors.link}`}>
                   Đăng ký ngay
                 </a>
               </p>
