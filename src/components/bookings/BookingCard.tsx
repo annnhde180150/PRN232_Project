@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MapPin, CreditCard } from 'lucide-react';
 import { Booking, PendingBooking, BookingStatus } from '@/types/bookings';
-import { PaymentHandler } from '@/components/payment/PaymentHandler';
+import { PaymentHandler } from '@/components/payment';
 
 interface BookingCardProps {
   booking: Booking | PendingBooking;
