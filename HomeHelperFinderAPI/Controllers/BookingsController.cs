@@ -247,6 +247,8 @@ namespace HomeHelperFinderAPI.Controllers
                 updateBooking.FinalPrice = basePrice * (decimal)(updateBooking.ActualEndTime - updateBooking.ActualStartTime).Value.TotalHours;
             }
 
+            updateBooking.FreeCancellationDeadline = updateBooking.ScheduledStartTime.AddHours(-12);
+
             //update booking
             Task updateTask = _bookingService.UpdateAsync(updateBooking.BookingId, updateBooking);
             await updateTask;
