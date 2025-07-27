@@ -57,7 +57,6 @@ public class HelperService : IHelperService
         await _unitOfWork.Helpers.AddAsync(helper);
         await _unitOfWork.CompleteAsync();
 
-        // Save related entities
         if (dto.Skills != null && dto.Skills.Count > 0)
         {
             var skills = _mapper.Map<List<HelperSkill>>(dto.Skills);
@@ -79,8 +78,15 @@ public class HelperService : IHelperService
             {
                 doc.HelperId = helper.HelperId;
                 doc.UploadDate = DateTime.Now;
+                doc.VerificationStatus = "Pending";
+                doc.VerifiedByAdminId = null;
+                doc.VerificationDate = null;
             }
             await _unitOfWork.HelperDocuments.AddRangeAsync(documents);
+        }
+        else
+        {
+            _logger.LogInformation($"No documents provided for helper {helper.HelperId}");
         }
         await _unitOfWork.CompleteAsync();
 
@@ -164,6 +170,9 @@ public class HelperService : IHelperService
                 {
                     document.HelperId = id;
                     document.UploadDate = DateTime.Now;
+                    document.VerificationStatus = "Pending";
+                    document.VerifiedByAdminId = null;
+                    document.VerificationDate = null;
                 }
                 await _unitOfWork.HelperDocuments.AddRangeAsync(documents);
             }
