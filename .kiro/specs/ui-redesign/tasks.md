@@ -31,7 +31,8 @@ Kế hoạch này chuyển đổi thiết kế UI thành các task code cụ th�
     - Write tests cho form validation và accessibility
     - _Yêu cầu: 1.1, 5.1, 5.2, 5.3_
 
-  - [ ] 2.3 Xây dựng Card component system
+  - [x] 2.3 Xây dựng Card component system
+
     - Implement base Card component với shadow và border radius
     - Tạo specialized cards: HelperCard, ServiceCard, OrderCard
     - Add hover states và interactive elements
