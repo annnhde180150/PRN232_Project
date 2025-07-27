@@ -6,7 +6,9 @@ import {
   AuthResponse, 
   User, 
   Helper, 
-  Admin 
+  Admin,
+  ForgotPasswordRequest,
+  ResetPasswordRequest
 } from '../types/auth';
 import {
   BusinessOverview,
@@ -101,6 +103,30 @@ export const authAPI = {
 
   registerHelper: async (helperData: RegisterHelperRequest): Promise<AuthResponse<Helper>> => {
     const response = await api.post('/api/Authentication/register/helper', helperData);
+    return response.data;
+  },
+
+  // Forgot Password functions
+  forgotPassword: async (userType: 'user' | 'helper' | 'admin', data: ForgotPasswordRequest): Promise<any> => {
+    const endpoint = userType === 'user' 
+      ? '/api/User/forgot-password'
+      : userType === 'helper' 
+        ? '/api/Helper/forgot-password'
+        : '/api/Admin/forgot-password';
+    const response = await api.post(endpoint, data);
+    return response.data;
+  },
+
+
+
+  resetPassword: async (userType: 'user' | 'helper' | 'admin', data: ResetPasswordRequest): Promise<any> => {
+    const endpoint = userType === 'user' 
+      ? '/api/User/reset-password'
+      : userType === 'helper' 
+        ? '/api/Helper/reset-password'
+        : '/api/Admin/reset-password';
+    
+    const response = await api.post(endpoint, data);
     return response.data;
   },
 

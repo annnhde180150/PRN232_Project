@@ -108,6 +108,19 @@ export interface AuthResponse<T> {
   requestId: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+
+
+export interface ResetPasswordRequest {
+  email: string;
+  otpCode: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 export interface AuthState {
   isAuthenticated: boolean;
   token: string | null;

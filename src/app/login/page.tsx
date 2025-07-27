@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { authAPI } from '../../lib/api';
 import { LoginRequest } from '../../types/auth';
+import ForgotPasswordModal from '../../components/ForgotPasswordModal';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState<LoginRequest>({
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [userType, setUserType] = useState<'user' | 'helper' | 'admin'>('user');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   const { login } = useAuth();
   const router = useRouter();
@@ -135,6 +137,15 @@ export default function LoginPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
                   placeholder="Nhập mật khẩu"
                 />
+                <div className="mt-2 text-right">
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-sm text-indigo-600 hover:text-indigo-500 font-medium transition-colors"
+                  >
+                    Quên mật khẩu?
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -164,6 +175,13 @@ export default function LoginPage() {
           </form>
         </div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        userType={userType}
+      />
     </div>
   );
 } 
