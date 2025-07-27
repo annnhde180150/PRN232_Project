@@ -243,7 +243,7 @@ export const Header: React.FC<HeaderProps> = ({ className, showSearch = true }) 
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link href="/profile" className="flex items-center">
+                      <Link href="/edit-profile" className="flex items-center">
                         <Users className="mr-2 h-4 w-4" />
                         <span>Hồ sơ cá nhân</span>
                       </Link>

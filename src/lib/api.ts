@@ -8,7 +8,14 @@ import {
   Helper, 
   Admin,
   ForgotPasswordRequest,
-  ResetPasswordRequest
+  ResetPasswordRequest,
+  UpdateAdminProfileRequest,
+  UpdateHelperProfileRequest,
+  UpdateUserProfileRequest,
+  ChangePasswordRequest,
+  UserAddress,
+  CreateAddressRequest,
+  UpdateAddressRequest
 } from '../types/auth';
 import {
   BusinessOverview,
@@ -338,6 +345,54 @@ export const profileAPI = {
     const response = await api.post('/api/ProfileManagement/bulk-unban', requests);
     return response.data;
   },
+
+  // Get profile functions
+  getAdminProfile: async (adminId: number): Promise<Admin> => {
+    const response = await api.get(`/api/Admin/profile/${adminId}`);
+    return response.data.data;
+  },
+
+  getHelperProfile: async (helperId: number): Promise<Helper> => {
+    const response = await api.get(`/api/Helper/profile/${helperId}`);
+    return response.data.data;
+  },
+
+  getUserProfile: async (userId: number): Promise<User> => {
+    const response = await api.get(`/api/User/profile/${userId}`);
+    return response.data.data;
+  },
+
+  // Update profile functions
+  updateAdminProfile: async (adminId: number, data: UpdateAdminProfileRequest): Promise<any> => {
+    const response = await api.put(`/api/Admin/profile/${adminId}`, data);
+    return response.data;
+  },
+
+  updateHelperProfile: async (helperId: number, data: UpdateHelperProfileRequest): Promise<any> => {
+    const response = await api.put(`/api/Helper/profile/${helperId}`, data);
+    return response.data;
+  },
+
+  updateUserProfile: async (userId: number, data: UpdateUserProfileRequest): Promise<any> => {
+    const response = await api.put(`/api/User/profile/${userId}`, data);
+    return response.data;
+  },
+
+  // Change password functions
+  changeAdminPassword: async (adminId: number, data: ChangePasswordRequest): Promise<any> => {
+    const response = await api.put(`/api/Admin/change-password/${adminId}`, data);
+    return response.data;
+  },
+
+  changeHelperPassword: async (helperId: number, data: ChangePasswordRequest): Promise<any> => {
+    const response = await api.put(`/api/Helper/change-password/${helperId}`, data);
+    return response.data;
+  },
+
+  changeUserPassword: async (userId: number, data: ChangePasswordRequest): Promise<any> => {
+    const response = await api.put(`/api/User/change-password/${userId}`, data);
+    return response.data;
+  },
 };
 export async function searchHelpers(serviceId: number) {
   const res = await fetch(`${BASE_URL}/api/Helper/search?serviceId=${serviceId}`);
@@ -362,3 +417,37 @@ export async function getAllServices(): Promise<Service[]> {
   const data = await res.json();
   return data.data as Service[];
 }
+
+// Address API functions
+export const addressAPI = {
+  // Get all addresses for a user
+  getUserAddresses: async (userId: number): Promise<UserAddress[]> => {
+    const response = await api.get(`/api/Address/User/${userId}`);
+    return response.data.data;
+  },
+
+  // Get a specific address by ID
+  getAddress: async (addressId: number): Promise<UserAddress> => {
+    const response = await api.get(`/api/Address/UserAddress/${addressId}`);
+    return response.data.data;
+  },
+
+  // Create a new address
+  createAddress: async (data: CreateAddressRequest): Promise<UserAddress> => {
+    const response = await api.post('/api/Address/UserAddress', data);
+    return response.data.data;
+  },
+
+  // Update an existing address
+  updateAddress: async (addressId: number, data: UpdateAddressRequest): Promise<UserAddress> => {
+    const response = await api.put(`/api/Address/UserAddress/${addressId}`, data);
+    return response.data.data;
+  },
+
+  // Delete an address
+  deleteAddress: async (addressId: number): Promise<void> => {
+    await api.delete(`/api/Address/UserAddress/${addressId}`);
+  },
+};
+
+

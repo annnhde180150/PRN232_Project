@@ -110,6 +110,33 @@ const config: Config = {
                 'text-secondary': 'var(--color-text-secondary)',
                 'text-tertiary': 'var(--color-text-tertiary)',
                 'text-inverse': 'var(--color-text-inverse)',
+
+                // Standard UI colors for components
+                background: 'var(--color-bg-primary)',
+                foreground: 'var(--color-text-primary)',
+                border: 'var(--color-gray-200)',
+                input: 'var(--color-bg-primary)',
+                ring: 'var(--color-primary-500)',
+                accent: {
+                    DEFAULT: 'var(--color-gray-100)',
+                    foreground: 'var(--color-text-primary)',
+                },
+                muted: {
+                    DEFAULT: 'var(--color-gray-100)',
+                    foreground: 'var(--color-text-secondary)',
+                },
+                destructive: {
+                    DEFAULT: 'var(--color-error-500)',
+                    foreground: 'white',
+                },
+                card: {
+                    DEFAULT: 'var(--color-bg-primary)',
+                    foreground: 'var(--color-text-primary)',
+                },
+                popover: {
+                    DEFAULT: 'var(--color-bg-primary)',
+                    foreground: 'var(--color-text-primary)',
+                },
             },
 
             // Custom spacing based on design tokens

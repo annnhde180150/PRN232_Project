@@ -126,4 +126,114 @@ export interface AuthState {
   token: string | null;
   user: User | Helper | Admin | null;
   userType: 'user' | 'helper' | 'admin' | null;
+}
+
+// Profile Update Types
+export interface UpdateAdminProfileRequest {
+  username: string;
+  fullName: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+}
+
+export interface UpdateHelperProfileRequest {
+  phoneNumber: string;
+  email: string;
+  fullName: string;
+  profilePictureUrl: string;
+  bio: string;
+  dateOfBirth: string;
+  gender: string;
+  isActive: boolean;
+  isEmailVerified: boolean;
+  skills: {
+    serviceId: number;
+    yearsOfExperience: number;
+    isPrimarySkill: boolean;
+  }[];
+  workAreas: {
+    city: string;
+    district: string;
+    ward: string;
+    latitude: number;
+    longitude: number;
+    radiusKm: number;
+  }[];
+  documents: {
+    documentType: string;
+    documentUrl: string;
+    uploadDate: string;
+    notes: string;
+    verificationStatus: string;
+    verifiedByAdminId: number;
+    verificationDate: string;
+  }[];
+}
+
+export interface UpdateUserProfileRequest {
+  phoneNumber: string;
+  email: string;
+  fullName: string;
+  profilePictureUrl: string;
+  isActive: boolean;
+  defaultAddressId: number;
+  defaultAddress: {
+    userId: number;
+    addressLine1: string;
+    addressLine2: string;
+    ward: string;
+    district: string;
+    city: string;
+    fullAddress: string;
+    latitude: number;
+    longitude: number;
+    isDefault: boolean;
+  };
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface UserAddress {
+  addressId: number;
+  userId: number;
+  addressLine1: string;
+  addressLine2?: string;
+  ward: string;
+  district: string;
+  city: string;
+  fullAddress: string;
+  latitude: number;
+  longitude: number;
+  isDefault: boolean;
+  bookings?: any[];
+  serviceRequests?: any[];
+  user?: any;
+}
+
+export interface CreateAddressRequest {
+  userId: number;
+  addressLine1: string;
+  addressLine2?: string;
+  ward: string;
+  district: string;
+  city: string;
+  fullAddress: string;
+}
+
+export interface UpdateAddressRequest {
+  userId: number;
+  addressLine1: string;
+  addressLine2?: string;
+  ward: string;
+  district: string;
+  city: string;
+  fullAddress: string;
+  latitude: number;
+  longitude: number;
+  isDefault: boolean;
 } 

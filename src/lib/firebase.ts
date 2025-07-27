@@ -1,6 +1,6 @@
 // src/lib/firebase.ts
 import { initializeApp, getApps } from "firebase/app";
-import { getStorage } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -29,6 +29,26 @@ if (typeof window !== 'undefined') {
     console.warn('Failed to load analytics:', error);
   });
 }
+
+// Upload image to Firebase Storage
+export const uploadImage = async (file: File, path: string): Promise<string> => {
+  try {
+    const storageRef = ref(storage, path);
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    return downloadURL;
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    throw new Error('Failed to upload image');
+  }
+};
+
+// Generate unique filename for profile pictures
+export const generateProfileImagePath = (userId: number, userType: string, originalName: string): string => {
+  const timestamp = Date.now();
+  const extension = originalName.split('.').pop();
+  return `profiles/${userType}/${userId}_${timestamp}.${extension}`;
+};
 
 // Export storage for upload logic
 export { storage, analytics };
