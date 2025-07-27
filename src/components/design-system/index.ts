@@ -1,0 +1,1 @@
+export { DesignSystemDemo } from './DesignSystemDemo';
