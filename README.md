@@ -1,4 +1,4 @@
-# Find Helper - Frontend
+# Homezy - Frontend
 
 Ứng dụng frontend cho nền tảng tìm kiếm người giúp việc nhà, được xây dựng với Next.js và TypeScript.
 
