@@ -226,7 +226,7 @@ const BookingHistoryPage = () => {
       ) : (
         <div className="space-y-4">
           {filteredBookings.map((booking) => (
-            <BookingCard key={booking.bookingId} booking={booking} />
+            <BookingCard key={booking.bookingId} booking={booking} userId={userId!} />
           ))}
         </div>
       )}

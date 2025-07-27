@@ -1,14 +1,17 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, MapPin, CreditCard } from 'lucide-react';
 import { Booking, PendingBooking, BookingStatus } from '@/types/bookings';
+import { PaymentHandler } from '@/components/payment/PaymentHandler';
 
 interface BookingCardProps {
   booking: Booking | PendingBooking;
+  userId: number;
 }
 
-const BookingCard: React.FC<BookingCardProps> = ({ booking }) => {
+const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
   const getStatusBadgeVariant = (status: BookingStatus) => {
     switch (status) {
       case 'Pending':
@@ -158,6 +161,21 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking }) => {
                 <span className="font-medium">Free Cancellation Until:</span> {formatDate(booking.freeCancellationDeadline)}
               </p>
             )}
+          </div>
+        )}
+
+        {/* Payment button - show for pending and accepted bookings */}
+        {(booking.status === 'Pending' || booking.status === 'Accepted') && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <CreditCard className="h-4 w-4 text-gray-600" />
+                <span className="text-sm text-gray-600">
+                  <span className="font-medium">Payment Required:</span> {getPrice().toLocaleString('vi-VN')} ₫
+                </span>
+              </div>
+              <PaymentHandler userId={userId} bookingId={booking.bookingId} />
+            </div>
           </div>
         )}
       </CardContent>
