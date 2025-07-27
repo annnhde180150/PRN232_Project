@@ -91,6 +91,15 @@ export default function DashboardPage() {
                   </svg>
                   <span>Order Chờ Duyệt</span>
                 </button>
+                <button
+                  onClick={() => router.push('/active-bookings')}
+                  className="flex items-center justify-center space-x-2 bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <span>Đơn Hàng Đang Hoạt Động</span>
+                </button>
               </div>
             </div>
 
