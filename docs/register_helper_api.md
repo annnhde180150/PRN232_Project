@@ -1,38 +1,86 @@
-{{baseUrl}}/api/Authentication/register/user POST
+GET {{baseUrl}}/api/Service/active
 
-request:
+response
 {
-  "email": "user@gmail.com",
-  "fullName": "et tempor culpa",
-  "password": "123123",
-  "phoneNumber": "0123123123"
-}
-
-response:
-{
-    "success": true,
-    "statusCode": 200,
-    "message": "Thành công",
-    "data": {
-        "message": "Registration successful. Please check your email for the OTP to verify your account.",
-        "user": {
-            "id": 10,
-            "phoneNumber": "0123232123",
-            "email": "user20@gmail.com",
-            "fullName": "et tempor culpa",
-            "profilePictureUrl": null,
-            "registrationDate": "2025-07-23T06:39:54.7050552Z",
-            "lastLoginDate": null,
-            "externalAuthProvider": null,
-            "externalAuthId": null,
-            "isActive": false,
-            "defaultAddressId": null,
-            "role": "User"
-        }
+  "success": true,
+  "statusCode": 200,
+  "message": "Thành công",
+  "data": [
+    {
+      "serviceId": 1,
+      "serviceName": "Cleaning",
+      "description": "Clean a house",
+      "iconUrl": null,
+      "basePrice": 100000,
+      "priceUnit": "VND",
+      "isActive": true,
+      "parentServiceId": null
     },
-    "timestamp": "2025-07-23T06:39:56.8912036Z",
-    "requestId": "0HNE9H1TTOUOU:00000004"
+    {
+      "serviceId": 2,
+      "serviceName": "Furniture Assembly",
+      "description": "Assembly of beds, shelves, tables, and other furniture.",
+      "iconUrl": "/icons/furniture.png",
+      "basePrice": 180000,
+      "priceUnit": "VND/hour",
+      "isActive": true,
+      "parentServiceId": null
+    },
+    {
+      "serviceId": 3,
+      "serviceName": "Gardening",
+      "description": "Lawn mowing, plant trimming, and garden care services.",
+      "iconUrl": "/icons/gardening.png",
+      "basePrice": 160000,
+      "priceUnit": "VND/hour",
+      "isActive": true,
+      "parentServiceId": null
+    },
+    {
+      "serviceId": 4,
+      "serviceName": "Babysitting",
+      "description": "Professional babysitting and childcare service.",
+      "iconUrl": "/icons/babysitting.png",
+      "basePrice": 220000,
+      "priceUnit": "VND/hour",
+      "isActive": true,
+      "parentServiceId": null
+    },
+    {
+      "serviceId": 5,
+      "serviceName": "Window Cleaning",
+      "description": "Cleaning interior and exterior windows of homes.",
+      "iconUrl": "/icons/windows.png",
+      "basePrice": 200000,
+      "priceUnit": "VND/hour",
+      "isActive": true,
+      "parentServiceId": null
+    },
+    {
+      "serviceId": 6,
+      "serviceName": "Packing & Moving",
+      "description": "Help with packing and transporting belongings.",
+      "iconUrl": "/icons/moving.png",
+      "basePrice": 400000,
+      "priceUnit": "VND/job",
+      "isActive": true,
+      "parentServiceId": null
+    },
+    {
+      "serviceId": 7,
+      "serviceName": "Repair",
+      "description": "Help repair house ",
+      "iconUrl": null,
+      "basePrice": 1000000,
+      "priceUnit": "VND",
+      "isActive": true,
+      "parentServiceId": null
+    }
+  ],
+  "timestamp": "2025-07-23T16:27:37.4052964Z",
+  "requestId": "0HNEA0N40LGAJ:00000001"
 }
+
 
 {{baseUrl}}/api/Authentication/register/helper POST
 request:
@@ -134,3 +182,6 @@ response:
     "timestamp": "2025-07-23T06:41:17.8633898Z",
     "requestId": "0HNE9H1TTOUOU:00000006"
 }
+
+
+
