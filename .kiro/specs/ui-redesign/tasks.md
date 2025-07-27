@@ -64,9 +64,9 @@ Kế hoạch này chuyển đổi thiết kế UI thành các task code cụ th�
     - Write accessibility tests cho modal interactions
     - _Yêu cầu: 1.1, 5.2, 5.4_
 
-- [ ] 4. Xây dựng Customer Interface Components
+- [-] 4. Xây dựng Customer Interface Components
 
-  - [ ] 4.1 Implement Dashboard/Home screen layout
+  - [x] 4.1 Implement Dashboard/Home screen layout
 
     - Tạo Hero search section với location picker
     - Implement Quick Actions service buttons grid
