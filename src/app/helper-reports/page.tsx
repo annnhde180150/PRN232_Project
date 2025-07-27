@@ -12,6 +12,12 @@ import {
 import StatCard from '../../components/charts/StatCard';
 import SimpleChart from '../../components/charts/SimpleChart';
 import PeriodSelector from '../../components/charts/PeriodSelector';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
+import { Badge } from '../../components/ui/badge';
+import { Button } from '../../components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
+import { DollarSign, Calendar, CheckCircle, BarChart3, Star, Clock, TrendingUp, Activity, Target, Lightbulb } from 'lucide-react';
 
 export default function HelperReportsPage() {
   const { userType, isAuthenticated, loading } = useAuth();
@@ -62,7 +68,7 @@ export default function HelperReportsPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -77,142 +83,257 @@ export default function HelperReportsPage() {
         <>
           {/* Main Performance Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard
-              title="Tổng Thu Nhập"
-              value={`${helperEarnings.totalEarnings.toLocaleString()}đ`}
-              icon={<span className="text-xl">💰</span>}
-              color="green"
-            />
-            <StatCard
-              title="Tổng Đặt Lịch"
-              value={helperEarnings.totalBookings}
-              icon={<span className="text-xl">📅</span>}
-              color="blue"
-            />
-            <StatCard
-              title="Đã Hoàn Thành"
-              value={helperEarnings.completedBookings}
-              icon={<span className="text-xl">✅</span>}
-              color="green"
-            />
-            <StatCard
-              title="Tỷ Lệ Hoàn Thành"
-              value={`${helperEarnings.completionRate.toFixed(1)}%`}
-              icon={<span className="text-xl">📊</span>}
-              color="purple"
-            />
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Tổng Thu Nhập</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">
+                  {helperEarnings.totalEarnings.toLocaleString()}đ
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Thu nhập trong kỳ
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Tổng Đặt Lịch</CardTitle>
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">
+                  {helperEarnings.totalBookings}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Số lượng công việc nhận
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Đã Hoàn Thành</CardTitle>
+                <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-emerald-600">
+                  {helperEarnings.completedBookings}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Công việc đã hoàn thành
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Tỷ Lệ Hoàn Thành</CardTitle>
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-purple-600">
+                  {helperEarnings.completionRate.toFixed(1)}%
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Hiệu suất làm việc
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Additional Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <StatCard
-              title="Thu Nhập TB/Đặt Lịch"
-              value={`${helperEarnings.averageBookingValue.toLocaleString()}đ`}
-              color="orange"
-            />
-            <StatCard
-              title="Đánh Giá Trung Bình"
-              value={`${helperEarnings.averageRating}/5`}
-              subtitle={`${helperEarnings.totalReviews} đánh giá`}
-              color="purple"
-            />
-            <StatCard
-              title="Tổng Giờ Làm Việc"
-              value={`${helperEarnings.totalHoursWorked.toFixed(1)}h`}
-              color="blue"
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Chi Tiết Thu Nhập</CardTitle>
+                <CardDescription>Phân tích chi tiết về thu nhập</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Thu nhập TB/Đặt lịch</span>
+                  <span className="font-medium text-green-600">
+                    {helperEarnings.averageBookingValue.toLocaleString()}đ
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Tổng giờ làm việc</span>
+                  <Badge variant="secondary">{helperEarnings.totalHoursWorked.toFixed(1)}h</Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Thu nhập/giờ</span>
+                  <span className="font-medium">
+                    {helperEarnings.totalHoursWorked > 0 
+                      ? Math.round(helperEarnings.totalEarnings / helperEarnings.totalHoursWorked).toLocaleString()
+                      : '0'
+                    }đ/h
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Đánh Giá & Phản Hồi</CardTitle>
+                <CardDescription>Chất lượng dịch vụ của bạn</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Đánh giá trung bình</span>
+                  <div className="flex items-center space-x-1">
+                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    <span className="font-medium">{helperEarnings.averageRating}/5</span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Tổng số đánh giá</span>
+                  <Badge variant="outline">{helperEarnings.totalReviews}</Badge>
+                </div>
+                <div className="text-center pt-2">
+                  <div className="text-sm text-muted-foreground">
+                    {helperEarnings.averageRating >= 4.5 ? '🌟 Xuất sắc!' : 
+                     helperEarnings.averageRating >= 4.0 ? '✨ Tốt!' : 
+                     helperEarnings.averageRating >= 3.5 ? '👍 Khá tốt' : '💪 Cần cải thiện'}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Hiệu Suất Làm Việc</CardTitle>
+                <CardDescription>Thống kê tổng quan</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {helperEarnings.totalBookings > 0 
+                      ? (helperEarnings.totalEarnings / helperEarnings.totalBookings).toLocaleString()
+                      : '0'
+                    }đ
+                  </div>
+                  <div className="text-sm text-muted-foreground">Thu nhập TB/công việc</div>
+                </div>
+                <div className="text-center pt-2">
+                  <div className="text-lg font-semibold text-purple-600">
+                    {((helperEarnings.completedBookings / helperEarnings.totalBookings) * 100).toFixed(0)}%
+                  </div>
+                  <div className="text-sm text-muted-foreground">Tỷ lệ thành công</div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Earnings Trend Chart */}
           {helperEarnings.earningsTrend.length > 0 && (
-            <SimpleChart
-              title="Xu Hướng Thu Nhập"
-              type="line"
-              data={helperEarnings.earningsTrend.map(trend => ({
-                label: trend.monthName,
-                value: trend.earnings
-              }))}
-              height={300}
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle>Xu Hướng Thu Nhập</CardTitle>
+                <CardDescription>Biến động thu nhập theo thời gian</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SimpleChart
+                  title=""
+                  type="line"
+                  data={helperEarnings.earningsTrend.map(trend => ({
+                    label: trend.monthName,
+                    value: trend.earnings
+                  }))}
+                  height={300}
+                />
+              </CardContent>
+            </Card>
           )}
 
           {/* Bookings Trend Chart */}
           {helperEarnings.earningsTrend.length > 0 && (
-            <SimpleChart
-              title="Xu Hướng Số Lượng Đặt Lịch"
-              type="bar"
-              data={helperEarnings.earningsTrend.map(trend => ({
-                label: trend.monthName,
-                value: trend.bookingsCount
-              }))}
-              height={300}
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle>Xu Hướng Số Lượng Đặt Lịch</CardTitle>
+                <CardDescription>Số lượng công việc nhận theo thời gian</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SimpleChart
+                  title=""
+                  type="bar"
+                  data={helperEarnings.earningsTrend.map(trend => ({
+                    label: trend.monthName,
+                    value: trend.bookingsCount
+                  }))}
+                  height={300}
+                />
+              </CardContent>
+            </Card>
           )}
 
           {/* Service Breakdown */}
           {helperEarnings.serviceBreakdown.length > 0 && (
             <>
-              <SimpleChart
-                title="Phân Bổ Thu Nhập Theo Dịch Vụ"
-                type="pie"
-                data={helperEarnings.serviceBreakdown.map((service, index) => ({
-                  label: service.serviceName,
-                  value: service.totalEarnings,
-                  color: `hsl(${index * 60}, 70%, 50%)`
-                }))}
-                height={300}
-              />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Phân Bổ Thu Nhập Theo Dịch Vụ</CardTitle>
+                  <CardDescription>Nguồn thu nhập chính của bạn</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <SimpleChart
+                    title=""
+                    type="pie"
+                    data={helperEarnings.serviceBreakdown.map((service, index) => ({
+                      label: service.serviceName,
+                      value: service.totalEarnings,
+                      color: `hsl(${index * 60}, 70%, 50%)`
+                    }))}
+                    height={300}
+                  />
+                </CardContent>
+              </Card>
 
               {/* Service Performance Table */}
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div className="p-6 border-b border-gray-200">
-                  <h3 className="text-lg font-semibold text-gray-900">Chi Tiết Theo Dịch Vụ</h3>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Dịch Vụ
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Số Đặt Lịch
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Thu Nhập
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Đánh Giá TB
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Tỷ Lệ Hoàn Thành
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Chi Tiết Theo Dịch Vụ</CardTitle>
+                  <CardDescription>Hiệu suất của từng loại dịch vụ</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Dịch Vụ</TableHead>
+                        <TableHead>Số Đặt Lịch</TableHead>
+                        <TableHead>Thu Nhập</TableHead>
+                        <TableHead>Đánh Giá TB</TableHead>
+                        <TableHead>Tỷ Lệ Hoàn Thành</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {helperEarnings.serviceBreakdown.map((service, index) => (
-                        <tr key={index}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {service.serviceName}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {service.bookingsCount}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{service.serviceName}</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary">{service.bookingsCount}</Badge>
+                          </TableCell>
+                          <TableCell className="font-medium text-green-600">
                             {service.totalEarnings.toLocaleString()}đ
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {service.averageRating}/5 ⭐
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {service.completionRate.toFixed(1)}%
-                          </td>
-                        </tr>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-1">
+                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                              <span>{service.averageRating}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={service.completionRate >= 90 ? "default" : "secondary"}>
+                              {service.completionRate.toFixed(1)}%
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
             </>
           )}
         </>
@@ -226,197 +347,313 @@ export default function HelperReportsPage() {
         <>
           {/* Schedule Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <StatCard
-              title="Tổng Giờ Làm Việc"
-              value={`${scheduleAnalytics.totalHoursWorked.toFixed(1)}h`}
-              icon={<span className="text-xl">⏰</span>}
-              color="blue"
-            />
-            <StatCard
-              title="Giá Trị TB/Đặt Lịch"
-              value={`${scheduleAnalytics.averageBookingValue.toLocaleString()}đ`}
-              icon={<span className="text-xl">💰</span>}
-              color="green"
-            />
-            <StatCard
-              title="Thời Gian Hoạt Động"
-              value={`${new Date(scheduleAnalytics.period.start).toLocaleDateString('vi-VN')} - ${new Date(scheduleAnalytics.period.end).toLocaleDateString('vi-VN')}`}
-              icon={<span className="text-xl">📅</span>}
-              color="purple"
-            />
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Tổng Giờ Làm Việc</CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">
+                  {scheduleAnalytics.totalHoursWorked.toFixed(1)}h
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Thời gian làm việc trong kỳ
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Giá Trị TB/Đặt Lịch</CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">
+                  {scheduleAnalytics.averageBookingValue.toLocaleString()}đ
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Thu nhập trung bình
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Thời Gian Hoạt Động</CardTitle>
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium">
+                  {new Date(scheduleAnalytics.period.start).toLocaleDateString('vi-VN')}
+                </div>
+                <div className="text-sm font-medium">
+                  {new Date(scheduleAnalytics.period.end).toLocaleDateString('vi-VN')}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Từ - Đến
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Earnings Trend */}
           {scheduleAnalytics.earningsTrend.length > 0 && (
-            <SimpleChart
-              title="Biến Động Thu Nhập Theo Thời Gian"
-              type="line"
-              data={scheduleAnalytics.earningsTrend.map(trend => ({
-                label: trend.monthName,
-                value: trend.earnings
-              }))}
-              height={300}
-            />
+            <Card>
+              <CardHeader>
+                <CardTitle>Biến Động Thu Nhập Theo Thời Gian</CardTitle>
+                <CardDescription>Theo dõi xu hướng thu nhập của bạn</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SimpleChart
+                  title=""
+                  type="line"
+                  data={scheduleAnalytics.earningsTrend.map(trend => ({
+                    label: trend.monthName,
+                    value: trend.earnings
+                  }))}
+                  height={300}
+                />
+              </CardContent>
+            </Card>
           )}
 
           {/* Performance Insights */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Thông Tin Chi Tiết</h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-blue-900">Giờ Làm Việc Trung Bình/Tháng</p>
-                  <p className="text-xs text-blue-700">Dựa trên dữ liệu hiện tại</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Target className="h-5 w-5" />
+                  <span>Thông Tin Chi Tiết</span>
+                </CardTitle>
+                <CardDescription>Phân tích hiệu suất làm việc</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-center p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Giờ Làm Việc Trung Bình/Tháng</p>
+                    <p className="text-xs text-blue-700 dark:text-blue-300">Dựa trên dữ liệu hiện tại</p>
+                  </div>
+                  <div className="text-xl font-bold text-blue-600">
+                    {scheduleAnalytics.totalHoursWorked > 0 
+                      ? (scheduleAnalytics.totalHoursWorked / Math.max(scheduleAnalytics.earningsTrend.length, 1)).toFixed(1)
+                      : '0'
+                    }h
+                  </div>
                 </div>
-                <div className="text-xl font-bold text-blue-600">
-                  {scheduleAnalytics.totalHoursWorked > 0 
-                    ? (scheduleAnalytics.totalHoursWorked / Math.max(scheduleAnalytics.earningsTrend.length, 1)).toFixed(1)
-                    : '0'
-                  }h
-                </div>
-              </div>
 
-              <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-green-900">Thu Nhập/Giờ</p>
-                  <p className="text-xs text-green-700">Hiệu suất thu nhập</p>
+                <div className="flex justify-between items-center p-4 bg-green-50 dark:bg-green-950 rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium text-green-900 dark:text-green-100">Thu Nhập/Giờ</p>
+                    <p className="text-xs text-green-700 dark:text-green-300">Hiệu suất thu nhập</p>
+                  </div>
+                  <div className="text-xl font-bold text-green-600">
+                    {scheduleAnalytics.totalHoursWorked > 0 
+                      ? Math.round(scheduleAnalytics.earningsTrend.reduce((sum, trend) => sum + trend.earnings, 0) / scheduleAnalytics.totalHoursWorked).toLocaleString()
+                      : '0'
+                    }đ/h
+                  </div>
                 </div>
-                <div className="text-xl font-bold text-green-600">
-                  {scheduleAnalytics.totalHoursWorked > 0 
-                    ? Math.round(scheduleAnalytics.earningsTrend.reduce((sum, trend) => sum + trend.earnings, 0) / scheduleAnalytics.totalHoursWorked).toLocaleString()
-                    : '0'
-                  }đ/h
-                </div>
-              </div>
 
-              <div className="flex justify-between items-center p-4 bg-purple-50 rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-purple-900">Tổng Đặt Lịch Trong Kỳ</p>
-                  <p className="text-xs text-purple-700">Số lượng công việc đã nhận</p>
+                <div className="flex justify-between items-center p-4 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium text-purple-900 dark:text-purple-100">Tổng Đặt Lịch Trong Kỳ</p>
+                    <p className="text-xs text-purple-700 dark:text-purple-300">Số lượng công việc đã nhận</p>
+                  </div>
+                  <div className="text-xl font-bold text-purple-600">
+                    {scheduleAnalytics.earningsTrend.reduce((sum, trend) => sum + trend.bookingsCount, 0)}
+                  </div>
                 </div>
-                <div className="text-xl font-bold text-purple-600">
-                  {scheduleAnalytics.earningsTrend.reduce((sum, trend) => sum + trend.bookingsCount, 0)}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Activity className="h-5 w-5" />
+                  <span>Phân Tích Mô Hình Làm Việc</span>
+                </CardTitle>
+                <CardDescription>Xu hướng và thống kê chi tiết</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <h4 className="font-medium text-gray-700 dark:text-gray-300">Xu Hướng Theo Tháng</h4>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {scheduleAnalytics.earningsTrend.map((trend, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{trend.monthName}</span>
+                        <div className="text-right">
+                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {trend.bookingsCount} đặt lịch
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {trend.earnings.toLocaleString()}đ
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Work Pattern Analysis */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Phân Tích Mô Hình Làm Việc</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Weekly Pattern */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-700">Xu Hướng Theo Tháng</h4>
-                {scheduleAnalytics.earningsTrend.map((trend, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm text-gray-600">{trend.monthName}</span>
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-gray-900">{trend.bookingsCount} đặt lịch</div>
-                      <div className="text-xs text-gray-500">{trend.earnings.toLocaleString()}đ</div>
+          {/* Tips and Recommendations */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Lightbulb className="h-5 w-5" />
+                <span>Gợi Ý Cải Thiện</span>
+              </CardTitle>
+              <CardDescription>Những lời khuyên để tăng thu nhập và hiệu suất</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-lg">💡</span>
+                    <div>
+                      <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                        Tối ưu thời gian
+                      </p>
+                      <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                        Hãy tập trung vào những khung giờ có nhu cầu cao để tăng thu nhập.
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
 
-              {/* Tips and Recommendations */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-700">Gợi Ý Cải Thiện</h4>
-                <div className="space-y-2">
-                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-800">
-                      💡 <strong>Tối ưu thời gian:</strong> Hãy tập trung vào những khung giờ có nhu cầu cao để tăng thu nhập.
-                    </p>
+                <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-lg">📈</span>
+                    <div>
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                        Nâng cao kỹ năng
+                      </p>
+                      <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                        Học thêm các dịch vụ mới để mở rộng cơ hội việc làm.
+                      </p>
+                    </div>
                   </div>
-                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-blue-800">
-                      📈 <strong>Nâng cao kỹ năng:</strong> Học thêm các dịch vụ mới để mở rộng cơ hội việc làm.
-                    </p>
+                </div>
+
+                <div className="p-4 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-lg">⭐</span>
+                    <div>
+                      <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                        Chất lượng dịch vụ
+                      </p>
+                      <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                        Duy trì đánh giá cao để thu hút nhiều khách hàng hơn.
+                      </p>
+                    </div>
                   </div>
-                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-sm text-green-800">
-                      ⭐ <strong>Chất lượng dịch vụ:</strong> Duy trì đánh giá cao để thu hút nhiều khách hàng hơn.
-                    </p>
+                </div>
+
+                <div className="p-4 bg-purple-50 dark:bg-purple-950 border border-purple-200 dark:border-purple-800 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-lg">⏰</span>
+                    <div>
+                      <p className="text-sm font-medium text-purple-800 dark:text-purple-200">
+                        Quản lý thời gian
+                      </p>
+                      <p className="text-xs text-purple-700 dark:text-purple-300 mt-1">
+                        Lập kế hoạch làm việc hiệu quả để tối ưu hóa thu nhập.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-orange-50 dark:bg-orange-950 border border-orange-200 dark:border-orange-800 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-lg">🤝</span>
+                    <div>
+                      <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
+                        Giao tiếp tốt
+                      </p>
+                      <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
+                        Tương tác tích cực với khách hàng để xây dựng uy tín.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-lg">🎯</span>
+                    <div>
+                      <p className="text-sm font-medium text-indigo-800 dark:text-indigo-200">
+                        Đặt mục tiêu
+                      </p>
+                      <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-1">
+                        Thiết lập mục tiêu thu nhập hàng tháng để tăng động lực.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </>
       )}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Báo Cáo Của Tôi</h1>
-              <p className="text-gray-600">Theo dõi thu nhập và hiệu suất làm việc</p>
+              <h1 className="text-3xl font-bold tracking-tight">Báo Cáo Của Tôi</h1>
+              <p className="text-muted-foreground mt-1">Theo dõi thu nhập và hiệu suất làm việc</p>
             </div>
             <div className="flex items-center space-x-4">
               <PeriodSelector
                 selectedPeriod={selectedPeriod}
                 onPeriodChange={setSelectedPeriod}
               />
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-              >
+              <Button variant="outline" onClick={() => router.push('/dashboard')}>
                 Về Dashboard
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="-mb-px flex space-x-8">
-            {[
-              { key: 'earnings', label: 'Thu Nhập', icon: '💰' },
-              { key: 'schedule', label: 'Lịch Trình', icon: '📅' },
-            ].map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key as any)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                  activeTab === tab.key
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
-
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-600">{error}</p>
-          </div>
+          <Card className="mb-6 border-destructive">
+            <CardContent className="pt-6">
+              <p className="text-destructive">{error}</p>
+            </CardContent>
+          </Card>
         )}
 
         {loadingData ? (
           <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         ) : (
-          <>
-            {activeTab === 'earnings' && renderEarningsTab()}
-            {activeTab === 'schedule' && renderScheduleTab()}
-          </>
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="earnings" className="flex items-center space-x-2">
+                <DollarSign className="h-4 w-4" />
+                <span>Thu Nhập</span>
+              </TabsTrigger>
+              <TabsTrigger value="schedule" className="flex items-center space-x-2">
+                <Calendar className="h-4 w-4" />
+                <span>Lịch Trình</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="earnings">{renderEarningsTab()}</TabsContent>
+            <TabsContent value="schedule">{renderScheduleTab()}</TabsContent>
+          </Tabs>
         )}
       </main>
     </div>
   );
-} 
+}
