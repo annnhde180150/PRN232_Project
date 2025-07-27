@@ -74,7 +74,7 @@ Kế hoạch này chuyển đổi thiết kế UI thành các task code cụ th�
     - Write tests cho search functionality và card interactions
     - _Yêu cầu: 2.1, 2.2_
 
-  - [ ] 4.2 Tạo Service Discovery interface
+  - [x] 4.2 Tạo Service Discovery interface
 
     - Implement search results với filtering options
     - Tạo Map view toggle functionality
