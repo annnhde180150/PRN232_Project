@@ -123,6 +123,7 @@ const config: Config = {
                 '3xl': 'var(--spacing-3xl)',
                 '4xl': 'var(--spacing-4xl)',
                 '5xl': 'var(--spacing-5xl)',
+                '13': '3.25rem', // 52px for large button
             },
 
             // Custom border radius

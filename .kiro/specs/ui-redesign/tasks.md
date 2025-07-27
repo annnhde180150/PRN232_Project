@@ -15,7 +15,7 @@ Kế hoạch này chuyển đổi thiết kế UI thành các task code cụ th�
 
 - [ ] 2. Xây dựng Core Component Library
 
-  - [ ] 2.1 Implement Button components với variants
+  - [x] 2.1 Implement Button components với variants
 
     - Tạo Primary, Secondary, Ghost, và Danger button variants
     - Implement size variations (small, medium, large)

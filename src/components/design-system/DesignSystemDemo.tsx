@@ -4,6 +4,7 @@ import React from 'react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { designSystem } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
+import { ButtonDemo } from './ButtonDemo';
 
 export function DesignSystemDemo() {
     const { theme, toggleTheme } = useTheme();
@@ -98,21 +99,7 @@ export function DesignSystemDemo() {
 
                 {/* Buttons */}
                 <section className="space-y-6">
-                    <h2 className="text-h2 text-gray-900">Buttons</h2>
-                    <div className="flex flex-wrap gap-4">
-                        <button className={designSystem.buttonVariants.primary}>
-                            Primary Button
-                        </button>
-                        <button className={designSystem.buttonVariants.secondary}>
-                            Secondary Button
-                        </button>
-                        <button className={designSystem.buttonVariants.ghost}>
-                            Ghost Button
-                        </button>
-                        <button className={designSystem.buttonVariants.danger}>
-                            Danger Button
-                        </button>
-                    </div>
+                    <ButtonDemo />
                 </section>
 
                 {/* Cards */}
