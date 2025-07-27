@@ -23,7 +23,7 @@ Kế hoạch này chuyển đổi thiết kế UI thành các task code cụ th�
     - Write comprehensive unit tests cho tất cả button variants
     - _Yêu cầu: 1.1, 1.5_
 
-  - [ ] 2.2 Tạo Form Input components
+  - [x] 2.2 Tạo Form Input components
 
     - Implement TextInput với validation states
     - Tạo Select, Checkbox, Radio button components

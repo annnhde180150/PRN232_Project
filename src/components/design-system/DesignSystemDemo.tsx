@@ -5,6 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { designSystem } from '@/lib/design-system';
 import { cn } from '@/lib/utils';
 import { ButtonDemo } from './ButtonDemo';
+import { FormInputsDemo } from './FormInputsDemo';
 
 export function DesignSystemDemo() {
     const { theme, toggleTheme } = useTheme();
@@ -100,6 +101,12 @@ export function DesignSystemDemo() {
                 {/* Buttons */}
                 <section className="space-y-6">
                     <ButtonDemo />
+                </section>
+
+                {/* Form Inputs */}
+                <section className="space-y-6">
+                    <h2 className="text-h2 text-gray-900">Form Input Components</h2>
+                    <FormInputsDemo />
                 </section>
 
                 {/* Cards */}
