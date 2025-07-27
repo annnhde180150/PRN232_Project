@@ -145,7 +145,6 @@ interface CustomerDashboardProps {
 export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ className }) => {
     const router = useRouter();
     const [searchQuery, setSearchQuery] = useState('');
-    const [currentLocation, setCurrentLocation] = useState('Quận 1, TP.HCM');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
 
     // Handle search submission
@@ -153,9 +152,9 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ className 
         e.preventDefault();
         try {
             if (searchQuery.trim()) {
-                router.push(`/search-helper?q=${encodeURIComponent(searchQuery.trim())}&location=${encodeURIComponent(currentLocation)}`);
+                router.push(`/search-helper?q=${encodeURIComponent(searchQuery.trim())}}`);
             } else {
-                router.push(`/search-helper?location=${encodeURIComponent(currentLocation)}`);
+                router.push(`/search-helper}`);
             }
         } catch (error) {
             console.error('Navigation error:', error);
@@ -165,7 +164,7 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ className 
     // Handle service card click
     const handleServiceClick = (serviceId: string) => {
         try {
-            router.push(`/search-helper?service=${serviceId}&location=${encodeURIComponent(currentLocation)}`);
+            router.push(`/search-helper?service=${serviceId}}`);
         } catch (error) {
             console.error('Navigation error:', error);
         }
@@ -239,8 +238,6 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ className 
                                         onClick={handleLocationClick}
                                         className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
                                     >
-                                        <MapPin className="w-4 h-4" />
-                                        <span className="hidden sm:inline">{currentLocation}</span>
                                     </Button>
                                 </div>
 
@@ -254,22 +251,6 @@ export const CustomerDashboard: React.FC<CustomerDashboardProps> = ({ className 
                                 </Button>
                             </div>
                         </form>
-
-                        {/* Quick stats */}
-                        <div className="flex flex-wrap justify-center items-center gap-6 text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                <span>123 người giúp việc đang hoạt động</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Star className="w-4 h-4 text-yellow-500" />
-                                <span>Đánh giá trung bình 4.8/5</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-blue-500" />
-                                <span>Phản hồi trong 5 phút</span>
-                            </div>
-                        </div>
                     </div>
                 </PageContainer>
             </Section>

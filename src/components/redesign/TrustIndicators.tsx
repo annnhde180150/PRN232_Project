@@ -182,7 +182,7 @@ export const TrustIndicators: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Tại Sao Chọn Find Helper?
+            Tại Sao Chọn Homezy?
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Chúng tôi cam kết mang đến trải nghiệm an toàn, tin cậy và chất lượng cao nhất

@@ -12,7 +12,7 @@ export const Footer: React.FC = () => {
           <div className="md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <div className="text-2xl">🏠</div>
-              <span className="text-xl font-bold text-blue-600">Find Helper</span>
+              <span className="text-xl font-bold text-blue-600">Homezy</span>
             </div>
             <p className="text-gray-600 text-sm mb-4">
               Nền tảng kết nối khách hàng với người giúp việc nhà uy tín. 
@@ -68,7 +68,7 @@ export const Footer: React.FC = () => {
               </li>
               <li>
                 <Link href="/register" className="text-gray-600 hover:text-blue-600 text-sm transition-colors">
-                  Đăng ký làm helper
+                  Đăng ký làm người giúp việc
                 </Link>
               </li>
               <li>
@@ -150,7 +150,7 @@ export const Footer: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-900">Địa chỉ</p>
-                <p className="text-sm text-gray-600">123 Nguyễn Văn Cừ, Q.5, TP.HCM</p>
+                <p className="text-sm text-gray-600">TP. Đà Nẵng</p>
               </div>
             </div>
           </div>
@@ -160,7 +160,7 @@ export const Footer: React.FC = () => {
         <div className="mt-8 pt-8 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-sm text-gray-600">
-              © {currentYear} Find Helper. Tất cả quyền được bảo lưu.
+              © {currentYear} Homezy. Tất cả quyền được bảo lưu.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <Link href="/privacy" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">

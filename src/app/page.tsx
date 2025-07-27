@@ -179,7 +179,7 @@ export default function Home() {
         <PageContainer>
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Tại Sao Chọn Find Helper?
+              Tại Sao Chọn Homezy?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Chúng tôi tự hào về những con số ấn tượng và sự tin tưởng từ người dùng
