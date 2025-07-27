@@ -7,6 +7,7 @@ import { authAPI } from '../../lib/api';
 import { NotificationBell, NotificationDemo } from '../../components/notifications';
 import { PageContainer, Section } from '../../components/layout';
 import { CustomerDashboard } from '../../components/customer';
+import { AvailabilityToggle } from "@/components/helper/AvailabilityToggle";
 
 export default function DashboardPage() {
   const { user, userType, isAuthenticated, logout, loading } = useAuth();
@@ -51,22 +52,30 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Trạng Thái Tài Khoản</h2>
-              <div className="flex items-center space-x-2">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${helper.approvalStatus === 'approved'
-                  ? 'bg-green-100 text-green-800'
-                  : helper.approvalStatus === 'pending'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-red-100 text-red-800'
-                  }`}>
-                  {helper.approvalStatus === 'approved' ? 'Đã duyệt' :
-                    helper.approvalStatus === 'pending' ? 'Chờ duyệt' : 'Từ chối'}
-                </span>
+              <div className="flex flex-col space-y-4">
+                <div className="flex items-center space-x-2">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${helper.approvalStatus === 'approved'
+                    ? 'bg-green-100 text-green-800'
+                    : helper.approvalStatus === 'pending'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                    }`}>
+                    {helper.approvalStatus === 'approved' ? 'Đã duyệt' :
+                      helper.approvalStatus === 'pending' ? 'Chờ duyệt' : 'Từ chối'}
+                  </span>
+                </div>
+                {helper.approvalStatus === 'pending' && (
+                  <p className="text-gray-600 mt-2">
+                    Tài khoản của bạn đang chờ được duyệt bởi quản trị viên.
+                  </p>
+                )}
+                {helper.approvalStatus === 'approved' && (
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-600 mb-2">Trạng thái hoạt động:</p>
+                    <AvailabilityToggle initialStatus={helper.isAvailable} />
+                  </div>
+                )}
               </div>
-              {helper.approvalStatus === 'pending' && (
-                <p className="text-gray-600 mt-2">
-                  Tài khoản của bạn đang chờ được duyệt bởi quản trị viên.
-                </p>
-              )}
             </div>
 
             {/* Quick Actions Card - NEW */}

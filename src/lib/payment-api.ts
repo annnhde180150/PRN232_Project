@@ -152,14 +152,14 @@ export const createVnpayPaymentUrl = async (
       }
     }
     
-    // Join với & (giống Android)
+    // Join với & 
     const hashDataStr = hashData.join('&');
     const queryStr = query.join('&');
     
     console.log('Hash Data String:', hashDataStr);
     console.log('Query String:', queryStr);
     
-    // Tạo hash (giống Android)
+    // Tạo hash 
     const vnp_SecureHash = hmacSHA512(HASH_SECRET, hashDataStr);
     
     console.log('Generated Hash:', vnp_SecureHash);
@@ -176,22 +176,22 @@ export const createVnpayPaymentUrl = async (
   }
 };
 
-// Function để verify return URL (giống logic Android)
+// Function để verify return URL 
 export const verifyVnpayReturn = (vnpParams: any): boolean => {
   try {
     const secureHash = vnpParams.vnp_SecureHash;
     
-    // Loại bỏ hash khỏi params
+
     const paramsToVerify = { ...vnpParams };
     delete paramsToVerify.vnp_SecureHash;
     delete paramsToVerify.vnp_SecureHashType;
     
-    // Sắp xếp field names
+
     const fieldNames = Object.keys(paramsToVerify).sort();
     
     const hashData: string[] = [];
     
-    // Build hash data giống Android
+
     for (const fieldName of fieldNames) {
       const fieldValue = paramsToVerify[fieldName];
       
