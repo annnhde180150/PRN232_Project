@@ -34,7 +34,8 @@ import {
   UserCheck,
   ShieldCheck,
   MapPin,
-  Filter
+  Filter,
+  History
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -248,6 +249,14 @@ export const Header: React.FC<HeaderProps> = ({ className, showSearch = true }) 
                         <span>Hồ sơ cá nhân</span>
                       </Link>
                     </DropdownMenuItem>
+                    {userType === 'user' && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/booking-history" className="flex items-center">
+                          <History className="mr-2 h-4 w-4" />
+                          <span>Lịch sử đặt dịch vụ</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={handleLogout}
@@ -306,6 +315,19 @@ export const Header: React.FC<HeaderProps> = ({ className, showSearch = true }) 
                             </Link>
                           </Button>
                         ))}
+                        {userType === 'user' && (
+                          <Button
+                            variant="ghost"
+                            asChild
+                            className="justify-start"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <Link href="/booking-history" className="flex items-center gap-3">
+                              <History className="w-4 h-4" />
+                              <span>Lịch sử đặt dịch vụ</span>
+                            </Link>
+                          </Button>
+                        )}
                       </nav>
                     </div>
                   </SheetContent>
