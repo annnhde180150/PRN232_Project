@@ -49,7 +49,7 @@ Kế hoạch này chuyển đổi thiết kế UI thành các task code cụ th�
     - Write tests cho responsive behavior across devices
     - _Yêu cầu: 1.4, 6.1, 6.2_
 
-  - [ ] 3.2 Xây dựng Navigation components
+  - [x] 3.2 Xây dựng Navigation components
 
     - Implement Bottom Tab Navigation cho mobile
     - Tạo Header navigation với search và profile

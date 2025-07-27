@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
@@ -9,6 +9,7 @@ import { NotificationBell } from '../notifications';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
+import { Input } from '../ui/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,34 +20,55 @@ import {
 } from '../ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 import { Separator } from '../ui/separator';
-import { 
-  Home, 
-  MessageCircle, 
-  Bell, 
-  Search, 
-  FileText, 
-  Users, 
-  Settings, 
-  LogOut, 
+import { cn } from '../../lib/utils';
+import {
+  Home,
+  MessageCircle,
+  Bell,
+  Search,
+  FileText,
+  Users,
+  Settings,
+  LogOut,
   Menu,
   UserCheck,
-  ShieldCheck
+  ShieldCheck,
+  MapPin,
+  Filter
 } from 'lucide-react';
 
 interface HeaderProps {
-  darkMode: boolean;
-  setDarkMode: (val: boolean) => void;
+  className?: string;
+  showSearch?: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
+export const Header: React.FC<HeaderProps> = ({ className, showSearch = true }) => {
   const { user, userType, logout } = useAuth();
   const { unreadCount } = useChat();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const handleLogout = () => {
     logout();
     router.push('/login');
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search-helper?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const handleSearchFocus = () => {
+    setIsSearchFocused(true);
+  };
+
+  const handleSearchBlur = () => {
+    setIsSearchFocused(false);
   };
 
   type NavigationItem = {
@@ -61,8 +83,6 @@ export const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
 
     const baseItems: NavigationItem[] = [
       { href: '/dashboard', label: 'Dashboard', icon: Home },
-      { href: '/chat', label: 'Tin nhắn', icon: MessageCircle, badge: unreadCount },
-      { href: '/notifications', label: 'Thông báo', icon: Bell },
     ];
 
     const userTypeItems: Record<string, NavigationItem[]> = {
@@ -103,18 +123,64 @@ export const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
   };
 
   return (
-    <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border sticky top-0 z-50">
+    <header className={cn(
+      "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border sticky top-0 z-50",
+      className
+    )}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo và tên ứng dụng */}
-          <div className="flex items-center">
+          <div className="flex items-center flex-shrink-0">
             <Link href="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <Home className="w-5 h-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold text-primary">Homezy</span>
+              <span className="text-xl font-bold text-primary hidden sm:block">Homezy</span>
             </Link>
           </div>
+
+          {/* Search Bar - Only for customers */}
+          {user && userType === 'user' && showSearch && (
+            <div className="flex-1 max-w-2xl mx-4 hidden md:block">
+              <form onSubmit={handleSearch} className="relative">
+                <div className={cn(
+                  "relative flex items-center transition-all duration-200",
+                  isSearchFocused && "ring-2 ring-primary ring-offset-2 rounded-lg"
+                )}>
+                  <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Tìm kiếm dịch vụ, người giúp việc..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={handleSearchFocus}
+                    onBlur={handleSearchBlur}
+                    className="pl-10 pr-20 h-10 bg-muted/50 border-0 focus:bg-background"
+                  />
+                  <div className="absolute right-2 flex items-center gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                    >
+                      <MapPin className="w-3 h-3 mr-1" />
+                      <span className="hidden sm:inline">Vị trí</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 px-2"
+                    >
+                      <Filter className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          )}
 
           {/* Navigation Menu - Desktop */}
           {user && (
@@ -147,7 +213,7 @@ export const Header: React.FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
               <>
                 {/* Notification Bell */}
                 <NotificationBell />
-                
+
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
