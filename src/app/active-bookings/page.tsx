@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { EnhancedBookingCard } from '@/components/bookings/EnhancedBookingCard';
 
 interface Booking {
   bookingId: number;
@@ -98,20 +99,20 @@ export default function ActiveBookingsPage() {
     return <div className="p-4">Loading...</div>;
   }
 
-  const filteredBookings = statusFilter === 'all' 
-    ? bookings 
+  const filteredBookings = statusFilter === 'all'
+    ? bookings
     : bookings.filter(booking => booking.status === statusFilter);
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex flex-col space-y-6">
         <h1 className="text-2xl font-bold">Đơn hàng đang hoạt động</h1>
-        
+
         {/* Status Filter */}
         <div className="bg-white p-4 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Lọc theo trạng thái</h2>
-          <RadioGroup 
-            value={statusFilter} 
+          <RadioGroup
+            value={statusFilter}
             onValueChange={(value) => setStatusFilter(value as StatusFilter)}
             className="flex space-x-4"
           >
@@ -133,39 +134,17 @@ export default function ActiveBookingsPage() {
         {/* Bookings Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredBookings.map((booking) => (
-            <Card key={booking.bookingId} className="p-4">
-              <div className="flex flex-col gap-2">
-                <h2 className="text-lg font-semibold">{booking.serviceName}</h2>
-                <p className="text-sm text-gray-600">Customer: {booking.fullName}</p>
-                <p className="text-sm text-gray-600">Address: {booking.fullAddress}</p>
-                <p className="text-sm text-gray-600">
-                  Start: {new Date(booking.scheduledStartTime).toLocaleString()}
-                </p>
-                <p className="text-sm text-gray-600">
-                  End: {new Date(booking.scheduledEndTime).toLocaleString()}
-                </p>
-                <p className="text-sm font-medium">
-                  Price: {formatPriceVND(booking.estimatedPrice)} VND
-                </p>
-                <div className="flex items-center justify-between mt-2">
-                  <span className={`px-2 py-1 rounded text-sm ${
-                    booking.status === 'InProgress' 
-                      ? 'bg-blue-100 text-blue-800'
-                      : 'bg-green-100 text-green-800'
-                  }`}>
-                    {booking.status}
-                  </span>
-                  {booking.status === 'InProgress' && (
-                    <Button
-                      onClick={() => updateBookingStatus(booking.bookingId)}
-                      variant="default"
-                    >
-                      Mark as Complete
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </Card>
+            <EnhancedBookingCard
+              key={booking.bookingId}
+              booking={{
+                ...booking,
+                helperName: 'Helper Name', // This should come from API
+                helperPhone: '+84123456789', // This should come from API
+                helperRating: 4.5 // This should come from API
+              }}
+              onStatusUpdate={() => updateBookingStatus(booking.bookingId)}
+              userType="helper"
+            />
           ))}
         </div>
 

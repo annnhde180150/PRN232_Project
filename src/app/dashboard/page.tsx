@@ -7,7 +7,9 @@ import { authAPI } from '../../lib/api';
 import { NotificationBell, NotificationDemo } from '../../components/notifications';
 import { PageContainer, Section } from '../../components/layout';
 import { CustomerDashboard } from '../../components/customer';
+import { EnhancedCustomerDashboard } from '../../components/customer/EnhancedCustomerDashboard';
 import { AvailabilityToggle } from "@/components/helper/AvailabilityToggle";
+import SearchHelperPage from '../search-helper/page';
 
 export default function DashboardPage() {
   const { user, userType, isAuthenticated, logout, loading } = useAuth();
@@ -175,9 +177,17 @@ export default function DashboardPage() {
     }
   };
 
-  // For customers, use the new CustomerDashboard component
+  // For customers, use the enhanced CustomerDashboard component
   if (userType === 'user') {
-    return <CustomerDashboard />;
+    return (
+      <div className="bg-gray-50 min-h-screen">
+        <Section padding="lg">
+          <PageContainer>
+            <SearchHelperPage />
+          </PageContainer>
+        </Section>
+      </div>
+    );
   }
 
   return (

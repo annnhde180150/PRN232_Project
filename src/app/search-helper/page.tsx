@@ -5,6 +5,8 @@ import type { HelperSearchResult } from "../../types/reports";
 import { ServiceDiscovery, ServiceDiscoveryFilters } from "../../components/customer/ServiceDiscovery";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
+import { QuickBookingModal } from "../../components/booking/QuickBookingModal";
+
 
 export default function SearchHelperPage() {
   const [services, setServices] = useState<Service[]>([]);
@@ -22,6 +24,8 @@ export default function SearchHelperPage() {
     availability: 'all',
     sortBy: 'relevance',
   });
+  const [selectedHelperForBooking, setSelectedHelperForBooking] = useState<any>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   useEffect(() => {
     setServiceLoading(true);
@@ -58,7 +62,7 @@ export default function SearchHelperPage() {
     filterResults(searchQuery, newFilters);
   };
 
-  const filterResults = (query: string, currentFilters: ServiceDiscoveryFilters) => {
+  const filterResults = (query: string, newFilters: ServiceDiscoveryFilters) => {
     let filtered = [...results];
 
     // Text search filter
@@ -76,6 +80,9 @@ export default function SearchHelperPage() {
       );
     }
 
+    // Apply additional filters from newFilters if needed
+    // TODO: Implement price, rating, distance filters
+
     setFilteredResults(filtered);
   };
 
@@ -85,8 +92,11 @@ export default function SearchHelperPage() {
   };
 
   const handleBook = (helperId: number) => {
-    // Navigate to booking flow
-    alert(`Đặt dịch vụ với helper ${helperId}`);
+    const helper = filteredResults.find(h => h.helperId === helperId);
+    if (helper) {
+      setSelectedHelperForBooking(helper);
+      setShowBookingModal(true);
+    }
   };
 
   const handleAddFavorite = (helperId: number) => {
@@ -162,6 +172,22 @@ export default function SearchHelperPage() {
             onAddToFavorites={handleAddFavorite}
           />
         </div>
+      )}
+
+      {/* Quick Booking Modal */}
+      {selectedHelperForBooking && (
+        <QuickBookingModal
+          helper={selectedHelperForBooking}
+          isOpen={showBookingModal}
+          onClose={() => {
+            setShowBookingModal(false);
+            setSelectedHelperForBooking(null);
+          }}
+          onBookingSuccess={() => {
+            // Thông báo sẽ được hiển thị từ BookingForm component
+            // và sẽ tự động chuyển hướng đến booking-history
+          }}
+        />
       )}
     </div>
   );

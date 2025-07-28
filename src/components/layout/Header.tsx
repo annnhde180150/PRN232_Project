@@ -96,7 +96,6 @@ export const Header: React.FC<HeaderProps> = ({ className, showSearch = true }) 
         { href: '/helper-reports', label: 'Báo cáo của tôi', icon: FileText },
       ],
       user: [
-        { href: '/search-helper', label: 'Tìm người giúp việc', icon: Search },
         { href: '/customer-reports', label: 'Báo cáo khách hàng', icon: FileText },
       ]
     };
@@ -139,49 +138,6 @@ export const Header: React.FC<HeaderProps> = ({ className, showSearch = true }) 
               <span className="text-xl font-bold text-primary hidden sm:block">Homezy</span>
             </Link>
           </div>
-
-          {/* Search Bar - Only for customers */}
-          {user && userType === 'user' && showSearch && (
-            <div className="flex-1 max-w-2xl mx-4 hidden md:block">
-              <form onSubmit={handleSearch} className="relative">
-                <div className={cn(
-                  "relative flex items-center transition-all duration-200",
-                  isSearchFocused && "ring-2 ring-primary ring-offset-2 rounded-lg"
-                )}>
-                  <Search className="absolute left-3 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder="Tìm kiếm dịch vụ, người giúp việc..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={handleSearchFocus}
-                    onBlur={handleSearchBlur}
-                    className="pl-10 pr-20 h-10 bg-muted/50 border-0 focus:bg-background"
-                  />
-                  <div className="absolute right-2 flex items-center gap-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2 text-xs"
-                    >
-                      <MapPin className="w-3 h-3 mr-1" />
-                      <span className="hidden sm:inline">Vị trí</span>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="h-6 px-2"
-                    >
-                      <Filter className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </div>
-              </form>
-            </div>
-          )}
 
           {/* Navigation Menu - Desktop */}
           {user && (

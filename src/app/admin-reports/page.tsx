@@ -27,14 +27,14 @@ export default function AdminReportsPage() {
   const router = useRouter();
   const [selectedPeriod, setSelectedPeriod] = useState<ReportPeriod>('month');
   const [activeTab, setActiveTab] = useState<'overview' | 'revenue' | 'services' | 'helpers' | 'bookings'>('overview');
-  
+
   // Data states
   const [businessOverview, setBusinessOverview] = useState<BusinessOverview | null>(null);
   const [revenueAnalytics, setRevenueAnalytics] = useState<RevenueAnalytics | null>(null);
   const [servicePerformance, setServicePerformance] = useState<ServicePerformance[]>([]);
   const [helperRankings, setHelperRankings] = useState<HelperRanking[]>([]);
   const [bookingAnalytics, setBookingAnalytics] = useState<BookingAnalytics | null>(null);
-  
+
   // Loading states
   const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState<string>('');
@@ -54,7 +54,7 @@ export default function AdminReportsPage() {
   const loadAllData = async () => {
     setLoadingData(true);
     setError('');
-    
+
     try {
       const [overview, revenue, services, helpers, bookings] = await Promise.all([
         reportAPI.getBusinessOverview(),
@@ -677,9 +677,6 @@ export default function AdminReportsPage() {
                 selectedPeriod={selectedPeriod}
                 onPeriodChange={setSelectedPeriod}
               />
-              <Button variant="outline" onClick={() => router.push('/dashboard')}>
-                Về Dashboard
-              </Button>
             </div>
           </div>
         </div>

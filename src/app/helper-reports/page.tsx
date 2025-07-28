@@ -24,11 +24,11 @@ export default function HelperReportsPage() {
   const router = useRouter();
   const [selectedPeriod, setSelectedPeriod] = useState<ReportPeriod>('month');
   const [activeTab, setActiveTab] = useState<'earnings' | 'schedule'>('earnings');
-  
+
   // Data states
   const [helperEarnings, setHelperEarnings] = useState<HelperEarnings | null>(null);
   const [scheduleAnalytics, setScheduleAnalytics] = useState<HelperScheduleAnalytics | null>(null);
-  
+
   // Loading states
   const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState<string>('');
@@ -48,7 +48,7 @@ export default function HelperReportsPage() {
   const loadAllData = async () => {
     setLoadingData(true);
     setError('');
-    
+
     try {
       const [earnings, schedule] = await Promise.all([
         reportAPI.getHelperEarnings(selectedPeriod),
@@ -165,7 +165,7 @@ export default function HelperReportsPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Thu nhập/giờ</span>
                   <span className="font-medium">
-                    {helperEarnings.totalHoursWorked > 0 
+                    {helperEarnings.totalHoursWorked > 0
                       ? Math.round(helperEarnings.totalEarnings / helperEarnings.totalHoursWorked).toLocaleString()
                       : '0'
                     }đ/h
@@ -193,9 +193,9 @@ export default function HelperReportsPage() {
                 </div>
                 <div className="text-center pt-2">
                   <div className="text-sm text-muted-foreground">
-                    {helperEarnings.averageRating >= 4.5 ? '🌟 Xuất sắc!' : 
-                     helperEarnings.averageRating >= 4.0 ? '✨ Tốt!' : 
-                     helperEarnings.averageRating >= 3.5 ? '👍 Khá tốt' : '💪 Cần cải thiện'}
+                    {helperEarnings.averageRating >= 4.5 ? '🌟 Xuất sắc!' :
+                      helperEarnings.averageRating >= 4.0 ? '✨ Tốt!' :
+                        helperEarnings.averageRating >= 3.5 ? '👍 Khá tốt' : '💪 Cần cải thiện'}
                   </div>
                 </div>
               </CardContent>
@@ -209,7 +209,7 @@ export default function HelperReportsPage() {
               <CardContent className="space-y-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-blue-600">
-                    {helperEarnings.totalBookings > 0 
+                    {helperEarnings.totalBookings > 0
                       ? (helperEarnings.totalEarnings / helperEarnings.totalBookings).toLocaleString()
                       : '0'
                     }đ
@@ -434,7 +434,7 @@ export default function HelperReportsPage() {
                     <p className="text-xs text-blue-700 dark:text-blue-300">Dựa trên dữ liệu hiện tại</p>
                   </div>
                   <div className="text-xl font-bold text-blue-600">
-                    {scheduleAnalytics.totalHoursWorked > 0 
+                    {scheduleAnalytics.totalHoursWorked > 0
                       ? (scheduleAnalytics.totalHoursWorked / Math.max(scheduleAnalytics.earningsTrend.length, 1)).toFixed(1)
                       : '0'
                     }h
@@ -447,7 +447,7 @@ export default function HelperReportsPage() {
                     <p className="text-xs text-green-700 dark:text-green-300">Hiệu suất thu nhập</p>
                   </div>
                   <div className="text-xl font-bold text-green-600">
-                    {scheduleAnalytics.totalHoursWorked > 0 
+                    {scheduleAnalytics.totalHoursWorked > 0
                       ? Math.round(scheduleAnalytics.earningsTrend.reduce((sum, trend) => sum + trend.earnings, 0) / scheduleAnalytics.totalHoursWorked).toLocaleString()
                       : '0'
                     }đ/h
@@ -614,9 +614,6 @@ export default function HelperReportsPage() {
                 selectedPeriod={selectedPeriod}
                 onPeriodChange={setSelectedPeriod}
               />
-              <Button variant="outline" onClick={() => router.push('/dashboard')}>
-                Về Dashboard
-              </Button>
             </div>
           </div>
         </div>

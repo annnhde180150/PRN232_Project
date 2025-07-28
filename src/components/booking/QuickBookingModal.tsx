@@ -8,14 +8,16 @@ import { Calendar, Clock, MapPin, User, Star } from 'lucide-react';
 import { BookingForm } from './booking-form';
 
 interface Helper {
-    id: number;
-    name: string;
+    helperId: number;
+    helperName: string;
+    serviceName: string;
+    bio: string;
     rating: number;
-    reviewCount: number;
-    hourlyRate: number;
+    helperWorkAreas: string[];
+    basePrice: number;
+    availableStatus: string;
     avatar?: string;
     distance?: string;
-    specialties: string[];
 }
 
 interface QuickBookingModalProps {
@@ -57,11 +59,11 @@ export function QuickBookingModal({ helper, isOpen, onClose, onBookingSuccess }:
                                         <User className="w-8 h-8 text-gray-500" />
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="text-lg font-semibold">{helper.name}</h3>
+                                        <h3 className="text-lg font-semibold">{helper.helperName}</h3>
                                         <div className="flex items-center space-x-2 text-sm text-gray-600">
                                             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                                             <span>{helper.rating}</span>
-                                            <span>({helper.reviewCount} đánh giá)</span>
+                                            <span>đánh giá</span>
                                             {helper.distance && (
                                                 <>
                                                     <span>•</span>
@@ -71,16 +73,16 @@ export function QuickBookingModal({ helper, isOpen, onClose, onBookingSuccess }:
                                             )}
                                         </div>
                                         <div className="flex flex-wrap gap-1 mt-2">
-                                            {helper.specialties.map((specialty, index) => (
+                                            {helper.helperWorkAreas && helper.helperWorkAreas.map((area: string, index: number) => (
                                                 <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                                                    {specialty}
+                                                    {area}
                                                 </span>
                                             ))}
                                         </div>
                                     </div>
                                     <div className="text-right">
                                         <div className="text-lg font-bold text-green-600">
-                                            {helper.hourlyRate.toLocaleString()}đ/giờ
+                                            {helper.basePrice}đ/giờ
                                         </div>
                                     </div>
                                 </div>
@@ -117,7 +119,10 @@ export function QuickBookingModal({ helper, isOpen, onClose, onBookingSuccess }:
                         </div>
                     </div>
                 ) : (
-                    <BookingForm onSuccess={handleBookingComplete} />
+                    <BookingForm
+                        helperId={helper.helperId}
+                        onSuccess={handleBookingComplete}
+                    />
                 )}
             </DialogContent>
         </Dialog>

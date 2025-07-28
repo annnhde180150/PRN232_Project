@@ -22,14 +22,14 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 // Icons
-import { 
-  Calendar, 
-  TrendingUp, 
-  DollarSign, 
-  Users, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Calendar,
+  TrendingUp,
+  DollarSign,
+  Users,
+  Clock,
+  CheckCircle,
+  XCircle,
   AlertCircle,
   BarChart3,
   PieChart,
@@ -45,12 +45,12 @@ export default function CustomerReportsPage() {
   const router = useRouter();
   const [selectedPeriod, setSelectedPeriod] = useState<ReportPeriod>('month');
   const [activeTab, setActiveTab] = useState<'bookings' | 'spending' | 'favorites'>('bookings');
-  
+
   // Data states
   const [customerBookings, setCustomerBookings] = useState<CustomerBookings | null>(null);
   const [customerSpending, setCustomerSpending] = useState<CustomerSpending | null>(null);
   const [favoriteHelpers, setFavoriteHelpers] = useState<FavoriteHelper[]>([]);
-  
+
   // Loading states
   const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState<string>('');
@@ -70,7 +70,7 @@ export default function CustomerReportsPage() {
   const loadAllData = async () => {
     setLoadingData(true);
     setError('');
-    
+
     try {
       const [bookings, spending, favorites] = await Promise.all([
         reportAPI.getCustomerBookings(selectedPeriod),
@@ -108,14 +108,14 @@ export default function CustomerReportsPage() {
     return null;
   }
 
-  const StatCard = ({ 
-    title, 
-    value, 
-    icon, 
-    trend, 
+  const StatCard = ({
+    title,
+    value,
+    icon,
+    trend,
     trendValue,
     description,
-    className = "" 
+    className = ""
   }: {
     title: string;
     value: string | number;
@@ -228,8 +228,8 @@ export default function CustomerReportsPage() {
                       {customerBookings.completedBookings}
                     </Badge>
                   </div>
-                  <Progress 
-                    value={customerBookings.totalBookings > 0 ? (customerBookings.completedBookings / customerBookings.totalBookings) * 100 : 0} 
+                  <Progress
+                    value={customerBookings.totalBookings > 0 ? (customerBookings.completedBookings / customerBookings.totalBookings) * 100 : 0}
                     className="h-2"
                   />
                 </div>
@@ -240,8 +240,8 @@ export default function CustomerReportsPage() {
                       {customerBookings.inProgressBookings}
                     </Badge>
                   </div>
-                  <Progress 
-                    value={customerBookings.totalBookings > 0 ? (customerBookings.inProgressBookings / customerBookings.totalBookings) * 100 : 0} 
+                  <Progress
+                    value={customerBookings.totalBookings > 0 ? (customerBookings.inProgressBookings / customerBookings.totalBookings) * 100 : 0}
                     className="h-2"
                   />
                 </div>
@@ -252,8 +252,8 @@ export default function CustomerReportsPage() {
                       {customerBookings.pendingBookings}
                     </Badge>
                   </div>
-                  <Progress 
-                    value={customerBookings.totalBookings > 0 ? (customerBookings.pendingBookings / customerBookings.totalBookings) * 100 : 0} 
+                  <Progress
+                    value={customerBookings.totalBookings > 0 ? (customerBookings.pendingBookings / customerBookings.totalBookings) * 100 : 0}
                     className="h-2"
                   />
                 </div>
@@ -264,8 +264,8 @@ export default function CustomerReportsPage() {
                       {customerBookings.cancelledBookings}
                     </Badge>
                   </div>
-                  <Progress 
-                    value={customerBookings.totalBookings > 0 ? (customerBookings.cancelledBookings / customerBookings.totalBookings) * 100 : 0} 
+                  <Progress
+                    value={customerBookings.totalBookings > 0 ? (customerBookings.cancelledBookings / customerBookings.totalBookings) * 100 : 0}
                     className="h-2"
                   />
                 </div>
@@ -409,7 +409,7 @@ export default function CustomerReportsPage() {
                       <p className="text-xs text-blue-700 mt-1">Dựa trên dữ liệu hiện tại</p>
                     </div>
                     <div className="text-2xl font-bold text-blue-600">
-                      {customerSpending.spendingTrend.length > 0 
+                      {customerSpending.spendingTrend.length > 0
                         ? formatCurrency(Math.round(customerSpending.totalSpent / customerSpending.spendingTrend.length))
                         : formatCurrency(0)
                       }
@@ -590,12 +590,6 @@ export default function CustomerReportsPage() {
                   <SelectItem value="year">Năm này</SelectItem>
                 </SelectContent>
               </Select>
-              <Button
-                variant="outline"
-                onClick={() => router.push('/dashboard')}
-              >
-                Về Dashboard
-              </Button>
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -28,18 +29,23 @@ type FormData = z.infer<typeof formSchema>;
 
 interface BookingFormProps {
     editData?: Booking;
+    helperId?: number;
     onSuccess?: () => void;
 }
 
-export function BookingForm({ editData, onSuccess }: BookingFormProps) {
+export function BookingForm({ editData, helperId, onSuccess }: BookingFormProps) {
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
+
+    const storedUser = localStorage.getItem("user_data");
+    const currentUser = storedUser ? JSON.parse(storedUser) : null;
 
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            userId: editData?.userId || 1,
+            userId: editData?.userId || currentUser?.id,
             serviceId: editData?.serviceId || 0,
             addressId: 0,
             requestedStartTime: editData?.scheduledStartTime ?
@@ -47,7 +53,7 @@ export function BookingForm({ editData, onSuccess }: BookingFormProps) {
             requestedDurationHours: editData ?
                 Math.round((new Date(editData.scheduledEndTime).getTime() - new Date(editData.scheduledStartTime).getTime()) / (1000 * 60 * 60)) : 2,
             specialNotes: '',
-            helperId: editData?.helperId || 1
+            helperId: editData?.helperId || helperId || 1
         }
     });
 
@@ -106,6 +112,11 @@ export function BookingForm({ editData, onSuccess }: BookingFormProps) {
                 toast.success(editData ? 'Cập nhật đặt lịch thành công' : 'Đặt người giúp việc thành công');
                 form.reset();
                 onSuccess?.();
+
+                // Chuyển hướng đến trang booking history sau khi đặt thành công
+                setTimeout(() => {
+                    router.push('/booking-history');
+                }, 1500);
             } else {
                 toast.error(response.message || 'Thao tác thất bại');
             }
@@ -125,41 +136,7 @@ export function BookingForm({ editData, onSuccess }: BookingFormProps) {
             <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="userId"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>ID người dùng</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            {...field}
-                                            onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                        <FormField
-                            control={form.control}
-                            name="helperId"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>ID người giúp việc</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            {...field}
-                                            onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                        {/* Hidden fields - userId and helperId will be sent automatically */}
 
                         <FormField
                             control={form.control}
