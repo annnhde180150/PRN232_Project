@@ -98,7 +98,7 @@ export const OtpVerifyModal: React.FC<OtpVerifyModalProps> = ({ open, onClose, e
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-200/60 backdrop-blur">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/20 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md flex flex-col gap-4 relative animate-fade-in">
         <button
           className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold focus:outline-none"

@@ -52,6 +52,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
           dateOfBirth: helperData.dateOfBirth ? helperData.dateOfBirth.split('T')[0] : '',
           gender: helperData.gender || '',
           isActive: helperData.isActive || false,
+          isEmailVerified: helperData.isEmailVerified || false,
           skills: helperData.skills || [],
           workAreas: helperData.workAreas || [],
           documents: helperData.documents || [],
