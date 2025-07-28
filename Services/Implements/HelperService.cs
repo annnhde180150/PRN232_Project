@@ -526,12 +526,13 @@ public class HelperService : IHelperService
         foreach (var helper in helpers)
         {
             var helperWorkAreas = await _unitOfWork.HelperWorkAreas.GetAllAsync(h => h.HelperId == helper.HelperId);
+            var rating = await _unitOfWork.Reviews.GetAverageRatingByHelperIdAsync(helper.HelperId);
             var searchHelper = new SearchHelperDto
             {
                 helperId = helper.HelperId,
                 helperName = helper.FullName,
                 basePrice = service.BasePrice,
-                rating = helper.AverageRating ?? 0,
+                rating = (decimal)rating,
                 bio = helper.Bio,
                 serviceName = service.ServiceName,
                 HelperWorkAreas = helperWorkAreas.ToList(),
