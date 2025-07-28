@@ -1,17 +1,57 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MapPin, CreditCard } from 'lucide-react';
-import { Booking, PendingBooking, BookingStatus } from '@/types/bookings';
+import { BookingDetails, BookingStatus } from '@/types/bookings';
 import { PaymentHandler } from '@/components/payment';
+import { getPaymentStatusForBooking } from '@/lib/payment-api';
+import { PaymentStatus } from '@/types/payment';
+import { ReviewButton, ReviewDisplay } from '@/components/reviews';
+import { getReviewByBookingId } from '@/lib/review-api';
+import { Review } from '@/types/review';
 
 interface BookingCardProps {
-  booking: Booking | PendingBooking;
+  booking: BookingDetails;
   userId: number;
 }
 
 const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
+  const [loadingPaymentStatus, setLoadingPaymentStatus] = useState(true);
+  const [existingReview, setExistingReview] = useState<Review | null>(null);
+  const [loadingReview, setLoadingReview] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Use paymentStatus from the unified API response if available
+        if (booking.paymentStatus) {
+          setPaymentStatus(booking.paymentStatus as PaymentStatus);
+        } else {
+          // Fallback to fetching payment status
+          const status = await getPaymentStatusForBooking(userId, booking.bookingId);
+          setPaymentStatus(status);
+        }
+
+        // Fetch existing review if booking is completed
+        if (booking.status === 'Completed') {
+          setLoadingReview(true);
+          const review = await getReviewByBookingId(booking.bookingId);
+          setExistingReview(review);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setPaymentStatus(null);
+      } finally {
+        setLoadingPaymentStatus(false);
+        setLoadingReview(false);
+      }
+    };
+
+    fetchData();
+  }, [userId, booking.bookingId, booking.status, booking.paymentStatus]);
+
   const getStatusBadgeVariant = (status: BookingStatus) => {
     switch (status) {
       case 'Pending':
@@ -50,8 +90,30 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
     }
   };
 
+  const getStatusText = (status: BookingStatus) => {
+    switch (status) {
+      case 'Pending': return 'Chờ xác nhận';
+      case 'Accepted': return 'Đã chấp nhận';
+      case 'InProgress': return 'Đang thực hiện';
+      case 'Completed': return 'Hoàn thành';
+      case 'Cancelled': return 'Đã hủy';
+      case 'Rejected': return 'Từ chối';
+      default: return status;
+    }
+  };
+
+  const getPaymentStatusText = (status: PaymentStatus | null) => {
+    switch (status) {
+      case 'Success': return 'Đã thanh toán';
+      case 'Pending': return 'Chờ thanh toán';
+      case 'Failed': return 'Thanh toán thất bại';
+      case 'Cancelled': return 'Đã hủy thanh toán';
+      default: return 'Không xác định';
+    }
+  };
+
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -59,7 +121,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
   };
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('en-US', {
+    return new Date(dateString).toLocaleTimeString('vi-VN', {
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -73,24 +135,74 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
   };
 
   const getServiceName = () => {
-    if ('serviceName' in booking) {
-      return booking.serviceName;
-    }
-    return `Service #${booking.serviceId}`;
+    return booking.serviceName || `Dịch vụ #${booking.serviceId}`;
   };
 
   const getAddress = () => {
-    if ('fullAddress' in booking) {
+    // First try fullAddress (new API structure)
+    if (booking.fullAddress && booking.fullAddress.trim() !== '') {
       return booking.fullAddress;
     }
-    return 'Address not available';
+    
+    // Fallback to address (legacy field)
+    if (booking.address && booking.address.trim() !== '') {
+      return booking.address;
+    }
+    
+    // If we have individual address components, construct the address
+    if (booking.ward && booking.district && booking.city) {
+      return `${booking.ward}, ${booking.district}, ${booking.city}`;
+    }
+    
+    return 'Địa chỉ không có sẵn';
   };
 
   const getPrice = () => {
-    if ('estimatedPrice' in booking) {
-      return booking.estimatedPrice;
+    return booking.finalPrice || booking.estimatedPrice || 0;
+  };
+
+  // Check if payment is required based on payment status
+  const isPaymentRequired = () => {
+    if (loadingPaymentStatus) return false;
+    
+    if (paymentStatus !== null) {
+      return paymentStatus === 'Pending';
     }
-    return 0;
+    
+    return booking.status === 'Pending' || booking.status === 'Accepted';
+  };
+
+  // Callback to refresh payment status
+  const handlePaymentStatusChange = () => {
+    setLoadingPaymentStatus(true);
+    const fetchPaymentStatus = async () => {
+      try {
+        const status = await getPaymentStatusForBooking(userId, booking.bookingId);
+        setPaymentStatus(status);
+      } catch (error) {
+        console.error('Error fetching payment status:', error);
+        setPaymentStatus(null);
+      } finally {
+        setLoadingPaymentStatus(false);
+      }
+    };
+    fetchPaymentStatus();
+  };
+
+  // Callback to refresh review data
+  const handleReviewSubmitted = () => {
+    setLoadingReview(true);
+    const fetchReview = async () => {
+      try {
+        const review = await getReviewByBookingId(booking.bookingId);
+        setExistingReview(review);
+      } catch (error) {
+        console.error('Error fetching review:', error);
+      } finally {
+        setLoadingReview(false);
+      }
+    };
+    fetchReview();
   };
 
   return (
@@ -106,8 +218,25 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
                 variant={getStatusBadgeVariant(booking.status)}
                 className={getStatusColor(booking.status)}
               >
-                {booking.status}
+                {getStatusText(booking.status)}
               </Badge>
+              {/* Show payment status if available */}
+              {paymentStatus && (
+                <Badge 
+                  variant="outline"
+                  className={
+                    paymentStatus === 'Pending' 
+                      ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                      : paymentStatus === 'Success'
+                      ? 'bg-green-100 text-green-800 border-green-200'
+                      : paymentStatus === 'Cancelled'
+                      ? 'bg-red-100 text-red-800 border-red-200'
+                      : 'bg-gray-100 text-gray-800 border-gray-200'
+                  }
+                >
+                  {getPaymentStatusText(paymentStatus)}
+                </Badge>
+              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
@@ -140,42 +269,77 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
           </div>
           
           <div className="text-right">
-            <p className="text-sm text-gray-500 mb-1">Booking ID</p>
+            <p className="text-sm text-gray-500 mb-1">Mã đặt chỗ</p>
             <p className="font-mono text-sm">#{booking.bookingId}</p>
           </div>
         </div>
 
-        {/* Additional details for pending bookings */}
-        {'helperId' in booking && booking.helperId && (
+        {/* Helper information */}
+        {booking.helperId && booking.helperName && (
           <div className="mt-4 pt-4 border-t border-gray-200">
             <p className="text-sm text-gray-600">
-              <span className="font-medium">Helper:</span> {booking.helperName || `Helper #${booking.helperId}`}
+              <span className="font-medium">Người giúp việc:</span> {booking.helperName}
             </p>
             {booking.cancellationReason && (
               <p className="text-sm text-red-600 mt-1">
-                <span className="font-medium">Cancellation Reason:</span> {booking.cancellationReason}
+                <span className="font-medium">Lý do hủy:</span> {booking.cancellationReason}
               </p>
             )}
             {booking.freeCancellationDeadline && (
               <p className="text-sm text-orange-600 mt-1">
-                <span className="font-medium">Free Cancellation Until:</span> {formatDate(booking.freeCancellationDeadline)}
+                <span className="font-medium">Hủy miễn phí đến:</span> {formatDate(booking.freeCancellationDeadline)}
               </p>
             )}
           </div>
         )}
 
-        {/* Payment button - show for pending and accepted bookings */}
-        {(booking.status === 'Pending' || booking.status === 'Accepted') && (
+        {/* Payment button - show based on payment status instead of booking status */}
+        {isPaymentRequired() && (
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <CreditCard className="h-4 w-4 text-gray-600" />
                 <span className="text-sm text-gray-600">
-                  <span className="font-medium">Payment Required:</span> {getPrice().toLocaleString('vi-VN')} ₫
+                  <span className="font-medium">Cần thanh toán:</span> {getPrice().toLocaleString('vi-VN')} ₫
                 </span>
               </div>
-              <PaymentHandler userId={userId} bookingId={booking.bookingId} />
+              <PaymentHandler 
+                userId={userId} 
+                bookingId={booking.bookingId} 
+                onPaymentStatusChange={handlePaymentStatusChange}
+              />
             </div>
+          </div>
+        )}
+
+        {/* Review section - show for completed bookings */}
+        {booking.status === 'Completed' && !loadingReview && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            {existingReview ? (
+              <ReviewDisplay
+                review={existingReview}
+                helperName={booking.helperName}
+                serviceName={getServiceName()}
+              />
+            ) : (
+              (() => {
+                console.log('ReviewButton bookingId:', booking.bookingId, 'helperId:', booking.helperId);
+                if (!booking.helperId) {
+                  return <div className="text-red-500">Không tìm thấy helperId cho booking này. Không thể gửi đánh giá.</div>;
+                }
+                return (
+                  <ReviewButton
+                    bookingId={booking.bookingId}
+                    helperId={booking.helperId}
+                    userId={userId}
+                    bookingStatus={booking.status}
+                    helperName={booking.helperName}
+                    serviceName={getServiceName()}
+                    onReviewSubmitted={handleReviewSubmitted}
+                  />
+                );
+              })()
+            )}
           </div>
         )}
       </CardContent>

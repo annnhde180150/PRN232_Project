@@ -1,9 +1,10 @@
 import axios from 'axios';
 import crypto from 'crypto';
+import { PaymentResponse } from '@/types/payment';
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'https://helper-finder.azurewebsites.net';
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-interface PaymentResponse {
+interface PaymentInfoResponse {
   success: boolean;
   statusCode: number;
   message: string;
@@ -36,12 +37,31 @@ const VNPAY_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
 
 export const getPaymentInfo = async (userId: number, bookingId: number) => {
   try {
-    const response = await axios.get<PaymentResponse>(
+    const response = await axios.get<PaymentInfoResponse>(
       `${baseURL}/api/Payment/GetPayment?userId=${userId}&bookingId=${bookingId}`
     );
     return response.data;
   } catch (error) {
     throw error;
+  }
+};
+
+export const getPaymentStatusForBooking = async (userId: number, bookingId: number) => {
+  try {
+    const response = await axios.get<PaymentResponse>(
+      `${baseURL}/api/Payment/GetPayment/${userId}`
+    );
+    
+    if (response.data.success && response.data.data) {
+      // Find the payment for the specific booking
+      const payment = response.data.data.find((p: any) => p.bookingId === bookingId);
+      return payment ? payment.paymentStatus : null;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error getting payment status:', error);
+    return null;
   }
 };
 

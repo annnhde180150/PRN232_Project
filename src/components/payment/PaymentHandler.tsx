@@ -6,9 +6,10 @@ import { toast } from 'react-hot-toast';
 interface PaymentHandlerProps {
   userId: number;
   bookingId: number;
+  onPaymentStatusChange?: () => void;
 }
 
-export const PaymentHandler = ({ userId, bookingId }: PaymentHandlerProps) => {
+export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: PaymentHandlerProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -56,6 +57,9 @@ export const PaymentHandler = ({ userId, bookingId }: PaymentHandlerProps) => {
             toast.error('Payment failed');
           }
 
+          // Notify parent component about payment status change
+          onPaymentStatusChange?.();
+
           // Redirect to dashboard
           router.push('/dashboard');
         } catch (error) {
@@ -66,7 +70,7 @@ export const PaymentHandler = ({ userId, bookingId }: PaymentHandlerProps) => {
 
       handlePaymentResponse();
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, onPaymentStatusChange]);
 
   return (
     <button
