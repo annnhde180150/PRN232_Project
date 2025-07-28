@@ -53,7 +53,7 @@ public class ChatService : IChatService
             ReceiverUserId = sendMessageDto.ReceiverUserId,
             ReceiverHelperId = sendMessageDto.ReceiverHelperId,
             MessageContent = sendMessageDto.MessageContent.Trim(),
-            Timestamp = DateTime.UtcNow,
+            Timestamp = DateTime.Now,
             IsReadByReceiver = false,
             IsModerated = false
         };

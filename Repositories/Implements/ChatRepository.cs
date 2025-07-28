@@ -188,7 +188,7 @@ public class ChatRepository : BaseRepository<Chat>, IChatRepository
             if (isReceiver && message.IsReadByReceiver != true)
             {
                 message.IsReadByReceiver = true;
-                message.ReadTimestamp = DateTime.UtcNow;
+                message.ReadTimestamp = DateTime.Now;
             }
         }
 

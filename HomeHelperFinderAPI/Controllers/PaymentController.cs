@@ -65,5 +65,27 @@ namespace HomeHelperFinderAPI.Controllers
             }
         }
 
+        [HttpGet("GetPayment/{userId}")]
+        public async Task<IActionResult> GetPaymentByUserId(int userId)
+        {
+            if (userId <= 0)
+            {
+                return BadRequest("Invalid user ID.");
+            }
+            try
+            {
+                var paymentStatusList = await _paymentService.GetPaymentByUserId(userId);
+                return Ok(paymentStatusList);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred while processing the request: {ex.Message}");
+            }
+        }
+
     }
 }

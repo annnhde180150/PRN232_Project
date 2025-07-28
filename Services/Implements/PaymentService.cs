@@ -75,5 +75,41 @@ namespace Services.Implements
             await _unitOfWork.CompleteAsync();
             return payment;
         }
+
+        public async Task<IEnumerable<PaymentDetailsDto>> GetPaymentByUserId(int userId)
+        {
+            var payments = await _unitOfWork.Payments.GetPaymentsByUserIdAsync(userId);
+            if (payments == null || !payments.Any())
+            {
+                return new List<PaymentDetailsDto>();
+            }
+
+            var listDto = new List<PaymentDetailsDto>();
+
+            foreach (var payment in payments)
+            {
+                var dto = new PaymentDetailsDto
+                {
+                    PaymentId = payment.PaymentId,
+                    BookingId = payment.BookingId,
+                    UserId = payment.UserId,
+                    HelperId = payment.Booking?.HelperId ?? 0,
+                    Amount = payment.Amount,
+                    PaymentStatus = payment.PaymentStatus,
+                    PaymentDate = payment.PaymentDate,
+                    TransactionId = payment.TransactionId,
+                    PaymentMethod = payment.PaymentMethod,
+                    BookingStatus = payment.Booking?.Status,
+                    ScheduledStartTime = payment.Booking?.ScheduledStartTime,
+                    ScheduledEndTime = payment.Booking?.ScheduledEndTime,
+                    ServiceName = payment.Booking?.Helper?.HelperSkills?.FirstOrDefault()?.Service?.ServiceName,
+                    HelperName = payment.Booking?.Helper?.FullName
+                };
+
+                listDto.Add(dto);
+            }
+
+            return listDto;
+        }
     }
 }

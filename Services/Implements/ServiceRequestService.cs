@@ -138,7 +138,7 @@ namespace Services.Implements
                 booking.Status = Booking.AvailableStatus.Cancelled.ToString();
                 //booking.CancellationReason = "Request cancelled by user";
                 //booking.CancelledBy = "User"; 
-                booking.CancellationTime = DateTime.UtcNow;
+                booking.CancellationTime = DateTime.Now;
                 _unitOfWork.Bookings.Update(booking);
                 await _unitOfWork.CompleteAsync();
                 return new ServiceRequestActionResultDto { Success = true, Message = "Request cancelled successfully" };

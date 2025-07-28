@@ -50,7 +50,7 @@ public class HelperService : IHelperService
         _logger.LogInformation($"Creating new helper with email: {dto.Email}");
 
         var helper = _mapper.Map<Helper>(dto);
-        helper.RegistrationDate = DateTime.UtcNow;
+        helper.RegistrationDate = DateTime.Now;
         helper.ApprovalStatus = "Pending";
         helper.IsActive = false; // Helpers start as inactive until approved
 
@@ -202,7 +202,7 @@ public class HelperService : IHelperService
         var helper = await _unitOfWork.Helpers.GetByIdAsync(helperId);
         if (helper == null) throw new ArgumentException($"User with ID {helperId} not found");
 
-        helper.LastLoginDate = DateTime.UtcNow;
+        helper.LastLoginDate = DateTime.Now;
         _unitOfWork.Helpers.Update(helper);
         await _unitOfWork.CompleteAsync();
     }
@@ -402,7 +402,7 @@ public class HelperService : IHelperService
         {
             helper.IsActive = true;
             helper.ApprovedByAdminId = adminId;
-            helper.ApprovalDate = DateTime.UtcNow;
+            helper.ApprovalDate = DateTime.Now;
         }
         else
         {
@@ -410,7 +410,7 @@ public class HelperService : IHelperService
             if (decision.Status == "rejected")
             {
                 helper.ApprovedByAdminId = adminId;
-                helper.ApprovalDate = DateTime.UtcNow;
+                helper.ApprovalDate = DateTime.Now;
             }
         }
 
@@ -526,12 +526,13 @@ public class HelperService : IHelperService
         foreach (var helper in helpers)
         {
             var helperWorkAreas = await _unitOfWork.HelperWorkAreas.GetAllAsync(h => h.HelperId == helper.HelperId);
+            var rating = await _unitOfWork.Reviews.GetAverageRatingByHelperIdAsync(helper.HelperId);
             var searchHelper = new SearchHelperDto
             {
                 helperId = helper.HelperId,
                 helperName = helper.FullName,
                 basePrice = service.BasePrice,
-                rating = helper.AverageRating ?? 0,
+                rating = (decimal)rating,
                 bio = helper.Bio,
                 serviceName = service.ServiceName,
                 HelperWorkAreas = helperWorkAreas.ToList(),

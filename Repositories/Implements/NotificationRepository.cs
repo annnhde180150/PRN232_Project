@@ -62,7 +62,7 @@ public class NotificationRepository(Prn232HomeHelperFinderSystemContext context)
         if (notification != null)
         {
             notification.IsRead = true;
-            notification.ReadTime = DateTime.UtcNow;
+            notification.ReadTime = DateTime.Now;
             _context.Entry(notification).State = EntityState.Modified;
         }
     }
@@ -76,7 +76,7 @@ public class NotificationRepository(Prn232HomeHelperFinderSystemContext context)
         foreach (var notification in notifications)
         {
             notification.IsRead = true;
-            notification.ReadTime = DateTime.UtcNow;
+            notification.ReadTime = DateTime.Now;
         }
 
         if (notifications.Any()) _context.UpdateRange(notifications);
@@ -91,7 +91,7 @@ public class NotificationRepository(Prn232HomeHelperFinderSystemContext context)
         foreach (var notification in notifications)
         {
             notification.IsRead = true;
-            notification.ReadTime = DateTime.UtcNow;
+            notification.ReadTime = DateTime.Now;
         }
 
         if (notifications.Any()) _context.UpdateRange(notifications);

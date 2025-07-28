@@ -39,7 +39,7 @@ public class AdminService : IAdminService
         _logger.LogInformation($"Creating new admin with username: {dto.Username}");
 
         var admin = _mapper.Map<AdminUser>(dto);
-        admin.CreationDate = DateTime.UtcNow;
+        admin.CreationDate = DateTime.Now;
         admin.IsActive = true;
 
         await _unitOfWork.Admins.AddAsync(admin);
@@ -84,7 +84,7 @@ public class AdminService : IAdminService
         var admin = await _unitOfWork.Admins.GetByIdAsync(adminId);
         if (admin == null) throw new ArgumentException($"Admin with ID {adminId} not found");
 
-        admin.LastLoginDate = DateTime.UtcNow;
+        admin.LastLoginDate = DateTime.Now;
         _unitOfWork.Admins.Update(admin);
         await _unitOfWork.CompleteAsync();
     }

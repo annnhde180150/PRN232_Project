@@ -46,7 +46,7 @@ public class ConnectionManager : IConnectionManager
                     UserId = userId,
                     UserType = userType,
                     ConnectionId = connectionId,
-                    ConnectedAt = DateTime.UtcNow,
+                    ConnectedAt = DateTime.Now,
                     IsActive = true
                 };
 
@@ -84,7 +84,7 @@ public class ConnectionManager : IConnectionManager
                 var connection = await unitOfWork.Connections.GetByConnectionIdAsync(connectionId);
                 if (connection != null)
                 {
-                    connection.DisconnectedAt = DateTime.UtcNow;
+                    connection.DisconnectedAt = DateTime.Now;
                     connection.IsActive = false;
                     unitOfWork.Connections.Update(connection);
                     await unitOfWork.CompleteAsync();
@@ -162,7 +162,7 @@ public class ConnectionManager : IConnectionManager
                         var connection = await unitOfWork.Connections.GetByConnectionIdAsync(connectionId);
                         if (connection != null)
                         {
-                            connection.DisconnectedAt = DateTime.UtcNow;
+                            connection.DisconnectedAt = DateTime.Now;
                             connection.IsActive = false;
                             unitOfWork.Connections.Update(connection);
                         }

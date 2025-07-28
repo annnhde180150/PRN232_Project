@@ -13,5 +13,6 @@ namespace Services.Interfaces
         Task<GetPaymentDto> GetPayment(int userId, int bookingId);
         Task<GetPaymentDto> CreatePayment(PaymentCreateDto newPayment);
         Task<Payment> UpdatePaymentStatus(int paymentId, string action, DateTime paymentDate);
+        Task<IEnumerable<PaymentDetailsDto>> GetPaymentByUserId(int userId);
     }
 }

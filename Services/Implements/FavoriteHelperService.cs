@@ -39,7 +39,7 @@ public class FavoriteHelperService : IFavoriteHelperService
             HelperId = dto.HelperId,
             User = user!,
             Helper = helper!,
-            DateAdded = DateTime.UtcNow
+            DateAdded = DateTime.Now
         };
         await _favoriteRepo.AddAsync(entity);
         await _unitOfWork.CompleteAsync();
