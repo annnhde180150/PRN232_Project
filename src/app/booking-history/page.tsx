@@ -76,10 +76,19 @@ const BookingHistoryPage = () => {
       );
     }
 
-    // Sort by scheduled start time (newest first)
-    filtered.sort((a, b) =>
-      new Date(b.scheduledStartTime).getTime() - new Date(a.scheduledStartTime).getTime()
-    );
+    // Sort based on filter
+    if (filter.sortBy === 'bookingId') {
+      if (filter.sortOrder === 'desc') {
+        filtered.sort((a, b) => b.bookingId - a.bookingId);
+      } else {
+        filtered.sort((a, b) => a.bookingId - b.bookingId);
+      }
+    } else {
+      // Default sort by scheduled start time (newest first)
+      filtered.sort((a, b) =>
+        new Date(b.scheduledStartTime).getTime() - new Date(a.scheduledStartTime).getTime()
+      );
+    }
 
     setFilteredBookings(filtered);
   };
@@ -136,7 +145,7 @@ const BookingHistoryPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               {/* Status Filter */}
               <div className="space-y-2">
                 <Label htmlFor="status">Trạng thái</Label>
@@ -183,6 +192,49 @@ const BookingHistoryPage = () => {
                   onChange={(e) => setFilter(prev => ({ ...prev, endDate: e.target.value }))}
                 />
               </div>
+
+              {/* Sort By Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="sortBy">Sắp xếp theo</Label>
+                <Select
+                  value={filter.sortBy || 'date'}
+                  onValueChange={(value) => setFilter(prev => ({ 
+                    ...prev, 
+                    sortBy: value as 'date' | 'bookingId',
+                    sortOrder: value === 'bookingId' ? (prev.sortOrder || 'desc') : undefined
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sắp xếp theo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="date">Ngày đặt</SelectItem>
+                    <SelectItem value="bookingId">Mã đặt dịch vụ</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Sort Order Filter (only show when sorting by booking ID) */}
+              {filter.sortBy === 'bookingId' && (
+                <div className="space-y-2">
+                  <Label htmlFor="sortOrder">Thứ tự</Label>
+                  <Select
+                    value={filter.sortOrder || 'desc'}
+                    onValueChange={(value) => setFilter(prev => ({ 
+                      ...prev, 
+                      sortOrder: value as 'asc' | 'desc'
+                    }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Thứ tự" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="desc">Giảm dần (mới nhất)</SelectItem>
+                      <SelectItem value="asc">Tăng dần (cũ nhất)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               {/* Clear Filters Button */}
               <div className="flex items-end">

@@ -117,4 +117,6 @@ export interface BookingFilter {
   startDate?: string;
   endDate?: string;
   serviceId?: number;
+  sortBy?: 'date' | 'bookingId';
+  sortOrder?: 'asc' | 'desc';
 } 
