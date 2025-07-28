@@ -145,6 +145,9 @@ namespace HomeHelperFinderAPI.Controllers
                     newRequest.RequestedStartTime,
                     newRequest.RequestedStartTime.AddHours((double)newRequest.RequestedDurationHours.Value)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+            var currentHelper = await _helperService.GetByIdAsync(helperId);
+            if (!currentHelper.IsActive.HasValue || currentHelper.IsActive.Value)
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
 
             //notify 

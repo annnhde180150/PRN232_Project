@@ -62,6 +62,9 @@ namespace Services.Implements
                 request.RequestedDurationHours < 1m)
                 return false;
 
+            if(request.RequestedStartTime == null || request.RequestedStartTime < DateTime.UtcNow)
+                return false;
+
             return true;
         }
 
