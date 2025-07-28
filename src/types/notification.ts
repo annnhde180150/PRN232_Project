@@ -1,11 +1,11 @@
 // Notification Types
 export interface Notification {
   notificationId: number;
-  recipientUserId: number | null;
-  recipientHelperId: number | null;
+  recipientUserId: number | undefined;
+  recipientHelperId: number | undefined;
   title: string;
   message: string;
-  notificationType: NotificationType;
+  notificationType: NotificationType | string;
   referenceId: string | null;
   isRead: boolean;
   readTime: string | null;
@@ -13,7 +13,7 @@ export interface Notification {
   sentTime: string;
 }
 
-export type NotificationType = 
+export type NotificationType =
   | 'AccountRestoration'
   | 'AccountSuspension'
   | 'BookingCancelled'

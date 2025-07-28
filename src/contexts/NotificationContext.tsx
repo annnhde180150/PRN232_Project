@@ -1,9 +1,11 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Notification, NotificationState } from '../types/notification';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
+import { Notification as Notify, NotificationState } from '../types/notification';
 import { notificationAPI } from '../lib/notification-api';
 import { useAuth } from './AuthContext';
+import { useSignalR } from '../hooks/useSignalR';
+import { SignalRNotification } from '../lib/signalr-service';
 
 interface NotificationContextType extends NotificationState {
   refreshNotifications: () => Promise<void>;
@@ -27,6 +29,71 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     error: null,
   });
 
+  // Real-time notification handler
+  const handleRealTimeNotification = useCallback((signalRNotification: SignalRNotification) => {
+    console.log('Received real-time notification:', signalRNotification);
+
+    // Convert SignalR notification to our Notification type
+    const notification: Notify = {
+      notificationId: parseInt(signalRNotification.referenceId) || Date.now(),
+      title: signalRNotification.title,
+      message: signalRNotification.message,
+      notificationType: signalRNotification.notificationType,
+      isRead: false,
+      creationTime: signalRNotification.timestamp || new Date().toISOString(),
+      readTime: null,
+      recipientUserId: userType === 'helper' ? user?.id : undefined,
+      recipientHelperId: userType === 'helper' ? user?.id : undefined,
+      referenceId: signalRNotification.referenceId,
+      sentTime: signalRNotification.timestamp || new Date().toISOString(),
+    };
+
+    // Add notification to the list
+    setNotificationState(prev => ({
+      ...prev,
+      notifications: [notification, ...prev.notifications],
+      unreadCount: prev.unreadCount + 1
+    }));
+
+    // Show browser notification if supported and permission granted
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(signalRNotification.title, {
+        body: signalRNotification.message,
+        icon: '/favicon.ico',
+        tag: signalRNotification.referenceId
+      });
+    }
+  }, [user, userType]);
+
+  // SignalR integration
+  const signalR = useSignalR({
+    autoConnect: true,
+    callbacks: {
+      onNotification: handleRealTimeNotification,
+      onConnected: (message) => {
+        console.log('Notification SignalR connected:', message);
+        // Refresh notifications when connected
+        if (isAuthenticated) {
+          refreshNotifications();
+        }
+      },
+      onReconnected: () => {
+        console.log('Notification SignalR reconnected');
+        // Refresh notifications when reconnected
+        if (isAuthenticated) {
+          refreshNotifications();
+        }
+      },
+      onError: (error) => {
+        console.error('Notification SignalR error:', error);
+        setNotificationState(prev => ({
+          ...prev,
+          error: `SignalR Error: ${error}`
+        }));
+      }
+    }
+  });
+
   // Function to fetch notifications
   const refreshNotifications = async () => {
     if (!isAuthenticated || !user) {
@@ -47,11 +114,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         countResponse = await notificationAPI.getHelperUnreadCount(user.id);
       } else {
         // Admin doesn't have notifications in the current API
-        setNotificationState(prev => ({ 
-          ...prev, 
+        setNotificationState(prev => ({
+          ...prev,
           loading: false,
           notifications: [],
-          unreadCount: 0 
+          unreadCount: 0
         }));
         return;
       }
@@ -84,7 +151,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
     try {
       let response;
-      
+
       if (userType === 'user') {
         response = await notificationAPI.markAllUserNotificationsRead(user.id);
       } else if (userType === 'helper') {
@@ -172,6 +239,15 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       });
     }
   }, [isAuthenticated, user, userType]);
+
+  // Request notification permission on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        console.log('Notification permission:', permission);
+      });
+    }
+  }, []);
 
   const value: NotificationContextType = {
     ...notificationState,
