@@ -14,9 +14,12 @@ import { bookingApi } from '@/lib/api/service-request';
 import { Booking } from '@/types/service-request';
 
 const formSchema = z.object({
-    cancellationReason: z.string().min(1, 'Lý do hủy là bắt buộc'),
+    cancellationReason: z.string()
+        .min(1, 'Lý do hủy là bắt buộc')
+        .max(500, 'Lý do hủy không được quá 500 ký tự')
+        .refine(val => val.trim().length > 0, 'Lý do hủy không được để trống'),
     cancelledBy: z.enum(['User', 'Helper'], {
-        error: 'Vui lòng chọn ai đang hủy'
+        message: 'Vui lòng chọn ai đang hủy'
     })
 });
 
@@ -42,9 +45,23 @@ export function CancelBookingForm({ booking, onSuccess, onCancel }: CancelBookin
     const onSubmit = async (data: FormData) => {
         setLoading(true);
         try {
+            // Ensure all required fields are present and valid
+            if (!booking.bookingId || !data.cancellationReason?.trim() || !data.cancelledBy) {
+                toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
+                setLoading(false);
+                return;
+            }
+
+            // Check deadline one more time before API call
+            if (booking.freeCancellationDeadline && new Date() > new Date(booking.freeCancellationDeadline)) {
+                toast.error('Đã quá hạn hủy miễn phí. Không thể hủy đặt lịch này.');
+                setLoading(false);
+                return;
+            }
+
             const response = await bookingApi.cancelBooking({
                 bookingId: booking.bookingId,
-                cancellationReason: data.cancellationReason,
+                cancellationReason: data.cancellationReason.trim(),
                 cancelledBy: data.cancelledBy
             });
 
@@ -52,11 +69,30 @@ export function CancelBookingForm({ booking, onSuccess, onCancel }: CancelBookin
                 toast.success('Hủy đặt lịch thành công');
                 onSuccess?.();
             } else {
-                toast.error(response.message || 'Không thể hủy đặt lịch');
+                // Handle specific error messages
+                const errorMessage = response.message || 'Không thể hủy đặt lịch';
+                if (errorMessage.includes('Invalid request') || errorMessage.includes('deadline')) {
+                    toast.error('Đã quá hạn hủy hoặc yêu cầu không hợp lệ');
+                } else {
+                    toast.error(errorMessage);
+                }
             }
-        } catch (error) {
-            toast.error('Đã xảy ra lỗi khi hủy');
+        } catch (error: any) {
             console.error('Error cancelling booking:', error);
+            
+            // Handle HTTP status codes from backend validation
+            if (error.response?.status === 400) {
+                const errorMsg = error.response?.data?.message || error.response?.data || 'Yêu cầu không hợp lệ';
+                if (typeof errorMsg === 'string' && errorMsg.includes('deadline')) {
+                    toast.error('Đã quá hạn hủy miễn phí');
+                } else {
+                    toast.error('Yêu cầu hủy không hợp lệ. Vui lòng kiểm tra lại thông tin.');
+                }
+            } else if (error.response?.status === 404) {
+                toast.error('Không tìm thấy đặt lịch này');
+            } else {
+                toast.error('Đã xảy ra lỗi khi hủy đặt lịch. Vui lòng thử lại.');
+            }
         } finally {
             setLoading(false);
         }
@@ -137,8 +173,13 @@ export function CancelBookingForm({ booking, onSuccess, onCancel }: CancelBookin
                         />
 
                         <div className="flex gap-2">
-                            <Button type="submit" disabled={loading} variant="destructive" className="flex-1">
-                                {loading ? 'Đang hủy...' : 'Hủy đặt lịch'}
+                            <Button 
+                                type="submit" 
+                                disabled={loading || !canCancel} 
+                                variant="destructive" 
+                                className="flex-1"
+                            >
+                                {loading ? 'Đang hủy...' : !canCancel ? 'Không thể hủy' : 'Hủy đặt lịch'}
                             </Button>
                             <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
                                 Quay lại

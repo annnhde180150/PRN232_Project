@@ -15,7 +15,7 @@ import { BookingDetails, BookingStatus } from '@/types/bookings';
 
 interface EnhancedBookingCardProps {
     booking: BookingDetails;
-    onStatusUpdate: () => void;
+    onStatusUpdate: (newStatus?: string) => void;
     userType: 'customer' | 'helper';
     userId: number;
 }
@@ -58,10 +58,14 @@ export function EnhancedBookingCard({ booking, onStatusUpdate, userType, userId 
         }
     };
 
-    const canCancel = booking.status === 'Pending' || booking.status === 'Accepted' || booking.status === 'InProgress';
+    const canCancel = (booking.status === 'Pending' || booking.status === 'Accepted' || booking.status === 'InProgress') &&
+                     booking.freeCancellationDeadline && 
+                     new Date() < new Date(booking.freeCancellationDeadline);
     const canReview = booking.status === 'Completed' && userType === 'customer' && booking.paymentStatus === 'Success';
     const canComplete = booking.status === 'InProgress' && userType === 'helper';
     const canViewReview = booking.status === 'Completed' && userType === 'helper';
+    const canAccept = booking.status === 'Pending' && userType === 'helper';
+    const canStart = booking.status === 'Accepted' && userType === 'helper';
 
     // Fetch review data when booking is completed
     useEffect(() => {
@@ -214,10 +218,33 @@ export function EnhancedBookingCard({ booking, onStatusUpdate, userType, userId 
                         Nhắn tin
                     </Button>
 
+                    {/* Helper Status Progression Buttons */}
+                    {canAccept && (
+                        <Button 
+                            size="sm" 
+                            onClick={() => onStatusUpdate('Accepted')} 
+                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg"
+                        >
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            Chấp nhận
+                        </Button>
+                    )}
+
+                    {canStart && (
+                        <Button 
+                            size="sm" 
+                            onClick={() => onStatusUpdate('InProgress')} 
+                            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold shadow-lg"
+                        >
+                            <Clock className="w-4 h-4 mr-1" />
+                            Bắt đầu
+                        </Button>
+                    )}
+
                     {canComplete && (
                         <Button 
                             size="sm" 
-                            onClick={onStatusUpdate} 
+                            onClick={() => onStatusUpdate('Completed')} 
                             className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg"
                         >
                             <CheckCircle className="w-4 h-4 mr-1" />
@@ -276,7 +303,7 @@ export function EnhancedBookingCard({ booking, onStatusUpdate, userType, userId 
                     {canCancel && (
                         <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
                             <DialogTrigger asChild>
-                                <Button variant="destructive" size="sm">
+                                <Button variant="destructive" size="sm" className="bg-red-600 hover:bg-red-700 text-white">
                                     <X className="w-4 h-4 mr-1" />
                                     Hủy
                                 </Button>

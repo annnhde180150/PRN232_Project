@@ -55,17 +55,21 @@ export default function ActiveBookingsPage() {
     }
   };
 
-  const updateBookingStatus = async (bookingId: number) => {
+  const updateBookingStatus = async (bookingId: number, newStatus?: string) => {
     if (!helperId) {
       toast.error('Helper ID not found');
       return;
     }
 
+    // If no newStatus provided, default to 'Completed' for backward compatibility
+    const statusToUpdate = newStatus || 'Completed';
+
     try {
-      const success = await bookingAPI.updateBookingStatus(bookingId, helperId, 'Completed');
+      const success = await bookingAPI.updateBookingStatus(bookingId, helperId, statusToUpdate);
       
       if (success) {
-        toast.success('Booking status updated successfully');
+        const statusText = getStatusText(statusToUpdate);
+        toast.success(`Trạng thái đã cập nhật thành ${statusText}`);
         fetchActiveBookings(); // Refresh the list
       } else {
         toast.error('Failed to update booking status');
@@ -238,7 +242,7 @@ export default function ActiveBookingsPage() {
             <EnhancedBookingCard
               key={booking.bookingId}
               booking={booking}
-              onStatusUpdate={() => updateBookingStatus(booking.bookingId)}
+              onStatusUpdate={(newStatus) => updateBookingStatus(booking.bookingId, newStatus)}
               userType="helper"
               userId={helperId}
             />
