@@ -31,9 +31,27 @@ interface UpdatePaymentResponse {
   };
 }
 
+interface UpdatePaymentRequest {
+  paymentId: number;
+  action: 'Success' | 'Cancelled';
+}
+
 const TMN_CODE = 'XL9GZ0FP';
 const HASH_SECRET = 'W4QW5YJI25H8K537YIZ5027QFGFN8K98';
 const VNPAY_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+
+// Function to get client IP address
+const getClientIP = async (): Promise<string> => {
+  try {
+    // Try to get IP from ipify API
+    const response = await axios.get('https://api.ipify.org?format=json');
+    return response.data.ip;
+  } catch (error) {
+    console.error('Failed to get IP address:', error);
+    // Return a default IP if failed
+    return '127.0.0.1';
+  }
+};
 
 export const getPaymentInfo = async (userId: number, bookingId: number) => {
   try {
@@ -67,15 +85,20 @@ export const getPaymentStatusForBooking = async (userId: number, bookingId: numb
 
 export const updatePaymentStatus = async (paymentId: number, action: 'Success' | 'Cancelled') => {
   try {
-    const response = await axios.post<UpdatePaymentResponse>(
+    const requestBody: UpdatePaymentRequest = {
+      paymentId,
+      action
+    };
+    
+    console.log('Sending update request:', requestBody);
+    
+    const response = await axios.put<UpdatePaymentResponse>(
       `${baseURL}/api/Payment/UpdatePayment`,
-      {
-        paymentId,
-        action,
-      }
+      requestBody
     );
     return response.data;
   } catch (error) {
+    console.error('Update payment error:', error);
     throw error;
   }
 };
@@ -109,10 +132,13 @@ function hmacSHA512(key: string, data: string): string {
 export const createVnpayPaymentUrl = async (
   amount: number,
   paymentId: number,
-  returnUrl: string,
-  ipAddr?: string
+  returnUrl: string
 ) => {
   try {
+    // Get client IP address
+    const clientIP = await getClientIP();
+    console.log('Client IP:', clientIP);
+
     // Tạo timestamp giống Android
     const date = new Date();
     const createDate = `${date.getFullYear()}${(date.getMonth() + 1)
@@ -141,7 +167,7 @@ export const createVnpayPaymentUrl = async (
       vnp_OrderType: 'other',
       vnp_Locale: 'vn',
       vnp_ReturnUrl: returnUrl,
-      vnp_IpAddr: ipAddr || '127.0.0.1',
+      vnp_IpAddr: clientIP,
       vnp_CreateDate: createDate,
     };
 
