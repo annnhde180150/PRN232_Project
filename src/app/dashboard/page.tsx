@@ -181,7 +181,7 @@ export default function DashboardPage() {
   if (userType === 'user') {
     return (
       <div className="bg-gray-50 min-h-screen">
-        <Section padding="lg">
+        <Section padding="none">
           <PageContainer>
             <SearchHelperPage />
           </PageContainer>

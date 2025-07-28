@@ -7,13 +7,25 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, Clock, MapPin, User, Star } from 'lucide-react';
 import { BookingForm } from './booking-form';
 
+interface WorkArea {
+    workAreaId: number;
+    helperId: number;
+    city: string;
+    district: string;
+    ward: string;
+    latitude: number;
+    longitude: number;
+    radiusKm: number;
+    helper: any; // or null
+}
+
 interface Helper {
     helperId: number;
     helperName: string;
     serviceName: string;
     bio: string;
     rating: number;
-    helperWorkAreas: string[];
+    helperWorkAreas: WorkArea[];
     basePrice: number;
     availableStatus: string;
     avatar?: string;
@@ -73,9 +85,9 @@ export function QuickBookingModal({ helper, isOpen, onClose, onBookingSuccess }:
                                             )}
                                         </div>
                                         <div className="flex flex-wrap gap-1 mt-2">
-                                            {helper.helperWorkAreas && helper.helperWorkAreas.map((area: string, index: number) => (
+                                            {helper.helperWorkAreas && helper.helperWorkAreas.map((area: WorkArea, index: number) => (
                                                 <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                                                    {area}
+                                                    {area.city}, {area.district}, {area.ward}
                                                 </span>
                                             ))}
                                         </div>

@@ -33,14 +33,14 @@ export const Layout: React.FC<LayoutProps> = ({
 interface PageContainerProps {
   children: React.ReactNode;
   className?: string;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '7xl' | 'full';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '9xl' | 'full';
   padding?: boolean;
 }
 
 export const PageContainer: React.FC<PageContainerProps> = ({
   children,
   className = '',
-  maxWidth = '7xl',
+  maxWidth = '9xl',
   padding = true,
 }) => {
   const maxWidthClasses = {
@@ -49,7 +49,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
     lg: 'max-w-lg',
     xl: 'max-w-xl',
     '2xl': 'max-w-2xl',
-    '7xl': 'max-w-7xl',
+    '9xl': 'max-w-9xl',
     full: 'max-w-full',
   };
 
