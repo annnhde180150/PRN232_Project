@@ -1,14 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
-import { searchHelpers, getAllServices, Service } from "../../lib/api";
+import { searchHelpers, getAllServices, Service, favoriteHelperAPI } from "../../lib/api";
 import type { HelperSearchResult } from "../../types/reports";
 import { ServiceDiscovery, ServiceDiscoveryFilters } from "../../components/customer/ServiceDiscovery";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { QuickBookingModal } from "../../components/booking/QuickBookingModal";
+import { useAuth } from "../../contexts/AuthContext";
 
 
 export default function SearchHelperPage() {
+  const { user, isAuthenticated } = useAuth();
   const [services, setServices] = useState<Service[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(false);
@@ -23,9 +25,39 @@ export default function SearchHelperPage() {
     distance: 50,
     availability: 'all',
     sortBy: 'relevance',
+    showFavoritesOnly: false,
   });
   const [selectedHelperForBooking, setSelectedHelperForBooking] = useState<any>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [favoriteHelperIds, setFavoriteHelperIds] = useState<number[]>([]);
+  const [favoritesLoading, setFavoritesLoading] = useState(false);
+
+  // Get current user ID from auth context
+  const getCurrentUserId = (): number => {
+    if (!isAuthenticated || !user) {
+      return 0;
+    }
+    return user.id || 0;
+  };
+
+  // Load user's favorite helpers
+  const loadFavorites = async () => {
+    const userId = getCurrentUserId();
+    if (userId === 0) return;
+
+    setFavoritesLoading(true);
+    try {
+      const response = await favoriteHelperAPI.getUserFavorites(userId);
+      if (response.success) {
+        const favoriteIds = response.data.map((item: any) => item.helperId);
+        setFavoriteHelperIds(favoriteIds);
+      }
+    } catch (err) {
+      console.error('Failed to load favorites:', err);
+    } finally {
+      setFavoritesLoading(false);
+    }
+  };
 
   useEffect(() => {
     setServiceLoading(true);
@@ -33,7 +65,12 @@ export default function SearchHelperPage() {
       .then(setServices)
       .catch(() => setError("Không thể tải danh sách dịch vụ."))
       .finally(() => setServiceLoading(false));
-  }, []);
+
+    // Load favorites if user is authenticated
+    if (isAuthenticated) {
+      loadFavorites();
+    }
+  }, [isAuthenticated]);
 
   const handleSelectService = async (service: Service) => {
     setSelectedService(service);
@@ -99,9 +136,36 @@ export default function SearchHelperPage() {
     }
   };
 
-  const handleAddFavorite = (helperId: number) => {
-    // Add to favorites
-    alert(`Đã thêm helper ${helperId} vào danh sách yêu thích`);
+  const handleAddFavorite = async (helperId: number) => {
+    const userId = getCurrentUserId();
+    if (userId === 0) {
+      alert('Vui lòng đăng nhập để thêm vào danh sách yêu thích');
+      return;
+    }
+
+    try {
+      await favoriteHelperAPI.addToFavorites({ userId, helperId });
+      setFavoriteHelperIds(prev => [...prev, helperId]);
+      alert('Đã thêm vào danh sách yêu thích');
+    } catch (err: any) {
+      alert('Không thể thêm vào danh sách yêu thích. Vui lòng thử lại.');
+    }
+  };
+
+  const handleRemoveFavorite = async (helperId: number) => {
+    const userId = getCurrentUserId();
+    if (userId === 0) {
+      alert('Vui lòng đăng nhập để thực hiện thao tác này');
+      return;
+    }
+
+    try {
+      await favoriteHelperAPI.removeFromFavorites({ userId, helperId });
+      setFavoriteHelperIds(prev => prev.filter(id => id !== helperId));
+      alert('Đã xóa khỏi danh sách yêu thích');
+    } catch (err: any) {
+      alert('Không thể xóa khỏi danh sách yêu thích. Vui lòng thử lại.');
+    }
   };
 
   return (
@@ -165,11 +229,13 @@ export default function SearchHelperPage() {
           <ServiceDiscovery
             results={filteredResults}
             loading={loading}
+            favoriteHelperIds={favoriteHelperIds}
             onSearch={handleSearch}
             onFilterChange={handleFilterChange}
             onHelperSelect={handleHelperSelect}
             onBookHelper={handleBook}
             onAddToFavorites={handleAddFavorite}
+            onRemoveFromFavorites={handleRemoveFavorite}
           />
         </div>
       )}

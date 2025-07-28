@@ -16,16 +16,19 @@ export interface ServiceDiscoveryFilters {
     distance: number;
     availability: 'all' | 'available' | 'busy';
     sortBy: 'relevance' | 'price' | 'rating' | 'distance';
+    showFavoritesOnly: boolean;
 }
 
 export interface ServiceDiscoveryProps {
     results: HelperSearchResult[];
     loading: boolean;
+    favoriteHelperIds: number[];
     onSearch: (query: string) => void;
     onFilterChange: (filters: ServiceDiscoveryFilters) => void;
     onHelperSelect: (helper: HelperSearchResult) => void;
     onBookHelper: (helperId: number) => void;
     onAddToFavorites: (helperId: number) => void;
+    onRemoveFromFavorites: (helperId: number) => void;
 }
 
 const DEFAULT_FILTERS: ServiceDiscoveryFilters = {
@@ -34,16 +37,19 @@ const DEFAULT_FILTERS: ServiceDiscoveryFilters = {
     distance: 50,
     availability: 'all',
     sortBy: 'relevance',
+    showFavoritesOnly: false,
 };
 
 export function ServiceDiscovery({
     results,
     loading,
+    favoriteHelperIds,
     onSearch,
     onFilterChange,
     onHelperSelect,
     onBookHelper,
     onAddToFavorites,
+    onRemoveFromFavorites,
 }: ServiceDiscoveryProps) {
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState<ServiceDiscoveryFilters>(DEFAULT_FILTERS);
@@ -83,6 +89,11 @@ export function ServiceDiscovery({
                 if (filters.availability === 'busy' && isAvailable) return false;
             }
 
+            // Favorites filter
+            if (filters.showFavoritesOnly && !favoriteHelperIds.includes(helper.helperId)) {
+                return false;
+            }
+
             return true;
         });
 
@@ -103,7 +114,7 @@ export function ServiceDiscovery({
         });
 
         return filtered;
-    }, [results, filters]);
+    }, [results, filters, favoriteHelperIds]);
 
     return (
         <div className="space-y-6">
@@ -228,6 +239,23 @@ export function ServiceDiscovery({
                                 </Select>
                             </div>
 
+                            {/* Favorites Filter */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Chỉ hiển thị yêu thích</label>
+                                <Select
+                                    value={filters.showFavoritesOnly ? 'true' : 'false'}
+                                    onValueChange={(value) => handleFilterChange({ showFavoritesOnly: value === 'true' })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Chọn trạng thái" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="false">Tất cả</SelectItem>
+                                        <SelectItem value="true">Chỉ yêu thích</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
                             {/* Sort By */}
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Sắp xếp theo</label>
@@ -282,6 +310,8 @@ export function ServiceDiscovery({
                     onHelperSelect={onHelperSelect}
                     onBookHelper={onBookHelper}
                     onAddToFavorites={onAddToFavorites}
+                    onRemoveFromFavorites={onRemoveFromFavorites}
+                    favoriteHelperIds={favoriteHelperIds}
                 />
             ) : (
                 <HelperMapView
@@ -301,6 +331,8 @@ interface HelperGridViewProps {
     onHelperSelect: (helper: HelperSearchResult) => void;
     onBookHelper: (helperId: number) => void;
     onAddToFavorites: (helperId: number) => void;
+    onRemoveFromFavorites: (helperId: number) => void;
+    favoriteHelperIds: number[];
 }
 
 function HelperGridView({
@@ -309,6 +341,8 @@ function HelperGridView({
     onHelperSelect,
     onBookHelper,
     onAddToFavorites,
+    onRemoveFromFavorites,
+    favoriteHelperIds,
 }: HelperGridViewProps) {
     if (loading) {
         return (
@@ -357,6 +391,8 @@ function HelperGridView({
                     onSelect={() => onHelperSelect(helper)}
                     onBook={() => onBookHelper(helper.helperId)}
                     onAddToFavorites={() => onAddToFavorites(helper.helperId)}
+                    onRemoveFromFavorites={() => onRemoveFromFavorites(helper.helperId)}
+                    isFavorite={favoriteHelperIds.includes(helper.helperId)}
                 />
             ))}
         </div>
@@ -397,6 +433,8 @@ interface HelperProfileCardProps {
     onSelect: () => void;
     onBook: () => void;
     onAddToFavorites: () => void;
+    onRemoveFromFavorites: () => void;
+    isFavorite: boolean;
 }
 
 function HelperProfileCard({
@@ -404,6 +442,8 @@ function HelperProfileCard({
     onSelect,
     onBook,
     onAddToFavorites,
+    onRemoveFromFavorites,
+    isFavorite,
 }: HelperProfileCardProps) {
     return (
         <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
@@ -491,14 +531,25 @@ function HelperProfileCard({
                         <Clock className="h-4 w-4 mr-2" />
                         Đặt ngay
                     </Button>
-                    <Button
-                        variant="outline"
-                        onClick={onAddToFavorites}
-                        className="flex-1"
-                    >
-                        <Star className="h-4 w-4 mr-2" />
-                        Yêu thích
-                    </Button>
+                    {isFavorite ? (
+                        <Button
+                            variant="outline"
+                            onClick={onRemoveFromFavorites}
+                            className="flex-1"
+                        >
+                            <Star className="h-4 w-4 mr-2 text-red-500" />
+                            Bỏ yêu thích
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="outline"
+                            onClick={onAddToFavorites}
+                            className="flex-1"
+                        >
+                            <Star className="h-4 w-4 mr-2" />
+                            Yêu thích
+                        </Button>
+                    )}
                 </div>
             </CardContent>
         </Card>

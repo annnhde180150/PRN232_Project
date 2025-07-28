@@ -232,6 +232,39 @@ export interface FavoriteHelper {
   analyticsPeriodEnd: string;
 }
 
+// Favorite Helper Types
+export interface FavoriteHelperItem {
+  favoriteId: number;
+  userId: number;
+  helperId: number;
+  dateAdded: string;
+  helperInfo: {
+    helperId: number;
+    fullName: string;
+    email: string;
+    profilePictureUrl: string;
+  };
+}
+
+export interface FavoriteHelperResponse {
+  success: boolean;
+  statusCode: number;
+  message: string;
+  data: FavoriteHelperItem[];
+  timestamp: string;
+  requestId: string;
+}
+
+export interface AddFavoriteRequest {
+  userId: number;
+  helperId: number;
+}
+
+export interface RemoveFavoriteRequest {
+  userId: number;
+  helperId: number;
+}
+
 // API Response Types
 export interface ReportApiResponse<T> {
   success: boolean;
