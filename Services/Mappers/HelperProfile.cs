@@ -126,7 +126,30 @@ public class HelperProfile : Profile
             .ForMember(dest => dest.SupportTickets, opt => opt.Ignore())
             .ForMember(dest => dest.WithdrawalRequests, opt => opt.Ignore());
 
-        CreateMap<HelperDetailsDto, HelperUpdateDto>();
+        CreateMap<HelperDetailsDto, HelperUpdateDto>()
+            .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.Skills))
+            .ForMember(dest => dest.WorkAreas, opt => opt.MapFrom(src => src.WorkAreas))
+            .ForMember(dest => dest.Documents, opt => opt.MapFrom(src => src.Documents));
+
+        // Additional mappings needed for the above mapping to work
+        CreateMap<HelperSkillDto, HelperSkillCreateDto>()
+            .ForMember(dest => dest.ServiceId, opt => opt.MapFrom(src => src.ServiceId))
+            .ForMember(dest => dest.YearsOfExperience, opt => opt.MapFrom(src => src.YearsOfExperience))
+            .ForMember(dest => dest.IsPrimarySkill, opt => opt.MapFrom(src => src.IsPrimarySkill));
+
+        CreateMap<HelperWorkAreaDto, HelperWorkAreaCreateDto>()
+            .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City))
+            .ForMember(dest => dest.District, opt => opt.MapFrom(src => src.District))
+            .ForMember(dest => dest.Ward, opt => opt.MapFrom(src => src.Ward))
+            .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Latitude))
+            .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Longitude))
+            .ForMember(dest => dest.RadiusKm, opt => opt.MapFrom(src => src.RadiusKm));
+
+        CreateMap<HelperDocumentDto, HelperDocumentCreateDto>()
+            .ForMember(dest => dest.DocumentType, opt => opt.MapFrom(src => src.DocumentType))
+            .ForMember(dest => dest.DocumentUrl, opt => opt.MapFrom(src => src.DocumentUrl))
+            .ForMember(dest => dest.UploadDate, opt => opt.MapFrom(src => src.UploadDate))
+            .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes));
 
         CreateMap<HelperWallet, HelperViewIncomeDto>()
             .ForMember(dest => dest.HelperId, opt => opt.MapFrom(src => src.HelperId))

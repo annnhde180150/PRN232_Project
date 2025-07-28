@@ -242,7 +242,6 @@ namespace HomeHelperFinderAPI.Controllers
             if (!result)
                 return BadRequest(new { message = "Invalid or expired OTP." });
 
-            // Determine user type and update status accordingly
             var user = await _userService.GetUserByEmailAsync(request.Email);
             if (user != null)
             {
@@ -254,9 +253,7 @@ namespace HomeHelperFinderAPI.Controllers
             var helper = await _helperService.GetHelperByEmailAsync(request.Email);
             if (helper != null)
             {
-                helper.IsEmailVerified = true;
-                var updateDto = _mapper.Map<HelperUpdateDto>(helper);
-                await _helperService.UpdateAsync(helper.Id, updateDto);
+                await _helperService.UpdateEmailVerificationStatusAsync(helper.Id, true);
                 return Ok(new { message = "OTP verified successfully. Your email is now verified. Awaiting admin approval." });
             }
             var admin = await _adminService.GetAdminByEmailAsync(request.Email);

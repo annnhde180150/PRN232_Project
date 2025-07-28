@@ -100,7 +100,6 @@ public class HelperService : IHelperService
         var existingHelper = await _unitOfWork.Helpers.GetByIdAsync(id);
         if (existingHelper == null) throw new ArgumentException($"Helper with ID {id} not found");
 
-        // Map DTO to existing entity, excluding navigation properties
         _mapper.Map(dto, existingHelper);
 
         _unitOfWork.Helpers.Update(existingHelper);
@@ -203,6 +202,16 @@ public class HelperService : IHelperService
         if (helper == null) throw new ArgumentException($"User with ID {helperId} not found");
 
         helper.LastLoginDate = DateTime.Now;
+        _unitOfWork.Helpers.Update(helper);
+        await _unitOfWork.CompleteAsync();
+    }
+
+    public async Task UpdateEmailVerificationStatusAsync(int helperId, bool isEmailVerified)
+    {
+        var helper = await _unitOfWork.Helpers.GetByIdAsync(helperId);
+        if (helper == null) throw new ArgumentException($"Helper with ID {helperId} not found");
+
+        helper.IsEmailVerified = isEmailVerified;
         _unitOfWork.Helpers.Update(helper);
         await _unitOfWork.CompleteAsync();
     }
