@@ -57,7 +57,7 @@ export function QuickBookingModal({ helper, isOpen, onClose, onBookingSuccess }:
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>
-                        {step === 'preview' ? 'Đặt dịch vụ' : 'Thông tin đặt chỗ'}
+                        {step === 'preview' ? 'Đặt người giúp việc' : 'Thông tin đặt chỗ'}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -133,6 +133,7 @@ export function QuickBookingModal({ helper, isOpen, onClose, onBookingSuccess }:
                 ) : (
                     <BookingForm
                         helperId={helper.helperId}
+                        helperServiceName={helper.serviceName}
                         onSuccess={handleBookingComplete}
                     />
                 )}

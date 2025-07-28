@@ -30,12 +30,14 @@ type FormData = z.infer<typeof formSchema>;
 interface BookingFormProps {
     editData?: Booking;
     helperId?: number;
+    helperServiceName?: string; // Add helper service name prop
     onSuccess?: () => void;
 }
 
-export function BookingForm({ editData, helperId, onSuccess }: BookingFormProps) {
+export function BookingForm({ editData, helperId, helperServiceName, onSuccess }: BookingFormProps) {
     const [addresses, setAddresses] = useState<Address[]>([]);
-    const [services, setServices] = useState<Service[]>([]);
+    const [helperServices, setHelperServices] = useState<Service[]>([]);
+    const [allServices, setAllServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
@@ -59,21 +61,37 @@ export function BookingForm({ editData, helperId, onSuccess }: BookingFormProps)
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, [helperId]);
 
     const loadData = async () => {
         try {
-            const [addressesRes, servicesRes] = await Promise.all([
-                supportApi.getUserAddresses(1), // Default user ID
-                supportApi.getActiveServices()
-            ]);
-
+            // Always load addresses
+            const addressesRes = await supportApi.getUserAddresses(1);
             if (addressesRes.success) {
                 setAddresses(addressesRes.data);
             }
 
-            if (servicesRes.success) {
-                setServices(servicesRes.data);
+            // Load services based on whether helperId is provided
+            if (helperId) {
+                const helperServicesRes = await supportApi.getHelperServices(helperId);
+                if (helperServicesRes.success) {
+                    setHelperServices(helperServicesRes.data);
+                    
+                    // Auto-set serviceId based on helper's service name
+                    if (helperServiceName && helperServicesRes.data.length > 0) {
+                        const matchingService = helperServicesRes.data.find(
+                            service => service.serviceName === helperServiceName
+                        );
+                        if (matchingService) {
+                            form.setValue('serviceId', matchingService.serviceId);
+                        }
+                    }
+                }
+            } else {
+                const allServicesRes = await supportApi.getActiveServices();
+                if (allServicesRes.success) {
+                    setAllServices(allServicesRes.data);
+                }
             }
         } catch (error) {
             toast.error('Không thể tải dữ liệu');
@@ -138,33 +156,56 @@ export function BookingForm({ editData, helperId, onSuccess }: BookingFormProps)
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         {/* Hidden fields - userId and helperId will be sent automatically */}
 
-                        <FormField
-                            control={form.control}
-                            name="serviceId"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Dịch vụ</FormLabel>
-                                    <Select
-                                        onValueChange={(value) => field.onChange(parseInt(value))}
-                                        value={field.value?.toString()}
-                                    >
+                        {/* Service selection/display */}
+                        {helperId && helperServiceName ? (
+                            // Show read-only service when helper is specified
+                            <FormField
+                                control={form.control}
+                                name="serviceId"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Dịch vụ</FormLabel>
                                         <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Chọn dịch vụ" />
-                                            </SelectTrigger>
+                                            <Input 
+                                                value={helperServiceName}
+                                                readOnly
+                                                className="bg-gray-50"
+                                            />
                                         </FormControl>
-                                        <SelectContent>
-                                            {services.map((service) => (
-                                                <SelectItem key={service.serviceId} value={service.serviceId.toString()}>
-                                                    {service.serviceName} - {service.basePrice.toLocaleString()} {service.priceUnit}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        ) : (
+                            // Show service selection dropdown when no helper is specified
+                            <FormField
+                                control={form.control}
+                                name="serviceId"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Dịch vụ</FormLabel>
+                                        <Select
+                                            onValueChange={(value) => field.onChange(parseInt(value))}
+                                            value={field.value?.toString()}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Chọn dịch vụ" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {allServices.map((service) => (
+                                                    <SelectItem key={service.serviceId} value={service.serviceId.toString()}>
+                                                        {service.serviceName} - {service.basePrice.toLocaleString()} {service.priceUnit}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )}
 
                         <FormField
                             control={form.control}

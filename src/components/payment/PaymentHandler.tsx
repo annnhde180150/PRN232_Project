@@ -41,7 +41,7 @@ export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: Pay
 
       // Create VNPAY payment URL with Vercel URL
       const baseUrl = getBaseUrl();
-      const returnUrl = `${baseUrl}/booking-history`;
+      const returnUrl = `${baseUrl}/booking-history?paymentId=${paymentInfo.data.paymentId}&helperId=${paymentInfo.data.helperId}&amount=${paymentInfo.data.amount}`;
       console.log('Using Vercel return URL:', returnUrl);
 
       const paymentUrl = await createVnpayPaymentUrl(

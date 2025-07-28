@@ -9,12 +9,14 @@ interface DocumentVerificationProps {
   document: HelperDocumentDetail;
   onVerificationUpdate: () => void;
   adminId: number;
+  helperApprovalStatus: 'Pending' | 'approved' | 'rejected' | 'revision_requested';
 }
 
 const DocumentVerification: React.FC<DocumentVerificationProps> = ({
   document,
   onVerificationUpdate,
-  adminId
+  adminId,
+  helperApprovalStatus
 }) => {
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'Pending' | 'Approved' | 'Rejected' | 'Under Review'>(
@@ -142,12 +144,18 @@ const DocumentVerification: React.FC<DocumentVerificationProps> = ({
               <Eye className="w-3 h-3 mr-1" />
               Xem
             </button>
-            <button
-              onClick={() => setShowVerificationModal(true)}
-              className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700"
-            >
-              Xác minh
-            </button>
+            {helperApprovalStatus === 'Pending' ? (
+              <button
+                onClick={() => setShowVerificationModal(true)}
+                className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                Xác minh
+              </button>
+            ) : (
+              <span className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 bg-gray-100 rounded">
+                Chỉ xem
+              </span>
+            )}
           </div>
         </div>
       </div>
