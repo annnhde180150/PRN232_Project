@@ -16,11 +16,12 @@ import { BookingDetails, BookingStatus } from '@/types/bookings';
 interface EnhancedBookingCardProps {
     booking: BookingDetails;
     onStatusUpdate: (newStatus?: string) => void;
+    onRefresh?: () => void;
     userType: 'customer' | 'helper';
     userId: number;
 }
 
-export function EnhancedBookingCard({ booking, onStatusUpdate, userType, userId }: EnhancedBookingCardProps) {
+export function EnhancedBookingCard({ booking, onStatusUpdate, onRefresh, userType, userId }: EnhancedBookingCardProps) {
     const [showCancelDialog, setShowCancelDialog] = useState(false);
     const [showReviewDialog, setShowReviewDialog] = useState(false);
     const [showReviewModal, setShowReviewModal] = useState(false);
@@ -334,7 +335,7 @@ export function EnhancedBookingCard({ booking, onStatusUpdate, userType, userId 
                                     }}
                                     onSuccess={() => {
                                         setShowCancelDialog(false);
-                                        onStatusUpdate();
+                                        onRefresh?.(); 
                                     }}
                                     onCancel={() => setShowCancelDialog(false)}
                                 />

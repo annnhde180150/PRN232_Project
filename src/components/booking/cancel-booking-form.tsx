@@ -177,7 +177,7 @@ export function CancelBookingForm({ booking, onSuccess, onCancel }: CancelBookin
                                 type="submit" 
                                 disabled={loading || !canCancel} 
                                 variant="destructive" 
-                                className="flex-1"
+                                className="bg-red-600 hover:bg-red-700 text-white flex-1"
                             >
                                 {loading ? 'Đang hủy...' : !canCancel ? 'Không thể hủy' : 'Hủy đặt lịch'}
                             </Button>

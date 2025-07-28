@@ -38,15 +38,9 @@ export default function ActiveBookingsPage() {
 
     try {
       setLoading(true);
-      // Use the centralized bookingAPI to get helper bookings
       const allBookings = await bookingAPI.getHelperBookings(helperId);
       
-      // Filter for active bookings (all statuses except Cancelled for active view)
-      const activeBookings = allBookings.filter(booking => 
-        booking.status !== 'Cancelled'
-      );
-      
-      setAllBookings(activeBookings);
+      setAllBookings(allBookings);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       toast.error('Failed to fetch bookings');
@@ -243,6 +237,7 @@ export default function ActiveBookingsPage() {
               key={booking.bookingId}
               booking={booking}
               onStatusUpdate={(newStatus) => updateBookingStatus(booking.bookingId, newStatus)}
+              onRefresh={fetchActiveBookings}
               userType="helper"
               userId={helperId}
             />
