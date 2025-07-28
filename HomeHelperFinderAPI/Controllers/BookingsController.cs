@@ -359,7 +359,6 @@ namespace HomeHelperFinderAPI.Controllers
 
             var currentBooking = _mapper.Map<Booking>(await _bookingService.GetByIdAsync(cancellation.BookingId));
 
-
             if (currentBooking.FreeCancellationDeadline != null && DateTime.Now > currentBooking.FreeCancellationDeadline)
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
@@ -370,6 +369,7 @@ namespace HomeHelperFinderAPI.Controllers
             var currentRequest = _mapper.Map<ServiceRequest>(await _requestService.GetByIdAsync(currentBooking.RequestId.Value));
             currentRequest.Status = ServiceRequest.AvailableStatus.Cancelled.ToString();
 
+            await _paymentService.UpdatePaymentStatus(currentBooking.BookingId, Payment.PaymentStatusEnum.Cancelled.ToString(), DateTime.UtcNow);
             await _bookingService.UpdateAsync(cancellation.BookingId, _mapper.Map<BookingUpdateDto>(currentBooking));
             await _requestService.UpdateAsync(currentRequest.RequestId, _mapper.Map<ServiceRequestUpdateDto>(currentRequest));
 
