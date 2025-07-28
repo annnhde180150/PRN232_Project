@@ -290,5 +290,27 @@ SentTime = DateTime.Now
             }
             return dtos;
         }
+
+        public async Task<List<BookingDetailDto>> GetTempBookingByUserId(int userId)
+        {
+            var bookings = await _unitOfWork.Bookings.GetQueryable(
+                b => b.User,
+                b => b.Service,
+                b => b.Request,
+                b => b.Request.Address
+            ).Where(b => b.UserId == userId && b.Status.Equals(Booking.AvailableStatus.TemporaryAccepted.ToString()))
+            .ToListAsync();
+            var dtos = _mapper.Map<List<BookingDetailDto>>(bookings);
+            var helperIds = (await _unitOfWork.Helpers.GetAllAsync()).Select(h => new { h.HelperId, h.FullName }).ToList();
+            foreach (var dto in dtos)
+            {
+                var helper = helperIds.FirstOrDefault(h => h.HelperId == dto.HelperId);
+                if (helper != null)
+                {
+                    dto.HelperName = helper.FullName;
+                }
+            }
+            return dtos;
+        }
     }
 }

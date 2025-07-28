@@ -21,5 +21,6 @@ namespace Services.Interfaces
         Task<List<BookingServiceNameDto>> GetReviewServiceNames(int helperId);
         Task<IEnumerable<GetAllBookingDto>> GetActiveBookingsByHelperId(int helperId);
         Task<IEnumerable<GetAllBookingDto>> GetActiveBookingsByUserId(int userId);
+        Task<List<BookingDetailDto>> GetTempBookingByUserId(int userId);
     }
 }

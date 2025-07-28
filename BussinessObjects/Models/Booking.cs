@@ -59,6 +59,7 @@ public class Booking
         Accepted,
         InProgress,
         Completed,
-        Cancelled
+        Cancelled,
+        TemporaryAccepted
     }
 }
