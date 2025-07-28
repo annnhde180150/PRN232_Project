@@ -135,7 +135,7 @@ namespace HomeHelperFinderAPI.Controllers
         public async Task<ActionResult> BookHelperRequest([FromBody] ServiceRequestCreateDto newRequest, [FromRoute] int helperId)
         {
             if (!await _requestService.IsValidatedCreateRequest(_mapper.Map<ServiceRequest>(newRequest)))
-                return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
+                return StatusCode(StatusCodes.Status400BadRequest, "");
 
             //validate helper id and check if helper is available at time
             if (helperId == null || !(await _helperService.ExistsAsync(helperId)))
@@ -369,7 +369,9 @@ namespace HomeHelperFinderAPI.Controllers
             var currentRequest = _mapper.Map<ServiceRequest>(await _requestService.GetByIdAsync(currentBooking.RequestId.Value));
             currentRequest.Status = ServiceRequest.AvailableStatus.Cancelled.ToString();
 
-            await _paymentService.UpdatePaymentStatus(currentBooking.BookingId, Payment.PaymentStatusEnum.Cancelled.ToString(), DateTime.UtcNow);
+            var payment = await _paymentService.GetPayment(currentBooking.UserId, currentBooking.BookingId);
+
+            await _paymentService.UpdatePaymentStatus(payment.PaymentId, Payment.PaymentStatusEnum.Cancelled.ToString(), DateTime.UtcNow);
             await _bookingService.UpdateAsync(cancellation.BookingId, _mapper.Map<BookingUpdateDto>(currentBooking));
             await _requestService.UpdateAsync(currentRequest.RequestId, _mapper.Map<ServiceRequestUpdateDto>(currentRequest));
 
