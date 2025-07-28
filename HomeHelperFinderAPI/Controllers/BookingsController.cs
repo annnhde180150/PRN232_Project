@@ -146,7 +146,7 @@ namespace HomeHelperFinderAPI.Controllers
                     newRequest.RequestedStartTime.AddHours((double)newRequest.RequestedDurationHours.Value)))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             var currentHelper = await _helperService.GetByIdAsync(helperId);
-            if (!currentHelper.IsActive.HasValue || currentHelper.IsActive.Value)
+            if (!currentHelper.IsActive.HasValue || !currentHelper.IsActive.Value)
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
 
@@ -332,7 +332,8 @@ namespace HomeHelperFinderAPI.Controllers
             if (booking.HelperId != dto.HelperId)
                 return Forbid("You are not the assigned helper for this booking");
 
-            if (dto.Status != "InProgress" && dto.Status != "Completed")
+            if (dto.Status != "InProgress" && dto.Status != "Completed" 
+                && dto.Status != "Accepted" && dto.Status != "Pending" && dto.Status != "Cancelled")
                 return BadRequest("Invalid status");
 
             // Remove automatic setting of time fields - let service handle this
@@ -371,7 +372,7 @@ namespace HomeHelperFinderAPI.Controllers
 
             var payment = await _paymentService.GetPayment(currentBooking.UserId, currentBooking.BookingId);
 
-            await _paymentService.UpdatePaymentStatus(payment.PaymentId, Payment.PaymentStatusEnum.Cancelled.ToString(), DateTime.UtcNow);
+            await _paymentService.UpdatePaymentStatus(payment.PaymentId, Payment.PaymentStatusEnum.Cancelled.ToString(), DateTime.Now);
             await _bookingService.UpdateAsync(cancellation.BookingId, _mapper.Map<BookingUpdateDto>(currentBooking));
             await _requestService.UpdateAsync(currentRequest.RequestId, _mapper.Map<ServiceRequestUpdateDto>(currentRequest));
 
