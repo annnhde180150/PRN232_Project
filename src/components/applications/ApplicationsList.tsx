@@ -309,32 +309,6 @@ const ApplicationsList: React.FC<ApplicationsListProps> = ({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
-                      {application.approvalStatus === 'Pending' && (
-                        <>
-                          <button
-                            onClick={() => handleQuickDecision(application.helperId, 'approved')}
-                            disabled={processingIds.has(application.helperId)}
-                            className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {processingIds.has(application.helperId) ? (
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                            ) : (
-                              'Duyệt'
-                            )}
-                          </button>
-                          <button
-                            onClick={() => handleQuickDecision(application.helperId, 'rejected')}
-                            disabled={processingIds.has(application.helperId)}
-                            className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {processingIds.has(application.helperId) ? (
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-                            ) : (
-                              'Từ chối'
-                            )}
-                          </button>
-                        </>
-                      )}
                       <button
                         onClick={() => onApplicationSelect(application.helperId)}
                         className="text-indigo-600 hover:text-indigo-900"
