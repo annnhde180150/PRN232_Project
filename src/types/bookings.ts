@@ -92,7 +92,8 @@ export type BookingStatus =
   | 'InProgress'
   | 'Completed'
   | 'Cancelled'
-  | 'Rejected';
+  | 'Rejected'
+  | 'TemporaryAccepted';
 
 export interface BookingHistoryResponse {
   success: boolean;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, MapPin, CreditCard } from 'lucide-react';
+import { Calendar, Clock, MapPin, CreditCard, Check, X } from 'lucide-react';
 import { BookingDetails, BookingStatus } from '@/types/bookings';
 import { PaymentHandler } from '@/components/payment';
 import { getPaymentStatusForBooking } from '@/lib/payment-api';
@@ -10,6 +10,7 @@ import { PaymentStatus } from '@/types/payment';
 import { ReviewButton, ReviewDisplay } from '@/components/reviews';
 import { getReviewByBookingId } from '@/lib/review-api';
 import { Review } from '@/types/review';
+import { bookingAPI } from '@/lib/booking-api';
 
 interface BookingCardProps {
   booking: BookingDetails;
@@ -21,6 +22,9 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
   const [loadingPaymentStatus, setLoadingPaymentStatus] = useState(true);
   const [existingReview, setExistingReview] = useState<Review | null>(null);
   const [loadingReview, setLoadingReview] = useState(false);
+  const [acceptingHelper, setAcceptingHelper] = useState(false);
+  const [rejectingHelper, setRejectingHelper] = useState(false);
+  const [bookingStatus, setBookingStatus] = useState<BookingStatus>(booking.status);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +70,8 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
         return 'destructive';
       case 'Rejected':
         return 'destructive';
+      case 'TemporaryAccepted':
+        return 'outline';
       default:
         return 'secondary';
     }
@@ -85,6 +91,8 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
         return 'bg-red-100 text-red-800 border-red-200';
       case 'Rejected':
         return 'bg-red-100 text-red-800 border-red-200';
+      case 'TemporaryAccepted':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -98,6 +106,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
       case 'Completed': return 'Hoàn thành';
       case 'Cancelled': return 'Đã hủy';
       case 'Rejected': return 'Từ chối';
+      case 'TemporaryAccepted': return 'Chờ xác nhận từ bạn';
       default: return status;
     }
   };
@@ -205,6 +214,36 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
     fetchReview();
   };
 
+  // Handle accepting helper
+  const handleAcceptHelper = async () => {
+    try {
+      setAcceptingHelper(true);
+      const success = await bookingAPI.acceptHelper(booking.bookingId, true);
+      if (success) {
+        setBookingStatus('Accepted');
+      }
+    } catch (error) {
+      console.error('Error accepting helper:', error);
+    } finally {
+      setAcceptingHelper(false);
+    }
+  };
+
+  // Handle rejecting helper
+  const handleRejectHelper = async () => {
+    try {
+      setRejectingHelper(true);
+      const success = await bookingAPI.acceptHelper(booking.bookingId, false);
+      if (success) {
+        setBookingStatus('Rejected');
+      }
+    } catch (error) {
+      console.error('Error rejecting helper:', error);
+    } finally {
+      setRejectingHelper(false);
+    }
+  };
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
@@ -215,10 +254,10 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
                 {getServiceName()}
               </h3>
               <Badge 
-                variant={getStatusBadgeVariant(booking.status)}
-                className={getStatusColor(booking.status)}
+                variant={getStatusBadgeVariant(bookingStatus)}
+                className={getStatusColor(bookingStatus)}
               >
-                {getStatusText(booking.status)}
+                {getStatusText(bookingStatus)}
               </Badge>
               {/* Show payment status if available */}
               {paymentStatus && (
@@ -290,6 +329,61 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
                 <span className="font-medium">Hủy miễn phí đến:</span> {formatDate(booking.freeCancellationDeadline)}
               </p>
             )}
+          </div>
+        )}
+
+        {/* Accept/Reject buttons for TemporaryAccepted status */}
+        {bookingStatus === 'TemporaryAccepted' && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">
+                <span className="font-medium">Xác nhận người giúp việc:</span> {booking.helperName}
+              </p>
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="outline" 
+                  className="border-red-500 text-red-500 hover:bg-red-50"
+                  onClick={handleRejectHelper}
+                  disabled={rejectingHelper || acceptingHelper}
+                >
+                  {rejectingHelper ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Đang từ chối
+                    </span>
+                  ) : (
+                    <span className="flex items-center">
+                      <X className="h-4 w-4 mr-1" />
+                      Từ chối
+                    </span>
+                  )}
+                </Button>
+                <Button 
+                  variant="default" 
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={handleAcceptHelper}
+                  disabled={rejectingHelper || acceptingHelper}
+                >
+                  {acceptingHelper ? (
+                    <span className="flex items-center">
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Đang chấp nhận
+                    </span>
+                  ) : (
+                    <span className="flex items-center">
+                      <Check className="h-4 w-4 mr-1" />
+                      Chấp nhận
+                    </span>
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
         )}
 
