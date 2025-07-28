@@ -286,6 +286,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
                       document={doc}
                       onVerificationUpdate={handleDocumentVerificationUpdate}
                       adminId={adminId}
+                      helperApprovalStatus={application?.approvalStatus || 'Pending'}
                     />
                   ))}
                 </div>
