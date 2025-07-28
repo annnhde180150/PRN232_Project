@@ -30,10 +30,10 @@ namespace Services.Implements
             {
                 Identifier = email,
                 OtpCode = otpCode,
-                ExpiryDateTime = DateTime.UtcNow.AddMinutes(OtpExpiryMinutes),
+                ExpiryDateTime = DateTime.Now.AddMinutes(OtpExpiryMinutes),
                 IsVerified = false,
                 AttemptCount = 0,
-                CreationDateTime = DateTime.UtcNow
+                CreationDateTime = DateTime.Now
             };
             await _otpRepo.AddAsync(otp);
             await _unitOfWork.CompleteAsync();

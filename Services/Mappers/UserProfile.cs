@@ -58,7 +58,7 @@ public class UserProfile : Profile
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
             .ForMember(dest => dest.DefaultAddressId, opt => opt.MapFrom(src => src.DefaultAddressId))
             .ForMember(dest => dest.UserId, opt => opt.Ignore()) // Auto-generated
-            .ForMember(dest => dest.RegistrationDate, opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(dest => dest.RegistrationDate, opt => opt.MapFrom(src => DateTime.Now))
             .ForMember(dest => dest.LastLoginDate, opt => opt.Ignore()) // Sẽ set khi login
             .ForMember(dest => dest.DefaultAddress, opt => opt.Ignore()) // Navigation properties
             .ForMember(dest => dest.Bookings, opt => opt.Ignore())

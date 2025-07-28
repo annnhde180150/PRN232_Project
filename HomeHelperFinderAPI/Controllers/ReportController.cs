@@ -263,11 +263,11 @@ public class ReportController : ControllerBase
     {
         try
         {
-            var start = startDate ?? DateTime.UtcNow.AddMonths(-1);
-            var end = endDate ?? DateTime.UtcNow;
+            var start = startDate ?? DateTime.Now.AddMonths(-1);
+            var end = endDate ?? DateTime.Now;
 
             var csvData = await _analyticsService.ExportSystemReportToCsvAsync(start, end);
-            var fileName = $"business-report-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv";
+            var fileName = $"business-report-{DateTime.Now:yyyyMMdd-HHmmss}.csv";
 
             return File(csvData, "text/csv", fileName);
         }
@@ -286,11 +286,11 @@ public class ReportController : ControllerBase
         try
         {
             var helperId = GetCurrentHelperId();
-            var start = startDate ?? DateTime.UtcNow.AddMonths(-1);
-            var end = endDate ?? DateTime.UtcNow;
+            var start = startDate ?? DateTime.Now.AddMonths(-1);
+            var end = endDate ?? DateTime.Now;
 
             var csvData = await _analyticsService.ExportHelperReportToCsvAsync(helperId, start, end);
-            var fileName = $"helper-report-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv";
+            var fileName = $"helper-report-{DateTime.Now:yyyyMMdd-HHmmss}.csv";
 
             return File(csvData, "text/csv", fileName);
         }
@@ -309,11 +309,11 @@ public class ReportController : ControllerBase
     {
         try
         {
-            var start = startDate ?? DateTime.UtcNow.AddMonths(-1);
-            var end = endDate ?? DateTime.UtcNow;
+            var start = startDate ?? DateTime.Now.AddMonths(-1);
+            var end = endDate ?? DateTime.Now;
 
             var csvData = await _analyticsService.ExportHelperReportToCsvAsync(helperId, start, end);
-            var fileName = $"helper-{helperId}-report-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv";
+            var fileName = $"helper-{helperId}-report-{DateTime.Now:yyyyMMdd-HHmmss}.csv";
 
             return File(csvData, "text/csv", fileName);
         }
@@ -331,11 +331,11 @@ public class ReportController : ControllerBase
     {
         try
         {
-            var start = startDate ?? DateTime.UtcNow.AddMonths(-1);
-            var end = endDate ?? DateTime.UtcNow;
+            var start = startDate ?? DateTime.Now.AddMonths(-1);
+            var end = endDate ?? DateTime.Now;
 
             var csvData = await _analyticsService.ExportBookingReportToCsvAsync(start, end);
-            var fileName = $"booking-report-{DateTime.UtcNow:yyyyMMdd-HHmmss}.csv";
+            var fileName = $"booking-report-{DateTime.Now:yyyyMMdd-HHmmss}.csv";
 
             return File(csvData, "text/csv", fileName);
         }

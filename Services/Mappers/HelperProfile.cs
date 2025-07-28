@@ -73,7 +73,7 @@ public class HelperProfile : Profile
             .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
             .ForMember(dest => dest.HelperId, opt => opt.Ignore()) // Auto-generated
-            .ForMember(dest => dest.RegistrationDate, opt => opt.MapFrom(src => DateTime.UtcNow))
+            .ForMember(dest => dest.RegistrationDate, opt => opt.MapFrom(src => DateTime.Now))
             .ForMember(dest => dest.ApprovalStatus, opt => opt.MapFrom(src => "Pending"))
             .ForMember(dest => dest.ApprovedByAdminId, opt => opt.Ignore()) // Set when approved
             .ForMember(dest => dest.ApprovalDate, opt => opt.Ignore()) // Set when approved

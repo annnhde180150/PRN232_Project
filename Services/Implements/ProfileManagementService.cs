@@ -286,7 +286,7 @@ public class ProfileManagementService : IProfileManagementService
                 NotificationType = "AccountSuspension",
                 ReferenceId = $"{profileType}_{profileId}",
                 IsRead = false,
-                CreationTime = DateTime.UtcNow
+                CreationTime = DateTime.Now
             };
 
             // Send real-time notification
@@ -333,7 +333,7 @@ public class ProfileManagementService : IProfileManagementService
                 NotificationType = "AccountRestoration",
                 ReferenceId = $"{profileType}_{profileId}",
                 IsRead = false,
-                CreationTime = DateTime.UtcNow
+                CreationTime = DateTime.Now
             };
 
             // Send real-time notification

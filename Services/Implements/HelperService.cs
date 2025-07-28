@@ -50,7 +50,7 @@ public class HelperService : IHelperService
         _logger.LogInformation($"Creating new helper with email: {dto.Email}");
 
         var helper = _mapper.Map<Helper>(dto);
-        helper.RegistrationDate = DateTime.UtcNow;
+        helper.RegistrationDate = DateTime.Now;
         helper.ApprovalStatus = "Pending";
         helper.IsActive = false; // Helpers start as inactive until approved
 
@@ -202,7 +202,7 @@ public class HelperService : IHelperService
         var helper = await _unitOfWork.Helpers.GetByIdAsync(helperId);
         if (helper == null) throw new ArgumentException($"User with ID {helperId} not found");
 
-        helper.LastLoginDate = DateTime.UtcNow;
+        helper.LastLoginDate = DateTime.Now;
         _unitOfWork.Helpers.Update(helper);
         await _unitOfWork.CompleteAsync();
     }
@@ -402,7 +402,7 @@ public class HelperService : IHelperService
         {
             helper.IsActive = true;
             helper.ApprovedByAdminId = adminId;
-            helper.ApprovalDate = DateTime.UtcNow;
+            helper.ApprovalDate = DateTime.Now;
         }
         else
         {
@@ -410,7 +410,7 @@ public class HelperService : IHelperService
             if (decision.Status == "rejected")
             {
                 helper.ApprovedByAdminId = adminId;
-                helper.ApprovalDate = DateTime.UtcNow;
+                helper.ApprovalDate = DateTime.Now;
             }
         }
 

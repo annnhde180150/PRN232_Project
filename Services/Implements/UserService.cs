@@ -40,7 +40,7 @@ public class UserService : IUserService
         _logger.LogInformation($"Creating new user with email: {dto.Email}");
 
         var user = _mapper.Map<User>(dto);
-        user.RegistrationDate = DateTime.UtcNow;
+        user.RegistrationDate = DateTime.Now;
         user.IsActive = false;
 
         await _unitOfWork.Users.AddAsync(user);
@@ -85,7 +85,7 @@ public class UserService : IUserService
         var user = await _unitOfWork.Users.GetByIdAsync(userId);
         if (user == null) throw new ArgumentException($"User with ID {userId} not found");
 
-        user.LastLoginDate = DateTime.UtcNow;
+        user.LastLoginDate = DateTime.Now;
         _unitOfWork.Users.Update(user);
         await _unitOfWork.CompleteAsync();
     }

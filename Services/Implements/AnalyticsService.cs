@@ -33,16 +33,16 @@ public class AnalyticsService : IAnalyticsService
         var totalReviews = await _unitOfWork.Reviews.CountAsync();
 
         // Calculate growth metrics (compared to previous month)
-        var currentMonth = DateTime.UtcNow.Date.AddDays(1 - DateTime.UtcNow.Day);
+        var currentMonth = DateTime.Now.Date.AddDays(1 - DateTime.Now.Day);
         var previousMonth = currentMonth.AddMonths(-1);
         
         var currentMonthUsers = await _unitOfWork.Users.CountAsync(u => u.RegistrationDate >= currentMonth);
         var previousMonthUsers = await _unitOfWork.Users.CountAsync(u => u.RegistrationDate >= previousMonth && u.RegistrationDate < currentMonth);
         
-        var currentMonthBookings = (await _unitOfWork.Bookings.GetBookingsByDateRangeAsync(currentMonth, DateTime.UtcNow)).Count();
+        var currentMonthBookings = (await _unitOfWork.Bookings.GetBookingsByDateRangeAsync(currentMonth, DateTime.Now)).Count();
         var previousMonthBookings = (await _unitOfWork.Bookings.GetBookingsByDateRangeAsync(previousMonth, currentMonth)).Count();
         
-        var currentMonthRevenue = await _unitOfWork.Bookings.GetRevenueByDateRangeAsync(currentMonth, DateTime.UtcNow);
+        var currentMonthRevenue = await _unitOfWork.Bookings.GetRevenueByDateRangeAsync(currentMonth, DateTime.Now);
         var previousMonthRevenue = await _unitOfWork.Bookings.GetRevenueByDateRangeAsync(previousMonth, currentMonth);
 
         var growthMetrics = new GrowthMetricsDto
@@ -65,15 +65,15 @@ public class AnalyticsService : IAnalyticsService
             AverageRating = averageRating,
             TotalServices = totalServices,
             TotalReviews = totalReviews,
-            LastUpdated = DateTime.UtcNow,
+            LastUpdated = DateTime.Now,
             GrowthMetrics = growthMetrics
         };
     }
 
     public async Task<UserAnalyticsDto> GetUserAnalyticsAsync(DateTime? startDate = null, DateTime? endDate = null)
     {
-        var start = startDate ?? DateTime.UtcNow.AddMonths(-1);
-        var end = endDate ?? DateTime.UtcNow;
+        var start = startDate ?? DateTime.Now.AddMonths(-1);
+        var end = endDate ?? DateTime.Now;
 
         var allUsers = await _unitOfWork.Users.GetAllAsync();
         var newRegistrations = allUsers.Count(u => u.RegistrationDate >= start && u.RegistrationDate <= end);
@@ -354,7 +354,7 @@ public class AnalyticsService : IAnalyticsService
 
     public async Task<List<MonthlyRevenueDto>> GetMonthlyRevenueTrendAsync(int months = 12)
     {
-        var endDate = DateTime.UtcNow;
+        var endDate = DateTime.Now;
         var startDate = endDate.AddMonths(-months);
         
         var revenueReport = await GetRevenueReportAsync("custom");
@@ -376,7 +376,7 @@ public class AnalyticsService : IAnalyticsService
             CustomerSatisfactionScore = averageRating * 20, // Convert 5-star to 100-point scale
             ServiceQualityIndex = averageRating * 20,
             RetentionRate = CalculateRetentionRate(),
-            LastCalculated = DateTime.UtcNow
+            LastCalculated = DateTime.Now
         };
     }
 
@@ -623,7 +623,7 @@ public class AnalyticsService : IAnalyticsService
 
     private (DateTime Start, DateTime End) GetDateRangeForPeriod(string period)
     {
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
         return period.ToLower() switch
         {
             "day" => (now.Date, now.Date.AddDays(1).AddTicks(-1)),

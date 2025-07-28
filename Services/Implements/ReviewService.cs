@@ -43,7 +43,7 @@ public class ReviewService : IReviewService
                 HelperId = dto.HelperId,
                 Rating = dto.Rating,
                 Comment = dto.Comment ?? string.Empty,
-                ReviewDate = DateTime.UtcNow,
+                ReviewDate = DateTime.Now,
                 IsEdited = false
             };
 
@@ -168,7 +168,7 @@ public class ReviewService : IReviewService
             review.Rating = dto.Rating;
             review.Comment = dto.Comment ?? string.Empty;
             review.IsEdited = true;
-            review.LastEditedDate = DateTime.UtcNow;
+            review.LastEditedDate = DateTime.Now;
 
             _unitOfWork.Reviews.Update(review);
             await _unitOfWork.CompleteAsync();

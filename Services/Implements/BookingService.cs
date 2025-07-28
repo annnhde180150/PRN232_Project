@@ -147,8 +147,8 @@ namespace Services.Implements
                     Message = $"Trạng thái booking #{booking.BookingId} đã chuyển sang {booking.Status}",
                     NotificationType = "STATUS_UPDATE",
                     ReferenceId = $"booking_{booking.BookingId}",
-                    CreationTime = DateTime.UtcNow,
-                    SentTime = DateTime.UtcNow
+                    CreationTime = DateTime.Now,
+SentTime = DateTime.Now
                 };
                 await _realtimeNotificationService.SendToUserAsync(booking.UserId.ToString(), "User", notification);
             }

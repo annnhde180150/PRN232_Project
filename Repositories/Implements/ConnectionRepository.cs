@@ -47,14 +47,14 @@ public class ConnectionRepository : BaseRepository<Connection>, IConnectionRepos
         foreach (var connection in connections)
         {
             connection.IsActive = false;
-            connection.DisconnectedAt = DateTime.UtcNow;
+            connection.DisconnectedAt = DateTime.Now;
             Update(connection);
         }
     }
 
     public async Task CleanupInactiveConnectionsAsync(TimeSpan olderThan)
     {
-        var cutoffTime = DateTime.UtcNow - olderThan;
+        var cutoffTime = DateTime.Now - olderThan;
 
         var oldConnections = await _context.Set<Connection>()
             .Where(c => !c.IsActive && c.DisconnectedAt.HasValue && c.DisconnectedAt < cutoffTime)

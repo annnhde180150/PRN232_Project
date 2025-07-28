@@ -57,8 +57,8 @@ public class NotificationService : INotificationService
         var notification = _mapper.Map<Notification>(createDto);
 
         // Auto-set timestamps
-        notification.CreationTime = DateTime.UtcNow;
-        notification.SentTime = DateTime.UtcNow;
+        notification.CreationTime = DateTime.Now;
+        notification.SentTime = DateTime.Now;
         notification.IsRead = false;
 
         await _unitOfWork.Notifications.AddAsync(notification);
@@ -109,8 +109,8 @@ public class NotificationService : INotificationService
         var notification = _mapper.Map<Notification>(createDto);
 
         // Auto-set timestamps
-        notification.CreationTime = DateTime.UtcNow;
-        notification.SentTime = DateTime.UtcNow;
+        notification.CreationTime = DateTime.Now;
+        notification.SentTime = DateTime.Now;
         notification.IsRead = false;
 
         await _unitOfWork.Notifications.AddAsync(notification);

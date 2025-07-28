@@ -169,7 +169,7 @@ namespace HomeHelperFinderAPI.Controllers
                 ScheduledStartTime = newRequest.RequestedStartTime,
                 ScheduledEndTime = newRequest.RequestedStartTime.AddHours((double)newRequest.RequestedDurationHours),
                 Status = "Pending",
-                BookingCreationTime = DateTime.UtcNow
+                BookingCreationTime = DateTime.Now
             };
 
             var basePrice = (await _serviceService.GetByIdAsync(newBooking.ServiceId)).BasePrice;
@@ -232,7 +232,7 @@ namespace HomeHelperFinderAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status400BadRequest, "Cancellation reason and cancelled by must be provided");
                 }
-                updateBooking.CancellationTime = DateTime.UtcNow;
+                updateBooking.CancellationTime = DateTime.Now;
             }
 
             // set new Final Price

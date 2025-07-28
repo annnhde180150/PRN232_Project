@@ -22,7 +22,7 @@ public class ReviewReportService : IReviewReportService
             ReviewId = dto.ReviewId,
             HelperId = dto.HelperId,
             Reason = dto.Reason,
-            ReportedAt = DateTime.UtcNow
+            ReportedAt = DateTime.Now
         };
         await _unitOfWork.ReviewReports.AddAsync(report);
         await _unitOfWork.CompleteAsync();
