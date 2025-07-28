@@ -41,6 +41,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IFavoriteHelperRepository, FavoriteHelperRepository>();
+builder.Services.AddScoped<IHelperDocumentRepository, HelperDocumentRepository>();
 
 // Service registrations
 builder.Services.AddScoped<IAdminService, AdminService>();
@@ -63,6 +64,7 @@ builder.Services.AddScoped<IFavoriteHelperService, FavoriteHelperService>();
 builder.Services.AddScoped<IUserAddressService, UserAddressService>();
 builder.Services.AddScoped<IReviewReportService, ReviewReportService>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IHelperDocumentService, HelperDocumentService>();
 
 
 

@@ -133,8 +133,7 @@ namespace Services.Implements
         {
             var booking = await _unitOfWork.Bookings.GetByIdAsync(dto.BookingId);
             if (booking == null) return null;
-            if (dto.Status != Booking.AvailableStatus.InProgress.ToString() && dto.Status != Booking.AvailableStatus.Completed.ToString())
-                throw new ArgumentException("Invalid status");
+
             booking.Status = dto.Status;
             _unitOfWork.Bookings.Update(booking);
             await _unitOfWork.CompleteAsync();
