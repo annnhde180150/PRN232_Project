@@ -39,5 +39,10 @@ namespace Services.DTOs.Booking
         public decimal? FinalPrice { get; set; }
 
         public DateTime? BookingCreationTime { get; set; }
+
+        public string ServiceName { get; set; } = string.Empty;
+        public string HelperName { get; set; } = string.Empty;
+        public string? Address { get; set; }
+        public string? PaymentStatus { get; set; }
     }
 }

@@ -23,7 +23,7 @@ namespace HomeHelperFinderAPI.Controllers
             var service = await _serviceService.GetByIdAsync(currentRequest.ServiceId);
 
             //validation
-            if (await _bookingService.isBooked(acceptance.RequestId))
+            if (await _bookingService.IsBooked(acceptance.RequestId))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
             if (currentRequest == null)
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
@@ -288,7 +288,7 @@ namespace HomeHelperFinderAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid helper ID");
             }
-            var bookings = await _bookingService.getAllbookingByHelperId(helperId);
+            var bookings = await _bookingService.GetAllBookingByHelperId(helperId);
 
             return Ok(bookings);
 
@@ -416,6 +416,24 @@ namespace HomeHelperFinderAPI.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid user ID");
             var serviceNames = await _bookingService.GetReviewServiceNames(id);
             return Ok(serviceNames);
+        }
+
+        [HttpGet("GetUserBookings/{userId}")]
+        public async Task<ActionResult<List<BookingDetailDto>>> GetAllBookingsByUserId(int userId)
+        {
+            if (userId <= 0 || !(await _userService.ExistsAsync(userId)))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid user ID");
+            var bookings = await _bookingService.GetAllBookingsByUserId(userId);
+            return Ok(bookings);
+        }
+
+        [HttpGet("GetHelperBookings/{helperId}")]
+        public async Task<ActionResult<List<BookingDetailDto>>> GetAllBookingsByHelperId(int helperId)
+        {
+            if (helperId <= 0 || !(await _helperService.ExistsAsync(helperId)))
+                return StatusCode(StatusCodes.Status400BadRequest, "Invalid user ID");
+            var bookings = await _bookingService.GetAllBookingsByHelperId(helperId);
+            return Ok(bookings);
         }
     }
 }

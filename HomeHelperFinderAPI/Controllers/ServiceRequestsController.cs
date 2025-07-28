@@ -78,7 +78,7 @@ namespace HomeHelperFinderAPI.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //if booked must edit booking not request
-            if (await _bookingService.isBooked(updatedRequest.RequestId))
+            if (await _bookingService.IsBooked(updatedRequest.RequestId))
                 return StatusCode(StatusCodes.Status400BadRequest, "Invalid request");
 
             //must not change user
