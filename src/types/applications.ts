@@ -39,7 +39,7 @@ export interface HelperDocument {
   documentType: string;
   documentUrl: string;
   uploadDate: string;
-  verificationStatus: 'verified' | 'pending' | 'rejected';
+  verificationStatus: 'Pending' | 'Approved' | 'Rejected' | 'Under Review';
   verifiedByAdminId: number | null;
   verificationDate: string | null;
   notes: string | null;
@@ -137,4 +137,35 @@ export interface UpdateBookingStatusRequest {
 export interface UpdateBookingStatusResponse {
   success: boolean;
   message: string;
+}
+
+// Document verification types
+export interface DocumentVerificationRequest {
+  documentId: number;
+  verificationStatus: 'Pending' | 'Approved' | 'Rejected' | 'Under Review';
+  verifiedByAdminId: number;
+  notes?: string;
+}
+
+export interface DocumentVerificationResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    documentId: number;
+    verificationStatus: string;
+    verifiedByAdminId: number;
+    verificationDate: string;
+    notes?: string;
+  };
+}
+
+export interface HelperDocumentDetail {
+  documentId: number;
+  documentType: string;
+  documentUrl: string;
+  uploadDate: string;
+  verificationStatus: 'Pending' | 'Approved' | 'Rejected' | 'Under Review';
+  verifiedByAdminId: number | null;
+  verificationDate: string | null;
+  notes: string | null;
 } 

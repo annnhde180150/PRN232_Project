@@ -44,7 +44,10 @@ import {
   ApplicationStatus,
   BookingRequest,
   UpdateBookingStatusRequest,
-  UpdateBookingStatusResponse
+  UpdateBookingStatusResponse,
+  DocumentVerificationRequest,
+  DocumentVerificationResponse,
+  HelperDocumentDetail
 } from '../types/applications';
 import {
   Profile,
@@ -474,6 +477,38 @@ export const favoriteHelperAPI = {
     const response = await api.delete('/api/FavoriteHelper', {
       data: request
     });
+    return response.data;
+  },
+};
+
+// Document verification API functions
+export const documentAPI = {
+  // Get all documents for a helper
+  getHelperDocuments: async (helperId: number): Promise<ApiResponse<HelperDocumentDetail[]>> => {
+    const response = await api.get(`/api/AdminHelperDocument/helper/${helperId}`);
+    return response.data;
+  },
+
+  // Get specific document details
+  getDocumentDetail: async (documentId: number): Promise<ApiResponse<HelperDocumentDetail>> => {
+    const response = await api.get(`/api/AdminHelperDocument/${documentId}`);
+    return response.data;
+  },
+
+  // Update document verification status
+  updateDocumentStatus: async (
+    documentId: number,
+    status: 'Pending' | 'Approved' | 'Rejected' | 'Under Review',
+    verifiedByAdminId: number,
+    notes?: string
+  ): Promise<DocumentVerificationResponse> => {
+    const requestData: DocumentVerificationRequest = {
+      documentId,
+      verificationStatus: status,
+      verifiedByAdminId,
+      notes: notes || ''
+    };
+    const response = await api.put(`/api/AdminHelperDocument/${documentId}/status`, requestData);
     return response.data;
   },
 };

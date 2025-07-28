@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { applicationsAPI } from '../../lib/api';
+import { applicationsAPI, documentAPI } from '../../lib/api';
+import { useAuth } from '../../contexts/AuthContext';
 import {
   HelperApplicationDetail,
   ApplicationDecisionRequest,
   APPLICATION_STATUS_LABELS,
-  APPLICATION_STATUS_COLORS
+  APPLICATION_STATUS_COLORS,
+  HelperDocumentDetail
 } from '../../types/applications';
+import DocumentVerification from './DocumentVerification';
 
 interface ApplicationDetailProps {
   helperId: number;
@@ -27,9 +30,14 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
   const [decisionLoading, setDecisionLoading] = useState(false);
   const [decisionStatus, setDecisionStatus] = useState<'approved' | 'rejected' | 'revision_requested'>('approved');
   const [decisionComment, setDecisionComment] = useState('');
+  const { user } = useAuth();
+  const [documents, setDocuments] = useState<HelperDocumentDetail[]>([]);
+  const [documentsLoading, setDocumentsLoading] = useState(false);
+  const adminId = user?.id || 1; // Get admin ID from auth context 
 
   useEffect(() => {
     fetchApplicationDetail();
+    fetchDocuments();
   }, [helperId]);
 
   const fetchApplicationDetail = async () => {
@@ -49,6 +57,24 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
       console.error('Error fetching application detail:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDocuments = async () => {
+    setDocumentsLoading(true);
+
+    try {
+      const response = await documentAPI.getHelperDocuments(helperId);
+      
+      if (response.success) {
+        setDocuments(response.data);
+      } else {
+        console.error('Failed to fetch documents');
+      }
+    } catch (err: any) {
+      console.error('Error fetching documents:', err);
+    } finally {
+      setDocumentsLoading(false);
     }
   };
 
@@ -83,6 +109,11 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
     }
   };
 
+  const handleDocumentVerificationUpdate = () => {
+    fetchDocuments();
+    fetchApplicationDetail(); 
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('vi-VN', {
       day: '2-digit',
@@ -95,12 +126,14 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
 
   const getVerificationStatusColor = (status: string) => {
     switch (status) {
-      case 'verified':
+      case 'Approved':
         return 'bg-green-100 text-green-800';
-      case 'pending':
+      case 'Pending':
         return 'bg-yellow-100 text-yellow-800';
-      case 'rejected':
+      case 'Rejected':
         return 'bg-red-100 text-red-800';
+      case 'Under Review':
+        return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -237,44 +270,23 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
           <div className="bg-white rounded-lg shadow">
             <div className="px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-medium text-gray-900">
-                Tài liệu ({application.documents.length})
+                Tài liệu ({documents.length})
               </h3>
             </div>
             <div className="p-6">
-              {application.documents.length > 0 ? (
+              {documentsLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+                </div>
+              ) : documents.length > 0 ? (
                 <div className="space-y-4">
-                  {application.documents.map((doc) => (
-                    <div key={doc.documentId} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-900">
-                            {doc.documentType}
-                          </h4>
-                          <p className="text-sm text-gray-500">
-                            Tải lên: {formatDate(doc.uploadDate)}
-                          </p>
-                          {doc.notes && (
-                            <p className="text-sm text-gray-600 mt-1">{doc.notes}</p>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            getVerificationStatusColor(doc.verificationStatus)
-                          }`}>
-                            {doc.verificationStatus === 'verified' ? 'Đã xác minh' :
-                             doc.verificationStatus === 'pending' ? 'Chờ xác minh' : 'Bị từ chối'}
-                          </span>
-                          <a
-                            href={doc.documentUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-indigo-600 hover:text-indigo-500 text-sm"
-                          >
-                            Xem tài liệu
-                          </a>
-                        </div>
-                      </div>
-                    </div>
+                  {documents.map((doc) => (
+                    <DocumentVerification
+                      key={doc.documentId}
+                      document={doc}
+                      onVerificationUpdate={handleDocumentVerificationUpdate}
+                      adminId={adminId}
+                    />
                   ))}
                 </div>
               ) : (
