@@ -38,15 +38,9 @@ export default function ActiveBookingsPage() {
 
     try {
       setLoading(true);
-      // Use the centralized bookingAPI to get helper bookings
       const allBookings = await bookingAPI.getHelperBookings(helperId);
       
-      // Filter for active bookings (all statuses except Cancelled for active view)
-      const activeBookings = allBookings.filter(booking => 
-        booking.status !== 'Cancelled'
-      );
-      
-      setAllBookings(activeBookings);
+      setAllBookings(allBookings);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       toast.error('Failed to fetch bookings');
@@ -55,17 +49,21 @@ export default function ActiveBookingsPage() {
     }
   };
 
-  const updateBookingStatus = async (bookingId: number) => {
+  const updateBookingStatus = async (bookingId: number, newStatus?: string) => {
     if (!helperId) {
       toast.error('Helper ID not found');
       return;
     }
 
+    // If no newStatus provided, default to 'Completed' for backward compatibility
+    const statusToUpdate = newStatus || 'Completed';
+
     try {
-      const success = await bookingAPI.updateBookingStatus(bookingId, helperId, 'Completed');
+      const success = await bookingAPI.updateBookingStatus(bookingId, helperId, statusToUpdate);
       
       if (success) {
-        toast.success('Booking status updated successfully');
+        const statusText = getStatusText(statusToUpdate);
+        toast.success(`Trạng thái đã cập nhật thành ${statusText}`);
         fetchActiveBookings(); // Refresh the list
       } else {
         toast.error('Failed to update booking status');
@@ -238,7 +236,8 @@ export default function ActiveBookingsPage() {
             <EnhancedBookingCard
               key={booking.bookingId}
               booking={booking}
-              onStatusUpdate={() => updateBookingStatus(booking.bookingId)}
+              onStatusUpdate={(newStatus) => updateBookingStatus(booking.bookingId, newStatus)}
+              onRefresh={fetchActiveBookings}
               userType="helper"
               userId={helperId}
             />

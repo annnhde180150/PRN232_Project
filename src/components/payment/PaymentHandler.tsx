@@ -13,6 +13,11 @@ export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: Pay
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const getBaseUrl = () => {
+    // Use Vercel deployment URL
+    return 'https://homezy-silk.vercel.app';
+  };
+
   const handlePayment = async () => {
     try {
       // Get payment information
@@ -30,12 +35,14 @@ export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: Pay
         paymentId: paymentInfo.data.paymentId,
         amount: paymentInfo.data.amount,
         userId: paymentInfo.data.userId,
+        helperId: paymentInfo.data.helperId,
         bookingId: paymentInfo.data.bookingId
       });
 
-      // Create VNPAY payment URL - return to booking-history page
-      const returnUrl = `${window.location.origin}/booking-history?paymentId=${paymentInfo.data.paymentId}`;
-      console.log('Return URL:', returnUrl);
+      // Create VNPAY payment URL with Vercel URL
+      const baseUrl = getBaseUrl();
+      const returnUrl = `${baseUrl}/booking-history`;
+      console.log('Using Vercel return URL:', returnUrl);
 
       const paymentUrl = await createVnpayPaymentUrl(
         paymentInfo.data.amount,
@@ -57,14 +64,18 @@ export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: Pay
     // Check if we're returning from VNPAY
     const vnp_ResponseCode = searchParams.get('vnp_ResponseCode');
     const paymentId = searchParams.get('paymentId');
+    const helperId = searchParams.get('helperId');
+    const amount = searchParams.get('amount');
 
     console.log('Return from VNPAY:', {
       vnp_ResponseCode,
       paymentId,
+      helperId,
+      amount,
       allParams: Object.fromEntries(searchParams.entries())
     });
 
-    if (vnp_ResponseCode && paymentId) {
+    if (vnp_ResponseCode && paymentId && helperId && amount) {
       const handlePaymentResponse = async () => {
         try {
           // Update payment status based on VNPAY response
