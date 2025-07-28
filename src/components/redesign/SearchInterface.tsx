@@ -5,7 +5,6 @@ import { Card, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
-import { Slider } from '../ui/slider';
 import {
   Search,
   Filter,
@@ -17,8 +16,10 @@ import {
   Map,
   SlidersHorizontal,
   X,
-  ChevronDown
+  ChevronDown,
+  Shield
 } from 'lucide-react';
+import { Slider } from '../ui/slider';
 
 interface SearchFilters {
   priceRange: [number, number];

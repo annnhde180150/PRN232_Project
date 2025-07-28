@@ -61,7 +61,7 @@ export const BookingConfirmationStep: React.FC<BookingConfirmationStepProps> = (
 }) => {
     const { serviceSelection, dateTime, address } = formData;
     const estimatedPrice = serviceSelection?.priceRange.min || 0;
-    const serviceFee = 0; // Free for now
+    const serviceFee: number = 0; // Free for now
     const totalPrice = estimatedPrice + serviceFee;
 
     return (

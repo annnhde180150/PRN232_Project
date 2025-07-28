@@ -73,7 +73,7 @@ export default function RootLayout({
           <AuthProvider>
             <NotificationProvider>
               <ChatProvider>
-                <Header darkMode={false} setDarkMode={setDarkMode} />
+                <Header />
                 <main className="flex-1">
                   {children}
                 </main>

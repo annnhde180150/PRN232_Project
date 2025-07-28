@@ -33,7 +33,7 @@ const ApplicationsList: React.FC<ApplicationsListProps> = ({
 
   const statusOptions: { value: ApplicationStatus | ''; label: string }[] = [
     { value: '', label: 'Tất cả trạng thái' },
-    { value: 'pending', label: 'Đang chờ duyệt' },
+    { value: 'Pending', label: 'Đang chờ duyệt' },
     { value: 'approved', label: 'Đã duyệt' },
     { value: 'rejected', label: 'Đã từ chối' },
     { value: 'revision_requested', label: 'Yêu cầu chỉnh sửa' },

@@ -16,7 +16,7 @@ import { Booking } from '@/types/service-request';
 const formSchema = z.object({
     cancellationReason: z.string().min(1, 'Lý do hủy là bắt buộc'),
     cancelledBy: z.enum(['User', 'Helper'], {
-        required_error: 'Vui lòng chọn ai đang hủy'
+        error: 'Vui lòng chọn ai đang hủy'
     })
 });
 

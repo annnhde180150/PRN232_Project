@@ -164,7 +164,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({
             }`}>
               {APPLICATION_STATUS_LABELS[application.approvalStatus]}
             </span>
-            {application.approvalStatus === 'pending' && (
+            {application.approvalStatus === 'Pending' && (
               <button
                 onClick={() => setShowDecisionModal(true)}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
