@@ -16,26 +16,40 @@ export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: Pay
   const handlePayment = async () => {
     try {
       // Get payment information
+      console.log('Getting payment info for:', { userId, bookingId });
       const paymentInfo = await getPaymentInfo(userId, bookingId);
+      console.log('Full payment info response:', paymentInfo);
       
       if (!paymentInfo.success) {
         toast.error('Failed to get payment information');
         return;
       }
 
-      // Create VNPAY payment URL
-      const returnUrl = `${window.location.origin}/dashboard?paymentId=${paymentInfo.data.paymentId}`;
+      // Log payment details
+      console.log('Payment details:', {
+        paymentId: paymentInfo.data.paymentId,
+        amount: paymentInfo.data.amount,
+        userId: paymentInfo.data.userId,
+        bookingId: paymentInfo.data.bookingId
+      });
+
+      // Create VNPAY payment URL - return to booking-history page
+      const returnUrl = `${window.location.origin}/booking-history?paymentId=${paymentInfo.data.paymentId}`;
+      console.log('Return URL:', returnUrl);
+
       const paymentUrl = await createVnpayPaymentUrl(
         paymentInfo.data.amount,
         paymentInfo.data.paymentId,
         returnUrl
       );
 
+      console.log('Final VNPAY URL:', paymentUrl);
+
       // Redirect to VNPAY
       window.location.href = paymentUrl;
     } catch (error) {
       console.error('Payment error:', error);
-      toast.error('Payment failed to initialize');
+      toast.error('Failed to initialize payment');
     }
   };
 
@@ -44,12 +58,26 @@ export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: Pay
     const vnp_ResponseCode = searchParams.get('vnp_ResponseCode');
     const paymentId = searchParams.get('paymentId');
 
+    console.log('Return from VNPAY:', {
+      vnp_ResponseCode,
+      paymentId,
+      allParams: Object.fromEntries(searchParams.entries())
+    });
+
     if (vnp_ResponseCode && paymentId) {
       const handlePaymentResponse = async () => {
         try {
           // Update payment status based on VNPAY response
           const status = vnp_ResponseCode === '00' ? 'Success' : 'Cancelled';
-          await updatePaymentStatus(Number(paymentId), status);
+          
+          console.log('Updating payment status:', {
+            paymentId,
+            status,
+            responseCode: vnp_ResponseCode
+          });
+
+          const updateResult = await updatePaymentStatus(Number(paymentId), status);
+          console.log('Update payment result:', updateResult);
 
           if (status === 'Success') {
             toast.success('Payment successful');
@@ -60,8 +88,8 @@ export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: Pay
           // Notify parent component about payment status change
           onPaymentStatusChange?.();
 
-          // Redirect to dashboard
-          router.push('/dashboard');
+          // Redirect back to booking-history page
+          router.push('/booking-history');
         } catch (error) {
           console.error('Payment status update error:', error);
           toast.error('Failed to update payment status');
@@ -80,4 +108,4 @@ export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: Pay
       Pay with VNPAY
     </button>
   );
-}; 
+};
