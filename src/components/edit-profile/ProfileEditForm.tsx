@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { profileAPI } from '@/lib/api';
+import { profileAPI, addressAPI } from '@/lib/api';
 import { User, Helper, Admin, UpdateAdminProfileRequest, UpdateHelperProfileRequest, UpdateUserProfileRequest } from '@/types/auth';
 import { TextInput } from '@/components/design-system/TextInput';
 import { Select } from '@/components/design-system/Select';
@@ -29,6 +29,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [selectedDefaultAddressId, setSelectedDefaultAddressId] = useState<number | null>(null);
   const [formData, setFormData] = useState(() => {
     // Initialize form data based on user type
     switch (userType) {
@@ -91,35 +92,8 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
     });
   };
 
-  const handleDefaultAddressChange = async (addressId: number) => {
-    try {
-      // Only handle for user type
-      if (userType !== 'user') return;
-
-      // Update the user profile with the new defaultAddressId
-      const updateData = {
-        ...formData,
-        defaultAddressId: addressId,
-      };
-
-      const response = await profileAPI.updateUserProfile(
-        profileData.id, 
-        updateData as UpdateUserProfileRequest
-      );
-
-      if (response.success) {
-        // Update the profile data in parent component
-        onUpdate(response.data || { ...profileData, ...updateData });
-        
-        // Update local form data
-        setFormData(prev => ({
-          ...prev,
-          defaultAddressId: addressId,
-        } as any));
-      }
-    } catch (error: any) {
-      toast.error('Có lỗi xảy ra khi cập nhật địa chỉ mặc định');
-    }
+  const handleDefaultAddressChange = (addressId: number) => {
+    setSelectedDefaultAddressId(addressId);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -143,6 +117,50 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
 
       // Prepare update data with the new image URL
       const updateData = { ...formData, profilePictureUrl: imageUrl };
+
+      if (userType === 'user' && selectedDefaultAddressId !== null) {
+        updateData.defaultAddressId = selectedDefaultAddressId;
+        
+        // Update all addresses to set the new default
+        try {
+          const addresses = await addressAPI.getUserAddresses(profileData.id);
+          const updatePromises = addresses.map(address => {
+            if (address.addressId === selectedDefaultAddressId) {
+              return addressAPI.updateAddress(address.addressId, {
+                userId: address.userId,
+                addressLine1: address.addressLine1,
+                addressLine2: address.addressLine2 || '',
+                ward: address.ward,
+                district: address.district,
+                city: address.city,
+                fullAddress: address.fullAddress,
+                latitude: address.latitude,
+                longitude: address.longitude,
+                isDefault: true,
+              });
+            } else if (address.isDefault) {
+              return addressAPI.updateAddress(address.addressId, {
+                userId: address.userId,
+                addressLine1: address.addressLine1,
+                addressLine2: address.addressLine2 || '',
+                ward: address.ward,
+                district: address.district,
+                city: address.city,
+                fullAddress: address.fullAddress,
+                latitude: address.latitude,
+                longitude: address.longitude,
+                isDefault: false,
+              });
+            }
+            return Promise.resolve();
+          });
+
+          await Promise.all(updatePromises);
+        } catch (error: any) {
+          console.error('Error updating addresses:', error);
+          toast.error('Có lỗi xảy ra khi cập nhật địa chỉ mặc định');
+        }
+      }
 
       let response;
       
@@ -172,6 +190,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
         // Update the profile data in parent component
         onUpdate(response.data || { ...profileData, ...updateData });
         setSelectedImageFile(null); // Clear selected file after successful update
+        setSelectedDefaultAddressId(null); // Clear selected default address after successful update
       } else {
         toast.error(response.message || 'Có lỗi xảy ra khi cập nhật hồ sơ');
       }
@@ -375,6 +394,7 @@ export const ProfileEditForm: React.FC<ProfileEditFormProps> = ({
       <div>
         <AddressManagement 
           userId={profileData.id} 
+          currentDefaultAddressId={formData.defaultAddressId}
           onDefaultAddressChange={handleDefaultAddressChange}
         />
       </div>

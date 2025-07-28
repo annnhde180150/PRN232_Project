@@ -29,7 +29,10 @@ import {
   CustomerSpending,
   FavoriteHelper,
   ReportApiResponse,
-  ReportPeriod
+  ReportPeriod,
+  FavoriteHelperResponse,
+  AddFavoriteRequest,
+  RemoveFavoriteRequest
 } from '../types/reports';
 import {
   HelperApplication,
@@ -449,6 +452,29 @@ export const addressAPI = {
   // Delete an address
   deleteAddress: async (addressId: number): Promise<void> => {
     await api.delete(`/api/Address/UserAddress/${addressId}`);
+  },
+};
+
+// Favorite Helper API functions
+export const favoriteHelperAPI = {
+  // Get user's favorite helpers
+  getUserFavorites: async (userId: number): Promise<FavoriteHelperResponse> => {
+    const response = await api.get(`/api/FavoriteHelper/user/${userId}`);
+    return response.data;
+  },
+
+  // Add helper to favorites
+  addToFavorites: async (request: AddFavoriteRequest): Promise<FavoriteHelperResponse> => {
+    const response = await api.post('/api/FavoriteHelper', request);
+    return response.data;
+  },
+
+  // Remove helper from favorites
+  removeFromFavorites: async (request: RemoveFavoriteRequest): Promise<FavoriteHelperResponse> => {
+    const response = await api.delete('/api/FavoriteHelper', {
+      data: request
+    });
+    return response.data;
   },
 };
 
