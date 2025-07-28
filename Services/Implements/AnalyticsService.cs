@@ -144,8 +144,8 @@ public class AnalyticsService : IAnalyticsService
         var averageRating = (decimal)await _unitOfWork.Reviews.GetAverageRatingByHelperIdAsync(helperId);
         
         var totalEarnings = periodBookings
-            .Where(b => b.FinalPrice.HasValue && b.Status == "Completed")
-            .Sum(b => b.FinalPrice.Value);
+            .Where(b => b.EstimatedPrice.HasValue && b.Status == "Completed")
+            .Sum(b => b.EstimatedPrice.Value);
 
         // Monthly earnings trend
         var earningsTrend = new List<MonthlyEarningsDto>();
@@ -155,14 +155,14 @@ public class AnalyticsService : IAnalyticsService
                 b.BookingCreationTime?.Year == date.Year && 
                 b.BookingCreationTime?.Month == date.Month &&
                 b.Status == "Completed" &&
-                b.FinalPrice.HasValue);
+                b.EstimatedPrice.HasValue);
             
             earningsTrend.Add(new MonthlyEarningsDto
             {
                 Year = date.Year,
                 Month = date.Month,
                 MonthName = date.ToString("MMMM"),
-                Earnings = monthBookings.Sum(b => b.FinalPrice.Value),
+                Earnings = monthBookings.Sum(b => b.EstimatedPrice.Value),
                 BookingsCount = monthBookings.Count()
             });
         }
@@ -174,7 +174,7 @@ public class AnalyticsService : IAnalyticsService
             {
                 var serviceDto = _mapper.Map<ServicePerformanceDto>(g.Key);
                 serviceDto.BookingsCount = g.Count();
-                serviceDto.TotalEarnings = g.Where(b => b.FinalPrice.HasValue && b.Status == "Completed").Sum(b => b.FinalPrice.Value);
+                serviceDto.TotalEarnings = g.Where(b => b.EstimatedPrice.HasValue && b.Status == "Completed").Sum(b => b.EstimatedPrice.Value);
                 serviceDto.CompletionRate = g.Count() > 0 ? (decimal)g.Count(b => b.Status == "Completed") / g.Count() * 100 : 0;
                 return serviceDto;
             }).ToList();
@@ -233,8 +233,8 @@ public class AnalyticsService : IAnalyticsService
         var cancelledBookings = periodBookings.Count(b => b.Status == "Cancelled");
         
         var totalBookingValue = periodBookings
-            .Where(b => b.FinalPrice.HasValue)
-            .Sum(b => b.FinalPrice.Value);
+            .Where(b => b.EstimatedPrice.HasValue)
+            .Sum(b => b.EstimatedPrice.Value);
 
         // Popular services using AutoMapper for basic service mapping
         var servicePopularity = periodBookings
@@ -243,7 +243,7 @@ public class AnalyticsService : IAnalyticsService
             {
                 var serviceDto = _mapper.Map<ServicePopularityDto>(g.Key);
                 serviceDto.BookingsCount = g.Count();
-                serviceDto.TotalRevenue = g.Where(b => b.FinalPrice.HasValue && b.Status == "Completed").Sum(b => b.FinalPrice.Value);
+                serviceDto.TotalRevenue = g.Where(b => b.EstimatedPrice.HasValue && b.Status == "Completed").Sum(b => b.EstimatedPrice.Value);
                 serviceDto.MarketShare = totalBookings > 0 ? (decimal)g.Count() / totalBookings * 100 : 0;
                 return serviceDto;
             }).OrderByDescending(s => s.BookingsCount).ToList();
@@ -441,8 +441,8 @@ public class AnalyticsService : IAnalyticsService
         var cancelledBookings = periodBookings.Count(b => b.Status == "Cancelled");
 
         var totalBookingValue = periodBookings
-            .Where(b => b.FinalPrice.HasValue)
-            .Sum(b => b.FinalPrice.Value);
+            .Where(b => b.EstimatedPrice.HasValue)
+            .Sum(b => b.EstimatedPrice.Value);
 
         // Popular services for this user
         var servicePopularity = periodBookings
@@ -451,7 +451,7 @@ public class AnalyticsService : IAnalyticsService
             {
                 var serviceDto = _mapper.Map<ServicePopularityDto>(g.Key);
                 serviceDto.BookingsCount = g.Count();
-                serviceDto.TotalRevenue = g.Where(b => b.FinalPrice.HasValue && b.Status == "Completed").Sum(b => b.FinalPrice.Value);
+                serviceDto.TotalRevenue = g.Where(b => b.EstimatedPrice.HasValue && b.Status == "Completed").Sum(b => b.EstimatedPrice.Value);
                 serviceDto.MarketShare = totalBookings > 0 ? (decimal)g.Count() / totalBookings * 100 : 0;
                 return serviceDto;
             }).OrderByDescending(s => s.BookingsCount).ToList();
@@ -465,7 +465,7 @@ public class AnalyticsService : IAnalyticsService
             {
                 Date = date,
                 BookingsCount = dayBookings.Count(),
-                EarningsAmount = dayBookings.Where(b => b.FinalPrice.HasValue && b.Status == "Completed").Sum(b => b.FinalPrice.Value)
+                EarningsAmount = dayBookings.Where(b => b.EstimatedPrice.HasValue && b.Status == "Completed").Sum(b => b.EstimatedPrice.Value)
             });
         }
 
