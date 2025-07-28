@@ -14,14 +14,16 @@ import { Plus, Edit, Trash2, MapPin, Star } from 'lucide-react';
 
 interface AddressManagementProps {
   userId: number;
+  currentDefaultAddressId?: number;
   onDefaultAddressChange?: (addressId: number) => void;
 }
 
-export const AddressManagement: React.FC<AddressManagementProps> = ({ userId, onDefaultAddressChange }) => {
+export const AddressManagement: React.FC<AddressManagementProps> = ({ userId, currentDefaultAddressId, onDefaultAddressChange }) => {
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<UserAddress | null>(null);
+  const [selectedDefaultAddressId, setSelectedDefaultAddressId] = useState<number | null>(currentDefaultAddressId || null);
   const [formData, setFormData] = useState({
     addressLine1: '',
     addressLine2: '',
@@ -140,60 +142,27 @@ export const AddressManagement: React.FC<AddressManagementProps> = ({ userId, on
     setIsDialogOpen(true);
   };
 
-  const handleSetDefault = async (addressId: number) => {
+  const handleSetDefault = (addressId: number) => {
     console.log('handleSetDefault called with addressId:', addressId);
-    try {
-      // Check if the address is already the default
-      const currentDefault = addresses.find(addr => addr.isDefault);
-      if (currentDefault?.addressId === addressId) {
-        console.log('Address is already default, skipping update');
-        return; // Already the default, no need to update
-      }
-
-      // Update all addresses to set isDefault to false
-      const updatePromises = addresses.map(address => {
-        if (address.addressId === addressId) {
-          return addressAPI.updateAddress(address.addressId, {
-            userId: address.userId,
-            addressLine1: address.addressLine1,
-            addressLine2: address.addressLine2 || '',
-            ward: address.ward,
-            district: address.district,
-            city: address.city,
-            fullAddress: address.fullAddress,
-            latitude: address.latitude,
-            longitude: address.longitude,
-            isDefault: true,
-          });
-        } else if (address.isDefault) {
-          return addressAPI.updateAddress(address.addressId, {
-            userId: address.userId,
-            addressLine1: address.addressLine1,
-            addressLine2: address.addressLine2 || '',
-            ward: address.ward,
-            district: address.district,
-            city: address.city,
-            fullAddress: address.fullAddress,
-            latitude: address.latitude,
-            longitude: address.longitude,
-            isDefault: false,
-          });
-        }
-        return Promise.resolve();
-      });
-
-      await Promise.all(updatePromises);
-      
-      // Update the user's defaultAddressId in the parent component
-      if (onDefaultAddressChange) {
-        onDefaultAddressChange(addressId);
-      }
-      
-      toast.success('Đã cập nhật địa chỉ mặc định!');
-      fetchAddresses();
-    } catch (error: any) {
-      toast.error('Có lỗi xảy ra khi cập nhật địa chỉ mặc định');
+    
+    if (selectedDefaultAddressId === addressId) {
+      console.log('Address is already selected as default, skipping update');
+      return; // Already selected as default, no need to update
     }
+
+    // Update the selected default address ID
+    setSelectedDefaultAddressId(addressId);
+    
+
+    if (onDefaultAddressChange) {
+      onDefaultAddressChange(addressId);
+    }
+    
+    // Update local state to reflect the selection
+    setAddresses(prev => prev.map(address => ({
+      ...address,
+      isDefault: address.addressId === addressId
+    })));
   };
 
   if (loading) {
@@ -296,7 +265,7 @@ export const AddressManagement: React.FC<AddressManagementProps> = ({ userId, on
         </Card>
       ) : (
         <RadioGroup 
-          value={addresses.find(addr => addr.isDefault)?.addressId?.toString() || ''}
+          value={selectedDefaultAddressId?.toString() || addresses.find(addr => addr.isDefault)?.addressId?.toString() || ''}
           onValueChange={(value) => {
             console.log('RadioGroup onValueChange called with value:', value);
             handleSetDefault(parseInt(value));
@@ -325,7 +294,7 @@ export const AddressManagement: React.FC<AddressManagementProps> = ({ userId, on
                         <div className="text-sm text-muted-foreground">
                           {address.ward}, {address.district}, {address.city}
                         </div>
-                        {address.isDefault && (
+                        {(address.isDefault || address.addressId === selectedDefaultAddressId) && (
                           <div className="flex items-center gap-1 mt-1">
                             <Star className="w-4 h-4 text-yellow-500 fill-current" />
                             <span className="text-sm text-yellow-600 dark:text-yellow-400">
