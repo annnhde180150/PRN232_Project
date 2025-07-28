@@ -6,17 +6,20 @@ import {
   HelperApplication,
   ApplicationStatus,
   APPLICATION_STATUS_LABELS,
-  APPLICATION_STATUS_COLORS
+  APPLICATION_STATUS_COLORS,
+  ApplicationDecisionRequest
 } from '../../types/applications';
 
 interface ApplicationsListProps {
   onApplicationSelect: (helperId: number) => void;
   refreshTrigger?: number;
+  onDecisionMade?: () => void;
 }
 
 const ApplicationsList: React.FC<ApplicationsListProps> = ({
   onApplicationSelect,
-  refreshTrigger
+  refreshTrigger,
+  onDecisionMade
 }) => {
   const [applications, setApplications] = useState<HelperApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +29,7 @@ const ApplicationsList: React.FC<ApplicationsListProps> = ({
   const [totalCount, setTotalCount] = useState(0);
   const [selectedStatus, setSelectedStatus] = useState<ApplicationStatus | ''>('');
   const [pageSize] = useState(20);
+  const [processingIds, setProcessingIds] = useState<Set<number>>(new Set());
 
   const statusOptions: { value: ApplicationStatus | ''; label: string }[] = [
     { value: '', label: 'Tất cả trạng thái' },
@@ -82,6 +86,47 @@ const ApplicationsList: React.FC<ApplicationsListProps> = ({
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const handleQuickDecision = async (helperId: number, status: 'approved' | 'rejected', defaultComment?: string) => {
+    const comment = defaultComment || prompt(
+      status === 'approved' 
+        ? 'Nhập lý do duyệt đơn (tùy chọn):' 
+        : 'Nhập lý do từ chối đơn:'
+    );
+
+    if (status === 'rejected' && !comment?.trim()) {
+      alert('Vui lòng nhập lý do từ chối');
+      return;
+    }
+
+    setProcessingIds(prev => new Set(prev).add(helperId));
+
+    try {
+      const decisionRequest: ApplicationDecisionRequest = {
+        status,
+        comment: comment?.trim() || (status === 'approved' ? 'Đơn đăng ký đã được duyệt' : '')
+      };
+
+      const response = await applicationsAPI.makeDecision(helperId, decisionRequest);
+      
+      if (response.success) {
+        alert(status === 'approved' ? 'Đã duyệt đơn thành công!' : 'Đã từ chối đơn thành công!');
+        fetchApplications(); // Reload danh sách
+        onDecisionMade?.(); // Gọi callback để thông báo đã có quyết định
+      } else {
+        alert('Không thể xử lý đơn đăng ký. Vui lòng thử lại.');
+      }
+    } catch (err: any) {
+      alert('Đã xảy ra lỗi khi xử lý đơn đăng ký');
+      console.error('Error making quick decision:', err);
+    } finally {
+      setProcessingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(helperId);
+        return newSet;
+      });
+    }
   };
 
   const renderPagination = () => {
@@ -263,12 +308,40 @@ const ApplicationsList: React.FC<ApplicationsListProps> = ({
                     {formatDate(application.registrationDate)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => onApplicationSelect(application.helperId)}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      Xem chi tiết
-                    </button>
+                    <div className="flex items-center justify-end space-x-2">
+                      {application.approvalStatus === 'Pending' && (
+                        <>
+                          <button
+                            onClick={() => handleQuickDecision(application.helperId, 'approved')}
+                            disabled={processingIds.has(application.helperId)}
+                            className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {processingIds.has(application.helperId) ? (
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                            ) : (
+                              'Duyệt'
+                            )}
+                          </button>
+                          <button
+                            onClick={() => handleQuickDecision(application.helperId, 'rejected')}
+                            disabled={processingIds.has(application.helperId)}
+                            className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {processingIds.has(application.helperId) ? (
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                            ) : (
+                              'Từ chối'
+                            )}
+                          </button>
+                        </>
+                      )}
+                      <button
+                        onClick={() => onApplicationSelect(application.helperId)}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
+                        Xem chi tiết
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -291,4 +364,4 @@ const ApplicationsList: React.FC<ApplicationsListProps> = ({
   );
 };
 
-export default ApplicationsList; 
+export default ApplicationsList;

@@ -215,13 +215,6 @@ export default function DashboardPage() {
 
           {/* Role-specific content */}
           {getDashboardContent()}
-
-          {/* Notification Demo - Only for helper */}
-          {userType === 'helper' && (
-            <div className="mt-6">
-              <NotificationDemo />
-            </div>
-          )}
         </PageContainer>
       </Section>
     </div>

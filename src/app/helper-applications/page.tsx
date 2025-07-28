@@ -102,9 +102,10 @@ export default function HelperApplicationsPage() {
           <ApplicationsList
             onApplicationSelect={handleApplicationSelect}
             refreshTrigger={refreshTrigger}
+            onDecisionMade={() => setRefreshTrigger(prev => prev + 1)}
           />
         )}
       </div>
     </div>
   );
-} 
+}

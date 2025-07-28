@@ -5,7 +5,7 @@ export interface HelperApplication {
   email: string;
   phoneNumber: string;
   registrationDate: string;
-  approvalStatus: 'pending' | 'approved' | 'rejected' | 'revision_requested';
+  approvalStatus: 'Pending' | 'approved' | 'rejected' | 'revision_requested';
   documentCount: number;
   skillCount: number;
   workAreaCount: number;
@@ -22,7 +22,7 @@ export interface HelperApplicationDetail {
   dateOfBirth: string;
   gender: string;
   registrationDate: string;
-  approvalStatus: 'pending' | 'approved' | 'rejected' | 'revision_requested';
+  approvalStatus: 'Pending' | 'approved' | 'rejected' | 'revision_requested';
   approvedByAdminId: number | null;
   approvalDate: string | null;
   isActive: boolean;
@@ -92,17 +92,17 @@ export interface ApiResponse<T> {
   requestId: string;
 }
 
-export type ApplicationStatus = 'pending' | 'approved' | 'rejected' | 'revision_requested';
+export type ApplicationStatus = 'Pending' | 'approved' | 'rejected' | 'revision_requested';
 
 export const APPLICATION_STATUS_LABELS: Record<ApplicationStatus, string> = {
-  pending: 'Đang chờ duyệt',
+  Pending: 'Đang chờ duyệt',
   approved: 'Đã duyệt',
   rejected: 'Đã từ chối',
   revision_requested: 'Yêu cầu chỉnh sửa'
 };
 
 export const APPLICATION_STATUS_COLORS: Record<ApplicationStatus, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
+  Pending: 'bg-yellow-100 text-yellow-800',
   approved: 'bg-green-100 text-green-800',
   rejected: 'bg-red-100 text-red-800',
   revision_requested: 'bg-blue-100 text-blue-800'
