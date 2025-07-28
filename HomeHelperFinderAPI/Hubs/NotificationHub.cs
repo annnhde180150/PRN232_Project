@@ -206,4 +206,18 @@ public class NotificationHub : Hub
             await Clients.Caller.SendAsync("Error", $"Failed to leave conversation {conversationId}");
         }
     }
+
+    // Method to send chat message to a specific conversation
+    public async Task SendChatMessageToConversation(string conversationId, object message)
+    {
+        try
+        {
+            await Clients.Group($"Conversation_{conversationId}").SendAsync("ReceiveChatMessage", message);
+            _logger.LogInformation($"Chat message sent to conversation {conversationId}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error sending chat message to conversation {conversationId}");
+        }
+    }
 }
