@@ -1,6 +1,7 @@
 <!-- ======Post Request====== -->
-<!-- fetch user addresses -->
 <!-- condition : UserId valid, ServiceId valid, 1 <= duration <=8 -->
+
+<!-- fetch user addresses -->
 curl -X 'GET' \
   'https://localhost:7192/api/Address/User/1' \
   -H 'accept: application/json;odata.metadata=minimal;odata.streaming=true'
@@ -1060,4 +1061,93 @@ curl -X 'GET' \
   ],
   "timestamp": "2025-07-27T18:13:22.2102187Z",
   "requestId": "0HNED6KTGU19O:00000031"
+}
+
+<!-- ==================================================================================== -->
+<!-- ======Browse Accepted Request by Helper(User main actor)====== -->
+
+<!-- get temp bookings -->
+curl -X 'POST' \
+  'https://localhost:7192/api/Bookings/AcceptHelper' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json;odata.metadata=minimal;odata.streaming=true' \
+  -d '{
+  "bookingId": 31,
+  "isAccepted": true
+}'
+
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Thành công",
+  "data": [
+    {
+      "bookingId": 32,
+      "userId": 1,
+      "serviceId": 1,
+      "requestId": 39,
+      "helperId": 36,
+      "scheduledStartTime": "2025-08-08T17:42:49.332",
+      "scheduledEndTime": "2025-08-08T19:42:49.332",
+      "actualStartTime": null,
+      "actualEndTime": null,
+      "status": "TemporaryAccepted",
+      "cancellationReason": null,
+      "cancelledBy": null,
+      "cancellationTime": null,
+      "freeCancellationDeadline": "2025-08-08T05:42:49.332",
+      "estimatedPrice": 200000,
+      "finalPrice": null,
+      "bookingCreationTime": "2025-07-29T00:43:25.6102107",
+      "serviceName": "Dọn nhà",
+      "helperName": "testRegister16",
+      "address": "123 Le Loi, Ben Nghe, District 1, HCMC",
+      "paymentStatus": null
+    }
+  ],
+  "timestamp": "2025-07-29T00:44:18.5806336+07:00",
+  "requestId": "0HNEDVNMGM27Q:00000013"
+}
+
+<!-- ==================================================================================== -->
+<!-- ======User Accept Helper apply for request====== -->
+
+curl -X 'POST' \
+  'https://localhost:7192/api/Bookings/AcceptHelper' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json;odata.metadata=minimal;odata.streaming=true' \
+  -d '{
+  "bookingId": 32,
+  "isAccepted": false
+}'
+
+{
+  "success": true,
+  "statusCode": 200,
+  "message": "Thành công",
+  "data": {
+    "bookingId": 32,
+    "userId": 1,
+    "serviceId": 1,
+    "requestId": 39,
+    "helperId": 36,
+    "scheduledStartTime": "2025-08-08T17:42:49.332",
+    "scheduledEndTime": "2025-08-08T19:42:49.332",
+    "actualStartTime": null,
+    "actualEndTime": null,
+    "status": "Cancelled",
+    "cancellationReason": null,
+    "cancelledBy": null,
+    "cancellationTime": null,
+    "freeCancellationDeadline": "2025-08-08T05:42:49.332",
+    "estimatedPrice": 200000,
+    "finalPrice": null,
+    "bookingCreationTime": "2025-07-29T00:43:25.6102107",
+    "serviceName": "",
+    "helperName": "",
+    "address": null,
+    "paymentStatus": null
+  },
+  "timestamp": "2025-07-29T00:46:50.9238097+07:00",
+  "requestId": "0HNEDVNMGM27Q:00000015"
 }
