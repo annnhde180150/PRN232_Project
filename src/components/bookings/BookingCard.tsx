@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MapPin, CreditCard } from 'lucide-react';
 import { Booking, PendingBooking, BookingStatus } from '@/types/bookings';
 import { PaymentHandler } from '@/components/payment';
+import { getPaymentStatusForBooking } from '@/lib/payment-api';
+import { PaymentStatus } from '@/types/payment';
 
 interface BookingCardProps {
   booking: Booking | PendingBooking;
@@ -12,6 +14,25 @@ interface BookingCardProps {
 }
 
 const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus | null>(null);
+  const [loadingPaymentStatus, setLoadingPaymentStatus] = useState(true);
+
+  useEffect(() => {
+    const fetchPaymentStatus = async () => {
+      try {
+        const status = await getPaymentStatusForBooking(userId, booking.bookingId);
+        setPaymentStatus(status);
+      } catch (error) {
+        console.error('Error fetching payment status:', error);
+        setPaymentStatus(null);
+      } finally {
+        setLoadingPaymentStatus(false);
+      }
+    };
+
+    fetchPaymentStatus();
+  }, [userId, booking.bookingId]);
+
   const getStatusBadgeVariant = (status: BookingStatus) => {
     switch (status) {
       case 'Pending':
@@ -93,6 +114,36 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
     return 0;
   };
 
+  // Check if payment is required based on payment status
+  const isPaymentRequired = () => {
+    if (loadingPaymentStatus) return false;
+    
+    // If we have payment status, use it
+    if (paymentStatus !== null) {
+      return paymentStatus === 'Pending';
+    }
+    
+    // Fallback to original booking status logic if payment status is not available
+    return booking.status === 'Pending' || booking.status === 'Accepted';
+  };
+
+  // Callback to refresh payment status
+  const handlePaymentStatusChange = () => {
+    setLoadingPaymentStatus(true);
+    const fetchPaymentStatus = async () => {
+      try {
+        const status = await getPaymentStatusForBooking(userId, booking.bookingId);
+        setPaymentStatus(status);
+      } catch (error) {
+        console.error('Error fetching payment status:', error);
+        setPaymentStatus(null);
+      } finally {
+        setLoadingPaymentStatus(false);
+      }
+    };
+    fetchPaymentStatus();
+  };
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
@@ -108,6 +159,23 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
               >
                 {booking.status}
               </Badge>
+              {/* Show payment status if available */}
+              {paymentStatus && (
+                <Badge 
+                  variant="outline"
+                  className={
+                    paymentStatus === 'Pending' 
+                      ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                      : paymentStatus === 'Success'
+                      ? 'bg-green-100 text-green-800 border-green-200'
+                      : paymentStatus === 'Cancelled'
+                      ? 'bg-red-100 text-red-800 border-red-200'
+                      : 'bg-gray-100 text-gray-800 border-gray-200'
+                  }
+                >
+                  Payment: {paymentStatus}
+                </Badge>
+              )}
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
@@ -164,8 +232,8 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
           </div>
         )}
 
-        {/* Payment button - show for pending and accepted bookings */}
-        {(booking.status === 'Pending' || booking.status === 'Accepted') && (
+        {/* Payment button - show based on payment status instead of booking status */}
+        {isPaymentRequired() && (
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -174,7 +242,11 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking, userId }) => {
                   <span className="font-medium">Payment Required:</span> {getPrice().toLocaleString('vi-VN')} ₫
                 </span>
               </div>
-              <PaymentHandler userId={userId} bookingId={booking.bookingId} />
+              <PaymentHandler 
+                userId={userId} 
+                bookingId={booking.bookingId} 
+                onPaymentStatusChange={handlePaymentStatusChange}
+              />
             </div>
           </div>
         )}
