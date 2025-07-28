@@ -9,14 +9,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar, Filter, RefreshCw } from 'lucide-react';
 import { bookingAPI } from '@/lib/booking-api';
-import { Booking, PendingBooking, BookingStatus, BookingFilter } from '@/types/bookings';
+import { BookingDetails, BookingStatus, BookingFilter } from '@/types/bookings';
 import { authUtils } from '@/lib/api';
 import { BookingCard } from '@/components/bookings';
 
 const BookingHistoryPage = () => {
-  const [activeBookings, setActiveBookings] = useState<Booking[]>([]);
-  const [pendingBookings, setPendingBookings] = useState<PendingBooking[]>([]);
-  const [filteredBookings, setFilteredBookings] = useState<(Booking | PendingBooking)[]>([]);
+  const [allBookings, setAllBookings] = useState<BookingDetails[]>([]);
+  const [filteredBookings, setFilteredBookings] = useState<BookingDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<BookingFilter>({});
@@ -37,7 +36,7 @@ const BookingHistoryPage = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [activeBookings, pendingBookings, filter]);
+  }, [allBookings, filter]);
 
   const fetchBookings = async () => {
     if (!userId) return;
@@ -46,9 +45,8 @@ const BookingHistoryPage = () => {
       setLoading(true);
       setError(null);
 
-      const result = await bookingAPI.getBookingsWithFilter(userId, filter);
-      setActiveBookings(result.active);
-      setPendingBookings(result.pending);
+      const bookings = await bookingAPI.getUserBookings(userId);
+      setAllBookings(bookings);
     } catch (err) {
       setError('Không thể tải lịch sử đặt dịch vụ');
       console.error('Error fetching bookings:', err);
@@ -58,7 +56,7 @@ const BookingHistoryPage = () => {
   };
 
   const applyFilters = () => {
-    let filtered = [...activeBookings, ...pendingBookings];
+    let filtered = [...allBookings];
 
     if (filter.status) {
       filtered = filtered.filter(booking => booking.status === filter.status);
@@ -86,8 +84,6 @@ const BookingHistoryPage = () => {
     setFilteredBookings(filtered);
   };
 
-
-
   const clearFilters = () => {
     setFilter({});
   };
@@ -108,128 +104,128 @@ const BookingHistoryPage = () => {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center">
-            <p className="text-red-600 mb-4">{error}</p>
-            <Button onClick={fetchBookings} variant="outline">
-              Thử lại
-            </Button>
-          </div>
-        </div>
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center space-x-2">
+              <Calendar className="h-5 w-5 text-red-500" />
+              <p className="text-red-600">{error}</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Lịch sử đặt dịch vụ</h1>
-        <p className="text-gray-600">Xem và quản lý các dịch vụ đã đặt</p>
-      </div>
-
-      {/* Filters */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Filter className="h-5 w-5" />
-            <span>Bộ lọc</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <Label htmlFor="status-filter">Trạng thái</Label>
-              <Select
-                value={filter.status || 'All'}
-                onValueChange={(value) => setFilter(prev => ({
-                  ...prev,
-                  status: value === 'All' ? undefined : value as BookingStatus
-                }))}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Tất cả trạng thái" />
-                </SelectTrigger>
-                <SelectContent className="bg-white border border-gray-200 shadow-lg">
-                  <SelectItem value="All">Tất cả trạng thái</SelectItem>
-                  <SelectItem value="Pending">Chờ xử lý</SelectItem>
-                  <SelectItem value="Accepted">Đã chấp nhận</SelectItem>
-                  <SelectItem value="InProgress">Đang thực hiện</SelectItem>
-                  <SelectItem value="Completed">Hoàn thành</SelectItem>
-                  <SelectItem value="Cancelled">Đã hủy</SelectItem>
-                  <SelectItem value="Rejected">Đã từ chối</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="start-date">Ngày bắt đầu</Label>
-              <Input
-                id="start-date"
-                type="date"
-                value={filter.startDate || ''}
-                onChange={(e) => setFilter(prev => ({ ...prev, startDate: e.target.value || undefined }))}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="end-date">Ngày kết thúc</Label>
-              <Input
-                id="end-date"
-                type="date"
-                value={filter.endDate || ''}
-                onChange={(e) => setFilter(prev => ({ ...prev, endDate: e.target.value || undefined }))}
-              />
-            </div>
-
-            <div className="flex items-end space-x-2">
-              <Button onClick={clearFilters} variant="outline" className="flex-1">
-                Xóa bộ lọc
-              </Button>
-              <Button onClick={fetchBookings} variant="outline">
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Results Summary */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-3xl font-bold text-gray-900">Lịch Sử Đặt Dịch Vụ</h1>
           <p className="text-gray-600">
-            Hiển thị {filteredBookings.length} đặt dịch vụ
+            Xem và quản lý tất cả các đặt dịch vụ của bạn
           </p>
-          {Object.keys(filter).length > 0 && (
-            <Badge variant="secondary">
-              Đã áp dụng bộ lọc
-            </Badge>
-          )}
         </div>
-      </div>
 
-      {/* Bookings List */}
-      {filteredBookings.length === 0 ? (
+        {/* Filters */}
         <Card>
-          <CardContent className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy đặt dịch vụ nào</h3>
-              <p className="text-gray-600">
-                {Object.keys(filter).length > 0
-                  ? 'Thử điều chỉnh bộ lọc để xem thêm kết quả.'
-                  : 'Bạn chưa đặt dịch vụ nào.'
-                }
-              </p>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Filter className="h-5 w-5" />
+              <span>Bộ Lọc</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Status Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="status">Trạng thái</Label>
+                <Select
+                  value={filter.status || 'all'}
+                  onValueChange={(value) => setFilter(prev => ({ 
+                    ...prev, 
+                    status: value === 'all' ? undefined : value as BookingStatus 
+                  }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Tất cả trạng thái" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tất cả trạng thái</SelectItem>
+                    <SelectItem value="Pending">Chờ duyệt</SelectItem>
+                    <SelectItem value="Accepted">Đã chấp nhận</SelectItem>
+                    <SelectItem value="InProgress">Đang thực hiện</SelectItem>
+                    <SelectItem value="Completed">Hoàn thành</SelectItem>
+                    <SelectItem value="Cancelled">Đã hủy</SelectItem>
+                    <SelectItem value="Rejected">Từ chối</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Start Date Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Từ ngày</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={filter.startDate || ''}
+                  onChange={(e) => setFilter(prev => ({ ...prev, startDate: e.target.value }))}
+                />
+              </div>
+
+              {/* End Date Filter */}
+              <div className="space-y-2">
+                <Label htmlFor="endDate">Đến ngày</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={filter.endDate || ''}
+                  onChange={(e) => setFilter(prev => ({ ...prev, endDate: e.target.value }))}
+                />
+              </div>
+
+              {/* Clear Filters Button */}
+              <div className="flex items-end">
+                <Button
+                  variant="outline"
+                  onClick={clearFilters}
+                  className="w-full"
+                >
+                  Xóa bộ lọc
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
-      ) : (
-        <div className="space-y-4">
-          {filteredBookings.map((booking) => (
-            <BookingCard key={booking.bookingId} booking={booking} userId={userId!} />
-          ))}
-        </div>
-      )}
+
+        {/* Bookings List */}
+        {filteredBookings.length === 0 ? (
+          <Card>
+            <CardContent className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy đặt dịch vụ nào</h3>
+                <p className="text-gray-600">
+                  {Object.keys(filter).length > 0
+                    ? 'Thử điều chỉnh bộ lọc để xem thêm kết quả.'
+                    : 'Bạn chưa đặt dịch vụ nào.'
+                  }
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {filteredBookings.map((booking) => (
+              <BookingCard 
+                key={booking.bookingId} 
+                booking={booking} 
+                userId={userId!} 
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
