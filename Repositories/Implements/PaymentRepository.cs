@@ -15,7 +15,10 @@ public class PaymentRepository : BaseRepository<Payment>, IPaymentRepository
         return await _context.Payments
             .Where(p => p.UserId == userId)
             .Include(p => p.User)
-            .Include(p => p.Booking) 
+            .Include(p => p.Booking)
+                .ThenInclude(b => b.Helper)
+                    .ThenInclude(h => h.HelperSkills)
+                        .ThenInclude(hs => hs.Service)
             .ToListAsync();
     }
 
