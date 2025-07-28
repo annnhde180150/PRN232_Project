@@ -10,8 +10,8 @@ type UploadFileProps = {
   maxSize?: number; // in MB
 };
 
-const UploadFile: React.FC<UploadFileProps> = ({ 
-  onUploaded, 
+const UploadFile: React.FC<UploadFileProps> = ({
+  onUploaded,
   accept = "*/*",
   maxSize = 10 // 10MB default
 }) => {
@@ -35,7 +35,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const droppedFile = e.dataTransfer.files[0];
       if (droppedFile.size <= maxSize * 1024 * 1024) {
@@ -71,7 +71,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
         setProgress(percent);
       },
       (error) => {
-        alert(`Upload failed: ${error.message}`);
+        alert(`Tải lên thất bại: ${error.message}`);
         setUploading(false);
       },
       () => {
@@ -94,13 +94,12 @@ const UploadFile: React.FC<UploadFileProps> = ({
     <div className="w-full">
       {/* File Upload Area */}
       <div
-        className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 ${
-          dragActive 
-            ? 'border-green-500 bg-green-50' 
-            : file 
-              ? 'border-green-400 bg-green-50' 
+        className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 ${dragActive
+            ? 'border-green-500 bg-green-50'
+            : file
+              ? 'border-green-400 bg-green-50'
               : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
-        }`}
+          }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
@@ -114,7 +113,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
             </div>
-            
+
             {/* Upload Text */}
             <div className="space-y-2">
               <p className="text-lg font-medium text-gray-900">
@@ -183,7 +182,7 @@ const UploadFile: React.FC<UploadFileProps> = ({
             <span>{progress.toFixed(0)}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
+            <div
               className="bg-green-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             ></div>
@@ -202,9 +201,9 @@ const UploadFile: React.FC<UploadFileProps> = ({
               <span className="text-sm font-medium text-green-800">Tải lên thành công!</span>
             </div>
             <div className="flex items-center space-x-2">
-              <a 
-                href={url} 
-                target="_blank" 
+              <a
+                href={url}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-green-600 hover:text-green-800 underline"
               >

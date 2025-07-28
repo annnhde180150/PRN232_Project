@@ -9,6 +9,7 @@ import { DesignSystemProvider } from "../contexts/ThemeContext";
 import { Header, Footer } from "../components/layout";
 import "./globals.css";
 import { Toaster } from '@/components/ui/sonner';
+import { Toaster as HotToaster } from 'react-hot-toast';
 import React, { useEffect, useState } from "react";
 
 const inter = Inter({
@@ -50,6 +51,7 @@ export default function RootLayout({
                 </main>
                 <Footer />
                 <Toaster position="top-right" />
+                <HotToaster position="top-right" />
               </ChatProvider>
             </NotificationProvider>
           </AuthProvider>
