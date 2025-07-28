@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getPaymentInfo, updatePaymentStatus, createVnpayPaymentUrl } from '@/lib/payment-api';
+import { addMoneyToWallet } from '@/lib/helper-api';
 import { toast } from 'react-hot-toast';
 
 interface PaymentHandlerProps {
@@ -12,11 +13,6 @@ interface PaymentHandlerProps {
 export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: PaymentHandlerProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const getBaseUrl = () => {
-    // Use Vercel deployment URL
-    return 'https://homezy-silk.vercel.app';
-  };
 
   const handlePayment = async () => {
     try {
@@ -39,10 +35,9 @@ export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: Pay
         bookingId: paymentInfo.data.bookingId
       });
 
-      // Create VNPAY payment URL with Vercel URL
-      const baseUrl = getBaseUrl();
-      const returnUrl = `${baseUrl}/booking-history?paymentId=${paymentInfo.data.paymentId}&helperId=${paymentInfo.data.helperId}&amount=${paymentInfo.data.amount}`;
-      console.log('Using Vercel return URL:', returnUrl);
+      // Create VNPAY payment URL
+      const returnUrl = `${window.location.origin}/booking-history?paymentId=${paymentInfo.data.paymentId}&helperId=${paymentInfo.data.helperId}&amount=${paymentInfo.data.amount}`;
+      console.log('Return URL:', returnUrl);
 
       const paymentUrl = await createVnpayPaymentUrl(
         paymentInfo.data.amount,
@@ -57,6 +52,27 @@ export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: Pay
     } catch (error) {
       console.error('Payment error:', error);
       toast.error('Failed to initialize payment');
+    }
+  };
+
+  const handleAddMoneyToWallet = async (helperId: number, amount: number) => {
+    try {
+      console.log('Adding money to helper wallet:', { helperId, amount });
+      const addMoneyResult = await addMoneyToWallet(helperId, amount);
+      
+      if (addMoneyResult.success && addMoneyResult.data.isSuccess) {
+        console.log('Successfully added money to wallet:', addMoneyResult);
+        toast.success('Money added to helper wallet successfully');
+        return true;
+      } else {
+        console.error('Failed to add money to wallet:', addMoneyResult);
+        toast.error('Failed to add money to helper wallet');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error adding money to wallet:', error);
+      toast.error('Failed to add money to helper wallet');
+      return false;
     }
   };
 
@@ -90,8 +106,9 @@ export const PaymentHandler = ({ userId, bookingId, onPaymentStatusChange }: Pay
           const updateResult = await updatePaymentStatus(Number(paymentId), status);
           console.log('Update payment result:', updateResult);
 
-          if (status === 'Success') {
-            toast.success('Payment successful');
+          if (status === 'Success' && updateResult.success) {
+            // Add money to helper's wallet
+            await handleAddMoneyToWallet(Number(helperId), Number(amount));
           } else {
             toast.error('Payment failed');
           }

@@ -10,6 +10,8 @@ import { CustomerDashboard } from '../../components/customer';
 import { EnhancedCustomerDashboard } from '../../components/customer/EnhancedCustomerDashboard';
 import { AvailabilityToggle } from "@/components/helper/AvailabilityToggle";
 import SearchHelperPage from '../search-helper/page';
+import { FaWallet } from 'react-icons/fa';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const { user, userType, isAuthenticated, logout, loading } = useAuth();
@@ -53,7 +55,18 @@ export default function DashboardPage() {
         return (
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Trạng Thái Tài Khoản</h2>
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Trạng Thái Tài Khoản</h2>
+                {helper.approvalStatus === 'approved' && (
+                  <Link 
+                    href="/helper-wallet"
+                    className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    <FaWallet className="text-lg" />
+                    <span>Ví Helper</span>
+                  </Link>
+                )}
+            </div>
               <div className="flex flex-col space-y-4">
                 <div className="flex items-center space-x-2">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${helper.approvalStatus === 'approved'
