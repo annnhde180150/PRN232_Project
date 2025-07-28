@@ -35,7 +35,8 @@ import {
   ShieldCheck,
   MapPin,
   Filter,
-  History
+  History,
+  Clipboard
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -207,6 +208,22 @@ export const Header: React.FC<HeaderProps> = ({ className, showSearch = true }) 
                     </DropdownMenuItem>
                     {userType === 'user' && (
                       <DropdownMenuItem asChild>
+                        <Link href="/service-request/view" className="flex items-center">
+                          <History className="mr-2 h-4 w-4" />
+                          <span>Yêu cầu dịch vụ</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    {userType === 'helper' && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/available-requests" className="flex items-center">
+                          <Clipboard className="mr-2 h-4 w-4" />
+                          <span>Yêu cầu giúp việc</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
+                    {userType === 'user' && (
+                      <DropdownMenuItem asChild>
                         <Link href="/booking-history" className="flex items-center">
                           <History className="mr-2 h-4 w-4" />
                           <span>Lịch sử đặt dịch vụ</span>
@@ -271,6 +288,19 @@ export const Header: React.FC<HeaderProps> = ({ className, showSearch = true }) 
                             </Link>
                           </Button>
                         ))}
+                        {userType === 'helper' && (
+                          <Button
+                            variant="ghost"
+                            asChild
+                            className="justify-start"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <Link href="/available-requests" className="flex items-center gap-3">
+                              <Clipboard className="w-4 h-4" />
+                              <span>Yêu cầu giúp việc</span>
+                            </Link>
+                          </Button>
+                        )}
                         {userType === 'user' && (
                           <Button
                             variant="ghost"

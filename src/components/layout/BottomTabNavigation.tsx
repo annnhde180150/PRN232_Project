@@ -16,7 +16,8 @@ import {
     Users,
     ShieldCheck,
     UserCheck,
-    Bell
+    Bell,
+    Clipboard
 } from 'lucide-react';
 
 interface TabItem {
@@ -74,6 +75,12 @@ export const BottomTabNavigation: React.FC = () => {
             ],
             helper: [
                 {
+                    href: '/available-requests',
+                    label: 'Yêu cầu',
+                    icon: Clipboard,
+                    activeFor: ['/available-requests']
+                },
+                {
                     href: '/chat',
                     label: 'Tin nhắn',
                     icon: MessageCircle,
@@ -85,12 +92,6 @@ export const BottomTabNavigation: React.FC = () => {
                     label: 'Báo cáo',
                     icon: FileText,
                     activeFor: ['/helper-reports', '/reports']
-                },
-                {
-                    href: '/notifications',
-                    label: 'Thông báo',
-                    icon: Bell,
-                    activeFor: ['/notifications']
                 },
                 {
                     href: '/profile',

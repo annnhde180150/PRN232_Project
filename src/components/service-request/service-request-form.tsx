@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'react-hot-toast';
 import { serviceRequestApi, supportApi } from '@/lib/api/service-request';
 import { Address, Service, ServiceRequest } from '@/types/service-request';
+import { useAuth } from '@/contexts/AuthContext';
 
 const formSchema = z.object({
     userId: z.number().min(1, 'ID người dùng là bắt buộc'),
@@ -28,17 +29,28 @@ type FormData = z.infer<typeof formSchema>;
 interface ServiceRequestFormProps {
     editData?: ServiceRequest;
     onSuccess?: () => void;
+    onSubmitStart?: () => void;
+    onSubmitEnd?: () => void;
 }
 
-export function ServiceRequestForm({ editData, onSuccess }: ServiceRequestFormProps) {
+export function ServiceRequestForm({ editData, onSuccess, onSubmitStart, onSubmitEnd }: ServiceRequestFormProps) {
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(false);
+    const { user, isAuthenticated } = useAuth();
 
+    const getCurrentUserId = (): number => {
+      if (!isAuthenticated || !user) {
+        return 0;
+      }
+      return user.id || 0;
+    };
+  
+    const userId = getCurrentUserId();
     const form = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            userId: editData?.userId || 1,
+            userId: editData?.userId || userId,
             serviceId: editData?.serviceId || 0,
             addressId: editData?.addressId || 0,
             requestedStartTime: editData?.requestedStartTime ?
@@ -74,6 +86,8 @@ export function ServiceRequestForm({ editData, onSuccess }: ServiceRequestFormPr
 
     const onSubmit = async (data: FormData) => {
         setLoading(true);
+        if (onSubmitStart) onSubmitStart();
+        
         try {
             const requestData = {
                 ...data,
@@ -93,7 +107,7 @@ export function ServiceRequestForm({ editData, onSuccess }: ServiceRequestFormPr
             if (response.success) {
                 toast.success(editData ? 'Cập nhật yêu cầu thành công' : 'Tạo yêu cầu thành công');
                 form.reset();
-                onSuccess?.();
+                if (onSuccess) onSuccess();
             } else {
                 toast.error(response.message || 'Thao tác thất bại');
             }
@@ -102,6 +116,7 @@ export function ServiceRequestForm({ editData, onSuccess }: ServiceRequestFormPr
             console.error('Error:', error);
         } finally {
             setLoading(false);
+            if (onSubmitEnd) onSubmitEnd();
         }
     };
 
@@ -113,24 +128,6 @@ export function ServiceRequestForm({ editData, onSuccess }: ServiceRequestFormPr
             <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormField
-                            control={form.control}
-                            name="userId"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>ID người dùng</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            type="number"
-                                            {...field}
-                                            onChange={(e) => field.onChange(parseInt(e.target.value))}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
                         <FormField
                             control={form.control}
                             name="serviceId"

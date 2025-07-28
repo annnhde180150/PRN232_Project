@@ -412,15 +412,6 @@ export const BookingFlow: React.FC<BookingFlowProps> = ({
                 </Badge>
               </div>
             </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center space-x-2"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>Nhắn tin</span>
-            </Button>
           </div>
         </CardContent>
       </Card>

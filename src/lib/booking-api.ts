@@ -158,5 +158,33 @@ export const bookingAPI = {
       console.error('Error updating booking status:', error);
       throw error;
     }
+  },
+
+  // Accept a service request
+  acceptRequest: async (requestId: number, helperId: number): Promise<boolean> => {
+    try {
+      const response = await api.post('/api/Bookings/AcceptRequest', {
+        requestId,
+        helperId
+      });
+      return response.data.success;
+    } catch (error) {
+      console.error('Error accepting request:', error);
+      throw error;
+    }
+  },
+
+  // Accept or reject helper for a booking
+  acceptHelper: async (bookingId: number, isAccepted: boolean): Promise<boolean> => {
+    try {
+      const response = await api.post('/api/Bookings/AcceptHelper', {
+        bookingId,
+        isAccepted
+      });
+      return response.data.success;
+    } catch (error) {
+      console.error('Error accepting/rejecting helper:', error);
+      throw error;
+    }
   }
 }; 

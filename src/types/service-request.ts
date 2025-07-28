@@ -40,7 +40,7 @@ export interface ServiceRequest {
     requestedStartTime: string;
     requestedDurationHours: number;
     specialNotes?: string;
-    status: 'Pending' | 'Cancelled' | 'Completed';
+    status: 'Pending' | 'Cancelled' | 'Completed' | 'InProgress';
     requestCreationTime?: string;
     latitude?: number;
     longitude?: number;
@@ -103,4 +103,34 @@ export interface Review {
 export interface BookingServiceName {
     bookingId: number;
     serviceName: string;
+}
+
+export interface HelperApplication {
+    applicationId: number;
+    requestId: number;
+    helperId: number;
+    helperName: string;
+    helperAvatar?: string;
+    applicationTime: string;
+    status: 'Pending' | 'Accepted' | 'Rejected';
+    helperRating?: number;
+    completedJobs?: number;
+}
+
+export interface HelperApplicationResponse {
+    applicationId: number;
+    requestId: number;
+    helperId: number;
+    accepted: boolean;
+}
+
+export interface HelperProfile {
+    helperId: number;
+    userId: number;
+    name: string;
+    avatar?: string;
+    bio?: string;
+    rating: number;
+    completedJobs: number;
+    services: Service[];
 }

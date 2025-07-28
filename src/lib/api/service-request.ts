@@ -9,7 +9,9 @@ import {
     BookHelperData,
     CancelBookingData,
     Review,
-    BookingServiceName
+    BookingServiceName,
+    HelperApplication,
+    HelperApplicationResponse
 } from '@/types/service-request';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -51,6 +53,24 @@ export const serviceRequestApi = {
     // Get available requests
     getAvailableRequests: async (): Promise<ApiResponse<ServiceRequest[]>> => {
         const response = await api.get('/api/ServiceRequests/GetAvailableRequests');
+        return response.data;
+    },
+    
+    // Helper applies for a request
+    applyForRequest: async (requestId: number, helperId: number): Promise<ApiResponse<HelperApplication>> => {
+        const response = await api.post(`/api/ServiceRequests/ApplyForRequest/${requestId}/${helperId}`);
+        return response.data;
+    },
+    
+    // Get helper applications for a request
+    getRequestApplications: async (requestId: number): Promise<ApiResponse<HelperApplication[]>> => {
+        const response = await api.get(`/api/Bookings/GetTempAcceptedBooking/3`);
+        return response.data;
+    },
+    
+    // User responds to helper application
+    respondToApplication: async (data: HelperApplicationResponse): Promise<ApiResponse<string>> => {
+        const response = await api.post('/api/ServiceRequests/RespondToApplication', data);
         return response.data;
     }
 };

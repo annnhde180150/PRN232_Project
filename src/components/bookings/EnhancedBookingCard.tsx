@@ -12,6 +12,9 @@ import { getReviewByBookingId } from '@/lib/review-api';
 import { Review } from '@/types/review';
 import { PaymentStatus } from '@/types/payment';
 import { BookingDetails, BookingStatus } from '@/types/bookings';
+import { useRouter } from 'next/navigation';
+import { useChat } from '@/contexts/ChatContext';
+import { Conversation } from '@/types/chat';
 
 interface EnhancedBookingCardProps {
     booking: BookingDetails;
@@ -27,6 +30,9 @@ export function EnhancedBookingCard({ booking, onStatusUpdate, onRefresh, userTy
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [existingReview, setExistingReview] = useState<Review | null>(null);
     const [loadingReview, setLoadingReview] = useState(false);
+    const [loadingChat, setLoadingChat] = useState(false);
+    const router = useRouter();
+    const { selectConversation } = useChat();
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -164,6 +170,53 @@ export function EnhancedBookingCard({ booking, onStatusUpdate, onRefresh, userTy
         return 'Thời gian không có sẵn';
     };
 
+    // Function to handle opening chat
+    const handleOpenChat = async () => {
+        setLoadingChat(true);
+        
+        try {
+            // Create a conversation object based on the booking
+            const conversation: Conversation = {
+                conversationId: `booking_${booking.bookingId}`,
+                bookingId: booking.bookingId,
+                participantUserId: userType === 'helper' ? booking.userId : null,
+                participantHelperId: userType === 'customer' ? booking.helperId : null,
+                participantName: userType === 'customer' ? booking.helperName : (booking.fullName || 'Khách hàng'),
+                participantProfilePicture: null, // We don't have this info from the booking
+                participantType: userType === 'customer' ? 'Helper' : 'User',
+                lastMessage: {
+                    chatId: 0,
+                    bookingId: booking.bookingId,
+                    senderUserId: null,
+                    senderHelperId: null,
+                    receiverUserId: null,
+                    receiverHelperId: null,
+                    messageContent: '',
+                    timestamp: new Date().toISOString(),
+                    isReadByReceiver: true,
+                    readTimestamp: null,
+                    isModerated: false,
+                    moderatorAdminId: null,
+                    senderName: '',
+                    senderProfilePicture: null,
+                    senderType: userType === 'customer' ? 'Helper' : 'User'
+                },
+                unreadCount: 0,
+                lastActivity: new Date().toISOString()
+            };
+
+            // Select the conversation and navigate to chat page
+            await selectConversation(conversation);
+            router.push('/chat');
+        } catch (error) {
+            console.error('Error opening chat:', error);
+            // If there's an error, we could show a toast notification here
+            // but for now we'll just log it and reset the loading state
+        } finally {
+            setLoadingChat(false);
+        }
+    };
+
     return (
         <Card className="hover:shadow-md transition-shadow">
             <CardContent className="p-6">
@@ -214,9 +267,24 @@ export function EnhancedBookingCard({ booking, onStatusUpdate, onRefresh, userTy
                 </div>
 
                 <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                        <MessageCircle className="w-4 h-4 mr-1" />
-                        Nhắn tin
+                    <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={handleOpenChat}
+                        disabled={loadingChat}
+                    >
+                        {loadingChat ? (
+                            <div className="flex items-center justify-center">
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 mr-2"></div>
+                                <span>Đang tải...</span>
+                            </div>
+                        ) : (
+                            <>
+                                <MessageCircle className="w-4 h-4 mr-1" />
+                                Nhắn tin
+                            </>
+                        )}
                     </Button>
 
                     {/* Helper Status Progression Buttons */}
