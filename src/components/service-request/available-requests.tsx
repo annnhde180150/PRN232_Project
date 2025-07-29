@@ -26,7 +26,7 @@ export const AvailableRequests: React.FC<AvailableRequestsProps> = ({ helperId }
         }
       } catch (error) {
         console.error('Error fetching available requests:', error);
-        toast.error('Failed to load available requests');
+        toast.error('Không thể tải danh sách yêu cầu có sẵn');
       } finally {
         setLoading(false);
       }
@@ -41,15 +41,15 @@ export const AvailableRequests: React.FC<AvailableRequestsProps> = ({ helperId }
       const success = await bookingAPI.acceptRequest(requestId, helperId);
       
       if (success) {
-        toast.success('Request accepted successfully');
+        toast.success('Chấp nhận yêu cầu thành công');
         // Remove the accepted request from the list
         setRequests(requests.filter(req => req.requestId !== requestId));
       } else {
-        toast.error('Failed to accept request');
+        toast.error('Không thể chấp nhận yêu cầu');
       }
     } catch (error) {
       console.error('Error accepting request:', error);
-      toast.error('An error occurred while accepting the request');
+      toast.error('Đã xảy ra lỗi khi chấp nhận yêu cầu');
     } finally {
       setAcceptingRequestId(null);
     }
@@ -58,7 +58,7 @@ export const AvailableRequests: React.FC<AvailableRequestsProps> = ({ helperId }
   if (loading) {
     return (
       <div className="flex justify-center items-center h-40">
-        <p>Loading available requests...</p>
+        <p>Đang tải danh sách yêu cầu...</p>
       </div>
     );
   }
@@ -66,7 +66,7 @@ export const AvailableRequests: React.FC<AvailableRequestsProps> = ({ helperId }
   if (requests.length === 0) {
     return (
       <div className="flex justify-center items-center h-40">
-        <p>No available requests found.</p>
+        <p>Không có yêu cầu nào có sẵn.</p>
       </div>
     );
   }
@@ -76,24 +76,24 @@ export const AvailableRequests: React.FC<AvailableRequestsProps> = ({ helperId }
       {requests.map((request) => (
         <Card key={request.requestId} className="overflow-hidden">
           <CardHeader>
-            <CardTitle>Service Request #{request.requestId}</CardTitle>
+            <CardTitle>Yêu cầu dịch vụ #{request.requestId}</CardTitle>
             <CardDescription>
-              Service ID: {request.serviceId}
+              ID Dịch vụ: {request.serviceId}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="font-medium">Start Time:</span>
+                <span className="font-medium">Thời gian bắt đầu:</span>
                 <span>{formatDate(request.requestedStartTime)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium">Duration:</span>
-                <span>{request.requestedDurationHours} hours</span>
+                <span className="font-medium">Thời lượng:</span>
+                <span>{request.requestedDurationHours} giờ</span>
               </div>
               {request.specialNotes && (
                 <div className="mt-2">
-                  <span className="font-medium">Special Notes:</span>
+                  <span className="font-medium">Ghi chú:</span>
                   <p className="text-sm mt-1">{request.specialNotes}</p>
                 </div>
               )}
@@ -101,11 +101,11 @@ export const AvailableRequests: React.FC<AvailableRequestsProps> = ({ helperId }
           </CardContent>
           <CardFooter>
             <Button 
-              className="w-full" 
+              className="w-full bg-green-600 hover:bg-green-700 text-white" 
               onClick={() => handleAcceptRequest(request.requestId)}
               disabled={acceptingRequestId === request.requestId}
             >
-              {acceptingRequestId === request.requestId ? 'Accepting...' : 'Accept Request'}
+              {acceptingRequestId === request.requestId ? 'Đang chấp nhận...' : 'Chấp nhận yêu cầu'}
             </Button>
           </CardFooter>
         </Card>

@@ -38,7 +38,7 @@ export default function AvailableRequestsPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex justify-center items-center h-40">
-              <p>Loading...</p>
+              <p>Đang tải...</p>
             </div>
           </CardContent>
         </Card>
@@ -50,19 +50,19 @@ export default function AvailableRequestsPage() {
     <div className="container mx-auto py-8">
       <Card>
         <CardHeader>
-          <CardTitle>Available Service Requests</CardTitle>
+          <CardTitle>Yêu cầu dịch vụ có sẵn</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="available" className="w-full">
             <TabsList className="grid w-full grid-cols-1">
-              <TabsTrigger value="available">Available Requests</TabsTrigger>
+              <TabsTrigger value="available">Yêu cầu có sẵn</TabsTrigger>
             </TabsList>
             <TabsContent value="available" className="mt-6">
               <AvailableRequests helperId={helperId} />
             </TabsContent>
             <TabsContent value="accepted" className="mt-6">
               <p className="text-center text-gray-500">
-                View your accepted requests in the Active Bookings section.
+                Xem các yêu cầu đã chấp nhận trong phần Đặt lịch đang hoạt động.
               </p>
             </TabsContent>
           </Tabs>
