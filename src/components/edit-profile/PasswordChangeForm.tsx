@@ -52,7 +52,7 @@ export const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
       uppercase: true, // No longer required
       lowercase: true, // No longer required
       number: /\d/.test(password),
-      special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+      special: true,
     };
   };
 
@@ -204,7 +204,6 @@ export const PasswordChangeForm: React.FC<PasswordChangeFormProps> = ({
             <div className="space-y-2">
               <ValidationItem isValid={validation.length} text="Ít nhất 6 ký tự" />
               <ValidationItem isValid={validation.number} text="Ít nhất 1 chữ số" />
-              <ValidationItem isValid={validation.special} text="Ít nhất 1 ký tự đặc biệt" />
             </div>
           </div>
         )}
