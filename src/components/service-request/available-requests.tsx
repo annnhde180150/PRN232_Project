@@ -3,7 +3,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { serviceRequestApi } from '@/lib/api/service-request';
 import { bookingAPI } from '@/lib/booking-api';
+import { addressAPI } from '@/lib/api';
 import { ServiceRequest } from '@/types/service-request';
+import { Address } from '@/types/service-request';
 import { formatDate } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -11,8 +13,12 @@ interface AvailableRequestsProps {
   helperId: number;
 }
 
+interface RequestWithAddress extends ServiceRequest {
+  address?: Address;
+}
+
 export const AvailableRequests: React.FC<AvailableRequestsProps> = ({ helperId }) => {
-  const [requests, setRequests] = useState<ServiceRequest[]>([]);
+  const [requests, setRequests] = useState<RequestWithAddress[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [acceptingRequestId, setAcceptingRequestId] = useState<number | null>(null);
 
@@ -22,7 +28,25 @@ export const AvailableRequests: React.FC<AvailableRequestsProps> = ({ helperId }
         setLoading(true);
         const response = await serviceRequestApi.getAvailableRequests();
         if (response.success) {
-          setRequests(response.data);
+          // Fetch address information for each request
+          const requestsWithAddresses = await Promise.all(
+            response.data.map(async (request) => {
+              try {
+                const addressData = await addressAPI.getAddress(request.addressId);
+                return {
+                  ...request,
+                  address: addressData
+                };
+              } catch (error) {
+                console.error(`Error fetching address for request ${request.requestId}:`, error);
+                return {
+                  ...request,
+                  address: undefined
+                };
+              }
+            })
+          );
+          setRequests(requestsWithAddresses);
         }
       } catch (error) {
         console.error('Error fetching available requests:', error);
@@ -91,6 +115,12 @@ export const AvailableRequests: React.FC<AvailableRequestsProps> = ({ helperId }
                 <span className="font-medium">Thời lượng:</span>
                 <span>{request.requestedDurationHours} giờ</span>
               </div>
+              {request.address && (
+                <div className="mt-2">
+                  <span className="font-medium">Địa chỉ:</span>
+                  <p className="text-sm mt-1 text-gray-600">{request.address.fullAddress}</p>
+                </div>
+              )}
               {request.specialNotes && (
                 <div className="mt-2">
                   <span className="font-medium">Ghi chú:</span>
