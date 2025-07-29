@@ -306,22 +306,70 @@ export default function SearchHelperPage() {
 
               {/* Welcome Message */}
               {!selectedService && !loading && (
-                                  <div className="text-center py-20">
+                <div className="text-center py-20">
                   <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
                     <svg className="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-3">Chọn loại dịch vụ để bắt đầu</h3>
-                  <p className="text-gray-600 max-w-md mx-auto">
+                  <p className="text-gray-600 max-w-md mx-auto mb-8">
                     Chọn một dịch vụ từ danh sách bên trái để tìm kiếm các chuyên gia phù hợp với nhu cầu của bạn
                   </p>
+                  
+                  {/* Quick Actions */}
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <Button
+                      onClick={() => window.location.href = '/service-request/create'}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Tạo yêu cầu dịch vụ
+                    </Button>
+                    <Button
+                      onClick={() => window.location.href = '/service-request'}
+                      variant="outline"
+                      className="border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold transition-all duration-200"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Xem yêu cầu của tôi
+                    </Button>
+                  </div>
                 </div>
               )}
 
               {/* Service Discovery Results */}
               {selectedService && (
                 <div className="space-y-6">
+                  {/* Quick Actions Bar */}
+                  <div className="bg-white rounded-xl shadow-lg border-0 p-4">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                      <Button
+                        onClick={() => window.location.href = '/service-request/create'}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow-lg transition-all duration-200 hover:shadow-xl"
+                      >
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Tạo yêu cầu dịch vụ
+                      </Button>
+                      <Button
+                        onClick={() => window.location.href = '/service-request'}
+                        variant="outline"
+                        className="border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg font-semibold transition-all duration-200"
+                      >
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Xem yêu cầu của tôi
+                      </Button>
+                    </div>
+                  </div>
+
                   <div className="bg-white rounded-xl shadow-lg border-0 overflow-hidden">
                     <div className="p-4">
                       <ServiceDiscovery

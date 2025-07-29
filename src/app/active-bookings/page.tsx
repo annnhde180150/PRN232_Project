@@ -16,7 +16,7 @@ const formatPriceVND = (price: number) => {
   return new Intl.NumberFormat('vi-VN').format(price);
 };
 
-type StatusFilter = 'all' | 'Pending' | 'Accepted' | 'InProgress' | 'Completed' | 'Cancelled';
+type StatusFilter = 'all' | 'Pending' | 'Accepted' | 'InProgress' | 'Completed' | 'Cancelled' | 'TemporaryAccepted';
 
 export default function ActiveBookingsPage() {
   const [allBookings, setAllBookings] = useState<BookingDetails[]>([]);
@@ -141,6 +141,7 @@ export default function ActiveBookingsPage() {
       case 'InProgress': return 'Đang thực hiện';
       case 'Completed': return 'Hoàn thành';
       case 'Cancelled': return 'Đã hủy';
+      case 'TemporaryAccepted': return 'Đợi xác nhận';
       default: return status;
     }
   };
@@ -158,7 +159,8 @@ export default function ActiveBookingsPage() {
     { value: 'Accepted', label: 'Đã chấp nhận' },
     { value: 'InProgress', label: 'Đang thực hiện' },
     { value: 'Completed', label: 'Hoàn thành' },
-    { value: 'Cancelled', label: 'Đã hủy' }
+    { value: 'Cancelled', label: 'Đã hủy' },
+    { value: 'TemporaryAccepted', label: 'Đợi xác nhận' }
   ] as const;
 
   return (

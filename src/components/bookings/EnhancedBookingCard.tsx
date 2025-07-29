@@ -41,6 +41,7 @@ export function EnhancedBookingCard({ booking, onStatusUpdate, onRefresh, userTy
             case 'InProgress': return 'bg-orange-500 text-white';
             case 'Completed': return 'bg-green-500 text-white';
             case 'Cancelled': return 'bg-red-500 text-white';
+            case 'TemporaryAccepted': return 'bg-purple-500 text-white';
             default: return 'bg-gray-500 text-white';
         }
     };
@@ -52,6 +53,7 @@ export function EnhancedBookingCard({ booking, onStatusUpdate, onRefresh, userTy
             case 'InProgress': return 'Đang thực hiện';
             case 'Completed': return 'Hoàn thành';
             case 'Cancelled': return 'Đã hủy';
+            case 'TemporaryAccepted': return 'Đợi xác nhận';
             default: return status;
         }
     };
