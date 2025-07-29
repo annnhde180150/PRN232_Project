@@ -31,7 +31,7 @@ export const DocumentsDisplay: React.FC<DocumentsDisplayProps> = ({ documents })
 
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'verified':
+      case 'approved':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'rejected':
         return <XCircle className="w-4 h-4 text-red-500" />;
