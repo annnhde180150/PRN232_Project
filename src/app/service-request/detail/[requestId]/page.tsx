@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { use } from "react";
 import { serviceRequestApi, supportApi } from "@/lib/api/service-request";
 import { ServiceRequest, Service } from "@/types/service-request";
 import { useRouter } from "next/navigation";
@@ -19,9 +20,9 @@ import {
 import { ServiceRequestForm } from "@/components/service-request";
 
 interface RequestDetailPageProps {
-  params: {
+  params: Promise<{
     requestId: string;
-  };
+  }>;
 }
 
 export default function RequestDetailPage({ params }: RequestDetailPageProps) {
@@ -30,7 +31,8 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const requestId = parseInt(params.requestId);
+  const resolvedParams = use(params);
+  const requestId = parseInt(resolvedParams.requestId);
 
   useEffect(() => {
     if (isNaN(requestId)) {

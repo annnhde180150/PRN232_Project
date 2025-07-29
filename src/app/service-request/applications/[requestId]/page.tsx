@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { use } from 'react';
 import { HelperApplications } from '@/components/service-request';
 import { serviceRequestApi } from '@/lib/api/service-request';
 import { ServiceRequest } from '@/types/service-request';
@@ -12,16 +13,17 @@ import { ArrowLeft, Home, List, Plus, Eye } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface ApplicationsPageProps {
-    params: {
+    params: Promise<{
         requestId: string;
-    };
+    }>;
 }
 
 export default function ApplicationsPage({ params }: ApplicationsPageProps) {
     const router = useRouter();
     const [request, setRequest] = useState<ServiceRequest | null>(null);
     const [loading, setLoading] = useState(true);
-    const requestId = parseInt(params.requestId);
+    const resolvedParams = use(params);
+    const requestId = parseInt(resolvedParams.requestId);
 
     useEffect(() => {
         if (isNaN(requestId)) {

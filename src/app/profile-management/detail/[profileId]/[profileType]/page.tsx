@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { use } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '../../../../../contexts/AuthContext';
 import { profileAPI } from '../../../../../lib/api';
