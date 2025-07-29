@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { use } from 'react';
 import { HelperApplications } from '@/components/service-request';
 import { serviceRequestApi } from '@/lib/api/service-request';
+import { addressAPI } from '@/lib/api';
 import { ServiceRequest } from '@/types/service-request';
+import { UserAddress } from '@/types/auth';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Home, List, Plus, Eye } from 'lucide-react';
+import { ArrowLeft, Home, List, Plus, Eye, MapPin } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 interface ApplicationsPageProps {
@@ -21,6 +23,7 @@ interface ApplicationsPageProps {
 export default function ApplicationsPage({ params }: ApplicationsPageProps) {
     const router = useRouter();
     const [request, setRequest] = useState<ServiceRequest | null>(null);
+    const [address, setAddress] = useState<UserAddress | null>(null);
     const [loading, setLoading] = useState(true);
     const resolvedParams = use(params);
     const requestId = parseInt(resolvedParams.requestId);
@@ -41,6 +44,14 @@ export default function ApplicationsPage({ params }: ApplicationsPageProps) {
             const response = await serviceRequestApi.getRequest(requestId);
             if (response.success) {
                 setRequest(response.data);
+
+                // Load address information
+                try {
+                    const addressData = await addressAPI.getAddress(response.data.addressId);
+                    setAddress(addressData);
+                } catch (addressError) {
+                    console.error('Error loading address:', addressError);
+                }
             } else {
                 toast.error(response.message || 'Không thể tải thông tin yêu cầu');
                 router.push('/service-request/view');
@@ -190,7 +201,16 @@ export default function ApplicationsPage({ params }: ApplicationsPageProps) {
                             <p><strong>Thời lượng:</strong> {request.requestedDurationHours} giờ</p>
                         </div>
                         <div>
-                            <p><strong>Địa chỉ ID:</strong> {request.addressId}</p>
+                            <p><strong>Địa chỉ:</strong>{" "}
+                                {address ? (
+                                    <>
+                                        <MapPin className="w-4 h-4 inline mr-1 text-gray-500" />
+                                        {address.fullAddress}
+                                    </>
+                                ) : (
+                                    `ID: ${request.addressId}`
+                                )}
+                            </p>
                             <p><strong>Ngày tạo:</strong> {request.requestCreationTime ? new Date(request.requestCreationTime).toLocaleString() : 'N/A'}</p>
                             {request.specialNotes && (
                                 <p><strong>Ghi chú:</strong> {request.specialNotes}</p>

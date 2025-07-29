@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { use } from "react";
 import { serviceRequestApi, supportApi } from "@/lib/api/service-request";
+import { addressAPI } from "@/lib/api";
 import { ServiceRequest, Service } from "@/types/service-request";
+import { UserAddress } from "@/types/auth";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Edit, Trash2, Users, Home, List, Plus } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Users, Home, List, Plus, MapPin } from "lucide-react";
 import { toast } from "react-hot-toast";
 import {
   Dialog,
@@ -29,6 +31,7 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
   const router = useRouter();
   const [request, setRequest] = useState<ServiceRequest | null>(null);
   const [service, setService] = useState<Service | null>(null);
+  const [address, setAddress] = useState<UserAddress | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const resolvedParams = use(params);
@@ -60,6 +63,15 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
           if (matchingService) {
             setService(matchingService);
           }
+        }
+
+        // Load address information
+        try {
+          const addressData = await addressAPI.getAddress(response.data.addressId);
+          setAddress(addressData);
+        } catch (addressError) {
+          console.error("Error loading address:", addressError);
+          // Don't show error toast for address, just log it
         }
       } else {
         toast.error(response.message || "Không thể tải thông tin yêu cầu");
@@ -258,7 +270,15 @@ export default function RequestDetailPage({ params }: RequestDetailPageProps) {
             </div>
             <div>
               <p>
-                <strong>Địa chỉ ID:</strong> {request.addressId}
+                <strong>Địa chỉ:</strong>{" "}
+                {address ? (
+                  <>
+                    <MapPin className="w-4 h-4 inline mr-1 text-gray-500" />
+                    {address.fullAddress}
+                  </>
+                ) : (
+                  `ID: ${request.addressId}`
+                )}
               </p>
               <p>
                 <strong>Ngày tạo:</strong>{" "}
