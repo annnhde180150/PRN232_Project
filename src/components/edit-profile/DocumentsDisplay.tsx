@@ -30,26 +30,30 @@ export const DocumentsDisplay: React.FC<DocumentsDisplayProps> = ({ documents })
   }
 
   const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'approved':
+    switch (status) {
+      case 'Approved':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case 'rejected':
+      case 'Rejected':
         return <XCircle className="w-4 h-4 text-red-500" />;
-      case 'pending':
+      case 'Pending':
         return <Clock className="w-4 h-4 text-yellow-500" />;
+      case 'Under Review':
+        return <AlertCircle className="w-4 h-4 text-blue-500" />;
       default:
         return <AlertCircle className="w-4 h-4 text-gray-500" />;
     }
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'verified':
+    switch (status) {
+      case 'Approved':
         return <Badge className="bg-green-100 text-green-800">Đã xác thực</Badge>;
-      case 'rejected':
+      case 'Rejected':
         return <Badge className="bg-red-100 text-red-800">Bị từ chối</Badge>;
-      case 'pending':
+      case 'Pending':
         return <Badge className="bg-yellow-100 text-yellow-800">Đang chờ</Badge>;
+      case 'Under Review':
+        return <Badge className="bg-blue-100 text-blue-800">Đang xem xét</Badge>;
       default:
         return <Badge variant="outline">Không xác định</Badge>;
     }
